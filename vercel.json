@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "outputDirectory": "public",
+  "redirects": [
+    { "source": "/", "destination": "/LogIn/", "permanent": false }
+  ]
+}
