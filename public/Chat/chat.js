@@ -15,6 +15,7 @@ import {
   addMessageToConversationHistory,
   refreshCachedConversations,
   renderMessage,
+  extractPDFText,
   replaceWeirdChars,
   extractBodyContent,
   toggleElement,
@@ -49,12 +50,11 @@ const textarea = document.getElementById("userInputArea");
 
 //Conversaciones
 
-async function startNewConversation() {
+async function startNewConversation(newTitle) {
+  title = newTitle || "Nueva conversación";
   responseDiv.innerHTML = "";
   conversationHistory.length = 0;
-  activeConversationId = null;
-  title = "Nueva conversación";
-  const newConv = await createConversation("Nueva conversación");
+  const newConv = await createConversation(title || "Nueva conversación");
 
   if (newConv) {
     activeConversationId = newConv.id;
@@ -93,10 +93,6 @@ function addConversationToSidebar(conv) {
     <div class="conv-menu-item delete">Eliminar</div>
   `;
 
-  div.appendChild(icon);
-  div.appendChild(text);
-  div.appendChild(menuButton);
-
   menuButton.addEventListener("click", (e) => {
     e.stopPropagation();
 
@@ -132,6 +128,7 @@ function addConversationToSidebar(conv) {
     if (activeConversationId === conv.id) {
       title = newTitle.trim();
     }
+
     await loadSidebarConversations();
   });
 
@@ -149,15 +146,22 @@ function addConversationToSidebar(conv) {
     cachedConversations = cachedConversations.filter(
       (conversation) => conversation.id !== conv.id
     );
-    await loadSidebarConversations();
 
     if (activeConversationId === conv.id) {
       responseDiv.innerHTML = "";
       activeConversationId = null;
     }
+
+    await loadSidebarConversations();
   });
 
   div.addEventListener("click", () => loadConversation(conv.id));
+
+  console.log(conv);
+
+  div.appendChild(icon);
+  div.appendChild(text);
+  div.appendChild(menuButton);
 
   list.appendChild(div);
 }
@@ -186,6 +190,9 @@ async function loadConversation(conversationId) {
     const titleDiv = document.getElementById("conversationTitle");
     if (titleDiv) titleDiv.textContent = convData.title;
   }
+  console.log(activeConversationId);
+  activeConversationId = conversationId;
+  console.log(activeConversationId);
 
   const messages = await getConversationMessages(conversationId);
   conversationHistory.length = 0;
@@ -201,8 +208,7 @@ async function loadConversation(conversationId) {
     addMessageToConversationHistory(rendered, conversationHistory);
     console.log(conversationHistory);
 
-    if (msg.creative_agent === "system") return;
-    responseDiv.appendChild(rendered);
+    if (msg.creative_agent !== "system") responseDiv.appendChild(rendered);
   });
 
   responseDiv.scrollTop = responseDiv.scrollHeight;
@@ -211,21 +217,14 @@ async function loadConversation(conversationId) {
 //Mensajes
 
 export async function userSendMessage() {
-  if (!textarea || !responseDiv) return null;
+  if (!textarea || !responseDiv) return;
 
   const text = textarea.value.trim();
-  if (!text) return null;
+  if (!text) return;
 
   if (!activeConversationId) {
     title = text.length > 40 ? text.slice(0, 40) + "..." : text;
-    const newConv = await createConversation(title);
-
-    if (newConv) {
-      activeConversationId = newConv.id;
-      cachedConversations.push(newConv);
-      cachedConversations[cachedConversations.length - 1]._messages = [];
-      await loadSidebarConversations();
-    }
+    await startNewConversation(title);
   }
 
   if (title === "Nueva conversación") {
@@ -329,8 +328,6 @@ export async function onFileLoaded(e, fileInput) {
 
       responseDiv.appendChild(replyDiv);
 
-      await saveMessage(activeConversationId, { text: replyDiv.textContent });
-
       conversationHistory.push({
         role: "user",
         content: `${file.name}: ${PDFcontent}`,
@@ -339,17 +336,16 @@ export async function onFileLoaded(e, fileInput) {
       if (!activeConversationId) {
         title =
           file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
-        const newConv = await createConversation(title);
-
-        if (newConv) {
-          activeConversationId = newConv.id;
-          await loadSidebarConversations();
-        }
+        await startNewConversation(title);
       }
 
       await saveMessage(activeConversationId, {
-        text: `${file.name}: ${PDFcontent.txt}`,
-        creativeAgent: `system`,
+        text: replyDiv.textContent.trim(),
+      });
+
+      await saveMessage(activeConversationId, {
+        text: `${file.name}: ${PDFcontent}`,
+        creativeAgent: "system",
       });
     } catch (error) {
       console.error("Error al procesar el PDF:", error);
@@ -358,21 +354,6 @@ export async function onFileLoaded(e, fileInput) {
 
     fileInput.value = "";
   }
-}
-
-async function extractPDFText(file) {
-  const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-
-  let fullText = "";
-
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const textContent = await page.getTextContent();
-    const pageText = textContent.items.map((item) => item.str).join(" ");
-    fullText += pageText + "\n\n";
-  }
-  return fullText.trim();
 }
 
 //x3 x6 x12
@@ -755,9 +736,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const fileInput = document.getElementById("fileInput");
   const modeSelector = document.getElementById("selector");
   const titleText = document.getElementById("title");
-  const multiplier3 = document.getElementById("multiplier3");
-  const multiplier6 = document.getElementById("multiplier6");
-  const multiplier12 = document.getElementById("multiplier12");
+  //const multiplier3 = document.getElementById("multiplier3");
+  //const multiplier6 = document.getElementById("multiplier6");
+  //const multiplier12 = document.getElementById("multiplier12");
 
   if (
     !searchBtn ||
@@ -792,7 +773,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   //multiplier6.addEventListener("click", () => runProfilesChain(6, multiplier6));
 
   //multiplier12.addEventListener("click", () =>
-    //runProfilesChain(12, multiplier12)
+  //runProfilesChain(12, multiplier12)
   //);
 
   searchBtn.addEventListener("click", () => {
@@ -912,5 +893,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-   cachedConversations = await refreshCachedConversations();
+  cachedConversations = await refreshCachedConversations();
 });
