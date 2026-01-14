@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
     await sb.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: "http://ultr.solutions/LogIn/",
+        redirectTo: "http://ultr-solutions.vercel.app/LogIn/",
       },
     });
   });
