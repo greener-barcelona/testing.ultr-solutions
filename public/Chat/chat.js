@@ -20,7 +20,7 @@ import {
   extractBodyContent,
   toggleElement,
   autoResizeTextarea,
-} from "../Common/LetsThink.js";
+} from "../Common/shared.js";
 import {
   dialogoPerfiles,
   dialogosInstrucciones,
@@ -157,8 +157,6 @@ function addConversationToSidebar(conv) {
 
   div.addEventListener("click", () => loadConversation(conv.id));
 
-  console.log(conv);
-
   div.appendChild(icon);
   div.appendChild(text);
   div.appendChild(menuButton);
@@ -190,25 +188,25 @@ async function loadConversation(conversationId) {
     const titleDiv = document.getElementById("conversationTitle");
     if (titleDiv) titleDiv.textContent = convData.title;
   }
-  console.log(activeConversationId);
-  activeConversationId = conversationId;
-  console.log(activeConversationId);
 
   const messages = await getConversationMessages(conversationId);
+  activeConversationId = conversationId;
   conversationHistory.length = 0;
   responseDiv.innerHTML = "";
 
   messages.forEach((msg) => {
-    const rendered = renderMessage({
-      author: msg.creative_agent || msg.author_name.split(" ")[0] || "Usuario",
-      text: msg.text,
-      userProfile: msg.author_avatar,
-    });
+    if (msg.creative_agent !== "system") {
+      const rendered = renderMessage({
+        author:
+          msg.creative_agent || msg.author_name.split(" ")[0] || "Usuario",
+        text: msg.text,
+        userProfile: msg.author_avatar,
+      });
 
-    addMessageToConversationHistory(rendered, conversationHistory);
-    console.log(conversationHistory);
+      addMessageToConversationHistory(rendered, conversationHistory);
 
-    if (msg.creative_agent !== "system") responseDiv.appendChild(rendered);
+      responseDiv.appendChild(rendered);
+    } else conversationHistory.push({ role: "user", content: msg.text });
   });
 
   responseDiv.scrollTop = responseDiv.scrollHeight;
@@ -248,7 +246,6 @@ export async function userSendMessage() {
   responseDiv.scrollTop = responseDiv.scrollHeight;
 
   addMessageToConversationHistory(uiMessage, conversationHistory);
-  console.log(conversationHistory);
 
   textarea.value = "";
   cachedConversations = cachedConversations.map((conversation) =>
@@ -268,6 +265,11 @@ async function summarizeConversationButton(button) {
   toggleElement(button);
   await userSendMessage();
 
+  if (!activeConversationId || conversationHistory.length <= 0) {
+    toggleElement(button);
+    return alert("Primero inicia una conversación antes de resumir.");
+  }
+
   const conversationIdAtStart = activeConversationId;
   const convTitleAtStart = title || "esta conversación";
 
@@ -283,6 +285,11 @@ async function summarizeConversationButton(button) {
 async function sendMessageToProfileButton(perfilKey, API, triggerBtn) {
   toggleElement(triggerBtn);
   await userSendMessage();
+
+  if (!activeConversationId || conversationHistory.length <= 0) {
+    toggleElement(triggerBtn);
+    return alert("Primero inicia una conversación antes de resumir.");
+  }
 
   const conversationIdAtStart = activeConversationId;
 
@@ -314,6 +321,7 @@ export async function onFileLoaded(e, fileInput) {
         errorDiv.className = `message error text-content`;
         errorDiv.textContent = `el PDF ${file.name} no tiene texto extraíble.`;
         responseDiv.appendChild(errorDiv);
+        responseDiv.scrollTop = responseDiv.scrollHeight;
         continue;
       }
 
@@ -324,9 +332,9 @@ export async function onFileLoaded(e, fileInput) {
       });
 
       addMessageToConversationHistory(replyDiv, conversationHistory);
-      console.log(conversationHistory);
 
       responseDiv.appendChild(replyDiv);
+      responseDiv.scrollTop = responseDiv.scrollHeight;
 
       conversationHistory.push({
         role: "user",
@@ -380,6 +388,11 @@ function getRandomProfileButtons(count) {
 async function runProfilesChain(count, multiplierBtn) {
   toggleElement(multiplierBtn);
   await userSendMessage();
+
+  if (!activeConversationId || conversationHistory.length <= 0) {
+    toggleElement(multiplierBtn);
+    return alert("Primero inicia una conversación antes de resumir.");
+  }
 
   if (!textarea) return;
 
@@ -520,7 +533,6 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
         text: cleanhtml,
       });
       addMessageToConversationHistory(replyDiv, conversationHistory);
-      console.log(conversationHistory);
 
       responseDiv.appendChild(replyDiv);
       responseDiv.scrollTop = responseDiv.scrollHeight;
@@ -537,6 +549,12 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
 
 async function exportConversation(button, summarize) {
   toggleElement(button);
+  await userSendMessage();
+
+  if (!activeConversationId || conversationHistory.length <= 0) {
+    toggleElement(button);
+    return alert("Primero inicia una conversación antes de resumir.");
+  }
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
   pending.textContent = "Exportando...";
@@ -625,7 +643,6 @@ async function summarizeConversation(conversationId, convTitle, history) {
           text: `<strong>Resumen de la ronda ${convTitle}:</strong><br>${cleanhtml}`,
         });
         addMessageToConversationHistory(replyDiv, conversationHistory);
-        console.log(conversationHistory);
 
         responseDiv.appendChild(replyDiv);
         responseDiv.scrollTop = responseDiv.scrollHeight;
@@ -803,7 +820,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const query = searchInput.value.toLowerCase().trim();
     searchResults.innerHTML = "";
     if (!query || !cachedConversations) return;
-    console.log("Cached conversations loaded:", cachedConversations);
 
     cachedConversations.forEach((conv) => {
       const titleMatch = conv.title.toLowerCase().includes(query);
@@ -830,7 +846,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       setTimeout(() => {
         textarea.style.height = "auto";
       }, 0);
-      await userSendMessage();
+      if (textarea.value.trim()) await userSendMessage();
+      else return alert("Escribe un mensaje antes de enviar.");
     }
   });
 
@@ -878,7 +895,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const value = e.target.value;
     applyMode(value);
     titleText.text = value;
-    document.title = mode;
+    document.title = modeValue;
   });
   document.addEventListener("click", (e) => {
     if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target)) {
