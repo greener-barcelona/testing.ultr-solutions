@@ -650,7 +650,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   newChatBtn.addEventListener("click", startNewConversation);
 
-  logoutBtn.addEventListener("click", logout(MODE_KEY));
+ logoutBtn.addEventListener("click", () => logout(MODE_KEY));
 
   settingsBtn.addEventListener("click", (e) => {
     e.stopPropagation();
