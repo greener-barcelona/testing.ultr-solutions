@@ -15,6 +15,7 @@ import {
   refreshCachedConversations,
   renderMessage,
   extractPDFText,
+  imageToBase64,
   replaceWeirdChars,
   extractBodyContent,
   toggleElement,
