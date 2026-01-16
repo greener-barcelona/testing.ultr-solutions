@@ -15,7 +15,6 @@ import {
   refreshCachedConversations,
   renderMessage,
   extractPDFText,
-  imageToBase64,
   replaceWeirdChars,
   extractBodyContent,
   toggleElement,
@@ -52,7 +51,10 @@ async function startNewConversation(newTitle) {
   responseDiv.innerHTML = "";
   conversationHistory.length = 0;
   const savedMode = localStorage.getItem("mode") || "Brainstorming";
-  const newConv = await createConversation(title || "Nueva conversación", savedMode);
+  const newConv = await createConversation(
+    title || "Nueva conversación",
+    savedMode
+  );
 
   if (newConv) {
     activeConversationId = newConv.id;
@@ -299,7 +301,7 @@ async function sendMessageToProfileButton(perfilKey, API, triggerBtn) {
 
 //Archivos
 
-/*async function onFileLoaded(e, fileInput) {
+async function onFileLoaded(e, fileInput) {
   const files = Array.from(e.target.files);
   for (const file of files) {
     if (!file) continue;
@@ -324,6 +326,22 @@ async function sendMessageToProfileButton(perfilKey, API, triggerBtn) {
         continue;
       }
 
+      if (!activeConversationId) {
+        title =
+          file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
+        await startNewConversation(title);
+      }
+      if (title === "Nueva conversación") {
+        title = file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
+        await renameConversation(activeConversationId, title);
+        cachedConversations = cachedConversations.map((conversation) =>
+          conversation.id === activeConversationId
+            ? { ...conversation, title: title }
+            : conversation
+        );
+        await loadSidebarConversations();
+      }
+
       const replyDiv = renderMessage({
         author: user.name.split(" ")[0] || "Usuario",
         text: `${file.name} cargado correctamente.`,
@@ -340,93 +358,12 @@ async function sendMessageToProfileButton(perfilKey, API, triggerBtn) {
         content: PDFcontent,
       });
 
-      if (!activeConversationId) {
-        title =
-          file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
-        await startNewConversation(title);
-      }
-
       await saveMessage(activeConversationId, {
         text: replyDiv.textContent.trim(),
       });
 
       await saveMessage(activeConversationId, {
         text: PDFcontent,
-        creativeAgent: "system",
-      });
-    } catch (error) {
-      console.error("Error al procesar el PDF:", error);
-      alert(`Error al procesar el archivo ${file.name}`);
-    }
-
-    fileInput.value = "";
-  }
-}*/
-
-async function onFileLoaded(e, fileInput) {
-  const files = Array.from(e.target.files);
-  for (const file of files) {
-    if (!file) continue;
-
-    if (
-      file.type !== "application/pdf" &&
-      file.type !== "image/jpeg" &&
-      file.type !== "image/png" &&
-      file.type !== "image/jpg"
-    )
-      continue;
-
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      alert("El archivo es demasiado grande. Máximo 5MB");
-      continue;
-    }
-
-    try {
-      let fileContent;
-      if (file.type === "application/pdf") {
-        fileContent = await extractPDFText(file);
-      } else {
-        fileContent = await imageToBase64(file);
-      }
-
-      if (!fileContent) {
-        const errorDiv = document.createElement("div");
-        errorDiv.className = `message error text-content`;
-        errorDiv.textContent = `el PDF ${file.name} no tiene contenido.`;
-        responseDiv.appendChild(errorDiv);
-        responseDiv.scrollTop = responseDiv.scrollHeight;
-        continue;
-      }
-
-      if (!activeConversationId) {
-        title =
-          file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
-        await startNewConversation(title);
-      }
-
-      const replyDiv = renderMessage({
-        author: user.name.split(" ")[0] || "Usuario",
-        text: `${file.name} cargado correctamente.`,
-        userProfile: user.profilePicture,
-      });
-
-      addMessageToConversationHistory(replyDiv, conversationHistory);
-
-      responseDiv.appendChild(replyDiv);
-      responseDiv.scrollTop = responseDiv.scrollHeight;
-
-      conversationHistory.push({
-        role: "user",
-        content: fileContent,
-      });
-
-      await saveMessage(activeConversationId, {
-        text: replyDiv.textContent.trim(),
-      });
-
-      await saveMessage(activeConversationId, {
-        text: fileContent,
         creativeAgent: "system",
       });
     } catch (error) {
@@ -746,7 +683,6 @@ async function summarizeConversation(conversationId, convTitle, history) {
 //Auxiliares
 
 function applyMode(mode) {
-  
   localStorage.setItem(MODE_KEY, mode);
   modeValue = mode;
 
@@ -765,10 +701,12 @@ function applyMode(mode) {
 function initModeSelector(selector) {
   const saved = localStorage.getItem(MODE_KEY);
   const valid = ["Brainstorming", "Naming", "Socialstorming", "Briefer"];
-  const initial = valid.includes(saved) ? saved : (selector.value || "Brainstorming");
+  const initial = valid.includes(saved)
+    ? saved
+    : selector.value || "Brainstorming";
 
   selector.value = initial;
-  modeValue = initial; 
+  modeValue = initial;
 }
 
 function getPerfilContent(perfilKey) {

@@ -1,30 +1,29 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title id="title">Briefer</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="title">Briefer</title>
 
-  <link rel="stylesheet" href="briefer.css" />
-  <link rel="icon" href="../Images/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="briefer.css" />
+    <link rel="icon" href="../Images/favicon.png" type="image/png" />
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.41.1/dist/umd/supabase.js"></script>
-</head>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.41.1/dist/umd/supabase.js"></script>
+  </head>
 
-<body>
+  <body>
+    <!-- ================= SIDEBAR ================= -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="../Images/ultr_logo.png" alt="Logo" />
+        </div>
 
-  <!-- ================= SIDEBAR ================= -->
-  <div class="sidebar">
-
-    <div class="sidebar-header">
-      <div class="sidebar-logo">
-        <img src="../Images/ultr_logo.png" alt="Logo" />
-      </div>
-
-      <div style="position: relative;">
-        <button class="settings-button" id="settingsBtn">
-          <svg class="settings-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94
+        <div style="position: relative">
+          <button class="settings-button" id="settingsBtn">
+            <svg class="settings-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94
             c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58
             c0.18-0.14,0.23-0.41,0.12-0.61l-1.92-3.32
             c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96
@@ -43,65 +42,126 @@
             l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94
             l2.39,0.96c0.22,0.08,0.47,0,0.59-0.22
             l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61
-            L19.14,12.94z" />
-          </svg>
-        </button>
+            L19.14,12.94z"
+              />
+            </svg>
+          </button>
 
-        <div class="settings-menu" id="settingsMenu">
-          <div class="settings-menu-item" id="logoutBtn">Cerrar sesión</div>
+          <div class="settings-menu" id="settingsMenu">
+            <div class="settings-menu-item" id="logoutBtn">Cerrar sesión</div>
+          </div>
         </div>
       </div>
+
+      <div class="sidebar-actions">
+        <button class="action-button" id="newChatBtn">Nuevo chat</button>
+        <button class="action-button" id="searchChatBtn">Buscar chats</button>
+      </div>
+
+      <div class="conversations" id="conversationsList"></div>
     </div>
 
-    <div class="sidebar-actions">
-      <button class="action-button" id="newChatBtn">Nuevo chat</button>
-      <button class="action-button" id="searchChatBtn">Buscar chats</button>
-    </div>
-
-    <div class="conversations" id="conversationsList"></div>
-  </div>
-
-  <!-- ================= MAIN ================= -->
-  <div class="main-content">
-
-    <div class="header">
-      <select class="model-selector" id="modeSelector">
+    <!-- ================= MAIN ================= -->
+    <div class="main-content">
+      <div class="header">
+        <select class="model-selector" id="modeSelector">
           <option>Brainstorming</option>
-          <!-- <option>Naming</option> 
-          <option>Socialstorming</option>-->
-          <option>Briefer</option> 
-      </select>
-    </div>
+          <!-- <option>Naming</option> -->
+          <option>Socialstorming</option>
+          <option>Briefer</option>
+        </select>
+      </div>
 
-    <div class="chat-area" id="messages"></div>
-
-    <div class="input-area">
-      <div class="input-wrapper">
-        <div class="input-container">
-          <button class="upload-btn">+</button>
-          <textarea
-            id="userInputArea"
-            class="chat-input"
-            placeholder="Agrega tu comentario..."
-          ></textarea>
+      <div class="chat-area" id="messages"></div>
+      <div class="chat-actions" id="chatActions" hidden>
+        <div class="chat-actions-right">
+          <button
+            class="chat-action-btn"
+            id="summaryBtn"
+            title="Resumir conversación"
+          >
+            <svg
+              class="summary-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+              />
+            </svg>
+          </button>
+          <button
+            class="chat-action-btn"
+            id="exportBtn"
+            title="Exportar conversación"
+          >
+            <svg
+              class="export-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"
+              />
+            </svg>
+          </button>
+          <button
+            class="chat-action-btn"
+            id="summaryPdfBtn"
+            title="Resumir y exportar conversación"
+          >
+            <svg
+              class="summary-pdf-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+              <path d="M14 2v6h6M12 18v-6M9 15l3 3 3-3" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="input-area">
+        <div class="input-wrapper">
+          <div class="input-container">
+            <button class="upload-btn" type="button">
+              +
+              <input
+                type="file"
+                id="fileInput"
+                multiple
+                accept="image/*,application/pdf"
+              />
+            </button>
+            <textarea
+              id="userInputArea"
+              class="chat-input"
+              placeholder="Agrega tu comentario..."
+            ></textarea>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- ================= SEARCH MODAL ================= -->
-  <div class="search-modal" id="searchModal">
-    <div class="search-box">
-      <button class="search-close-btn" id="closeSearchBtn">×</button>
-      <input
-        type="text"
-        id="searchInput"
-        placeholder="Buscar conversaciones..."
-      />
-      <div class="search-results" id="searchResults"></div>
+    <!-- ================= SEARCH MODAL ================= -->
+    <div class="search-modal" id="searchModal">
+      <div class="search-box">
+        <button class="search-close-btn" id="closeSearchBtn">×</button>
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Buscar conversaciones..."
+        />
+        <div class="search-results" id="searchResults"></div>
+      </div>
     </div>
-  </div>
 
-  <script type="module" src="./briefer.js"></script>
-</body>
+    <script type="module" src="./briefer.js"></script>
+  </body>
 </html>
