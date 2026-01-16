@@ -163,14 +163,16 @@ export async function imageToBase64(file) {
 
     reader.onload = () => {
       const imgBase64 = reader.result.split(",")[1];
-      resolve({
-        type: "image",
-        source: {
-          type: "base64",
-          media_type: "image/jpeg",
-          data: imgBase64,
+      resolve([
+        {
+          type: "image",
+          source: {
+            type: "base64",
+            media_type: "image/jpeg",
+            data: imgBase64,
+          },
         },
-      });
+      ]);
     };
 
     reader.onerror = (error) => {
@@ -180,42 +182,6 @@ export async function imageToBase64(file) {
     reader.readAsDataURL(compressedImage);
   });
 }
-
-/* 
-Ejemplos de uso de mensajes con imagenes y PDFs: (para el briefer)
-[
-  {
-    role: "user",
-    content: [
-      {
-        type: "image",
-        source: {
-          type: "base64",
-          media_type: "image/jpeg",
-          data: imageBase64
-        }
-      }
-    ]
-  },
-  {
-    role: "user",
-    content: [
-      {
-        type: "document",
-        source: {
-          type: "base64",
-          media_type: "application/pdf",
-          data: pdfBase64
-        }
-      }
-    ]
-  },
-  {
-    role: "user",
-    content: "Analiza estos documentos"  
-  } 
-] 
-*/
 
 //Auxiliares
 

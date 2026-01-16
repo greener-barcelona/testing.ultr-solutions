@@ -393,7 +393,7 @@ async function onFileLoaded(e, fileInput) {
       if (!fileContent) {
         const errorDiv = document.createElement("div");
         errorDiv.className = `message error text-content`;
-        errorDiv.textContent = `el PDF ${file.name} no tiene texto extraíble.`;
+        errorDiv.textContent = `el PDF ${file.name} no tiene contenido.`;
         responseDiv.appendChild(errorDiv);
         responseDiv.scrollTop = responseDiv.scrollHeight;
         continue;
