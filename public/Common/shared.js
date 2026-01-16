@@ -121,7 +121,7 @@ export async function extractPDFText(file) {
 }
 
 export async function fileToBase64WithType(file) {
-  const PDFText = "";
+  let PDFText = "";
   if(file && file.type === "application/pdf") PDFText = await extractPDFText(file);
 
   return new Promise((resolve, reject) => {
