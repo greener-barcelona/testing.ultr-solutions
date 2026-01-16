@@ -25,7 +25,7 @@ import { brieferPerfil } from "../Common/perfiles.js";
 let cachedConversations = [];
 
 const MODE_KEY = "mode";
-let modeValue = "Brainstorming";
+let modeValue = "Briefer";
 let activeConversationId = null;
 let title = "";
 
@@ -252,28 +252,7 @@ async function userSendMessage() {
 
 //Botones
 
-async function summarizeConversationButton(button) {
-  toggleElement(button);
-  await userSendMessage();
-
-  if (!activeConversationId || conversationHistory.length <= 0) {
-    toggleElement(button);
-    return alert("Primero inicia una conversación antes de resumir.");
-  }
-
-  const conversationIdAtStart = activeConversationId;
-  const convTitleAtStart = title || "esta conversación";
-
-  await summarizeConversation(
-    conversationIdAtStart,
-    convTitleAtStart,
-    conversationHistory
-  );
-
-  toggleElement(button);
-}
-
-async function sendMessageToBrieferButton(perfilKey, API, triggerBtn) {
+async function sendMessageToBrieferButton(triggerBtn) {
   toggleElement(triggerBtn);
   await userSendMessage();
 
@@ -284,7 +263,7 @@ async function sendMessageToBrieferButton(perfilKey, API, triggerBtn) {
 
   const conversationIdAtStart = activeConversationId;
 
-  await sendMessageToBriefer(perfilKey, API, conversationIdAtStart);
+  await sendMessageToBriefer(conversationIdAtStart);
 
   toggleElement(triggerBtn);
 }
@@ -380,12 +359,12 @@ async function onFileLoaded(e, fileInput) {
 
 //Endpoints
 
-async function sendMessageToBriefer(perfilKey, API, conversationId) {
+async function sendMessageToBriefer(conversationId) {
   const perfil = brieferPerfil.content;
 
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
-  pending.textContent = `Enviando (${perfilKey})...`;
+  pending.textContent = `Briefeando...`;
 
   if (activeConversationId === conversationId) {
     responseDiv.appendChild(pending);
@@ -416,7 +395,7 @@ async function sendMessageToBriefer(perfilKey, API, conversationId) {
 
     await saveMessage(conversationId, {
       text: cleanhtml,
-      creativeAgent: `${perfilKey}-${API}`,
+      creativeAgent: "briefer-claude",
     });
 
     pending.remove();
@@ -429,7 +408,7 @@ async function sendMessageToBriefer(perfilKey, API, conversationId) {
 
     if (activeConversationId === conversationId) {
       const replyDiv = renderMessage({
-        author: `${perfilKey}-${API}`,
+        author: "briefer-claude",
         text: cleanhtml,
       });
       addMessageToConversationHistory(replyDiv, conversationHistory);
@@ -498,77 +477,6 @@ async function exportConversation(button, summarize) {
   }
 }
 
-async function summarizeConversation(conversationId, convTitle, history) {
-  const pending = document.createElement("div");
-  pending.className = "message pending text-content";
-  pending.textContent = "Resumiendo...";
-  if (activeConversationId === conversationId) {
-    responseDiv.appendChild(pending);
-    responseDiv.scrollTop = responseDiv.scrollHeight;
-  }
-  try {
-    const res = await fetch(`/api/resumir`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        conversation: history,
-      }),
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.error || "Error al enviar.");
-    }
-
-    const data = await res.json();
-
-    pending.remove();
-
-    if (data.reply && data.reply.trim() !== "") {
-      const text = replaceWeirdChars(data.reply);
-      const cleanhtml = extractBodyContent(text);
-
-      cachedConversations = cachedConversations.map((conversation) =>
-        conversation.id === conversationId
-          ? {
-              ...conversation,
-              _messages: [...conversation._messages, cleanhtml],
-            }
-          : conversation
-      );
-
-      if (activeConversationId === conversationId) {
-        const replyDiv = renderMessage({
-          author: "summary-openai",
-          text: `<strong>Resumen de la ronda ${convTitle}:</strong><br>${cleanhtml}`,
-        });
-        addMessageToConversationHistory(replyDiv, conversationHistory);
-
-        responseDiv.appendChild(replyDiv);
-        responseDiv.scrollTop = responseDiv.scrollHeight;
-      }
-
-      await saveMessage(conversationId, {
-        text: cleanhtml,
-        creativeAgent: `summary-openai`,
-      });
-    } else {
-      if (activeConversationId === conversationId) {
-        pending.textContent = "La IA no generó respuesta";
-        pending.classList.remove("pending");
-        pending.classList.add("error");
-      }
-    }
-  } catch (error) {
-    console.error("Error completo:", error);
-    if (activeConversationId === conversationId) {
-      pending.textContent = `Error: ${error.message}`;
-      pending.classList.remove("pending");
-      pending.classList.add("error");
-    }
-  }
-}
-
 //Modal
 
 function openSearchModal() {
@@ -599,12 +507,10 @@ function applyMode(mode) {
   conversationHistory.length = 0;
   responseDiv.innerHTML = "";
 
-  if (mode === "Briefer") {
-    window.location.href = "../Briefer/";
+  if (mode === "Brainstorming" || mode === "Naming" || mode === "Socialstorming") {
+    window.location.href = "../Chat/";
     return;
   }
-
-  window.location.href = "../Chat/";
 }
 
 function initModeSelector(selector) {
@@ -643,11 +549,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const logoutBtn = document.getElementById("logoutBtn");
   const newChatBtn = document.getElementById("newChatBtn");
   const exportBtn = document.getElementById("exportBtn");
-  const summaryPdfBtn = document.getElementById("summaryPdfBtn");
-  const summaryBtn = document.getElementById("summaryBtn");
   const fileInput = document.getElementById("fileInput");
   const modeSelector = document.getElementById("selector");
   const titleText = document.getElementById("title");
+  const briefButton = document.getElementById("briefButton");
 
   if (
     !searchBtn ||
@@ -661,13 +566,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     !newChatBtn ||
     !textarea ||
     !exportBtn ||
-    !summaryPdfBtn ||
-    !summaryBtn ||
     !fileInput ||
     !modeSelector ||
     !textarea ||
     !responseDiv ||
-    !titleText
+    !titleText ||
+    !briefButton
   ) {
     console.warn("Buscador no inicializado (elementos faltantes)");
     return;
@@ -675,27 +579,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   initModeSelector(modeSelector);
 
-  // Si venimos a Briefer pero el modo guardado no es Briefer, vuelve a Chat
-  const saved = localStorage.getItem(MODE_KEY);
-  if (saved && saved !== "Briefer") {
-    window.location.href = "../Chat/";
-    return;
-  }
-
-  // fija selector a Briefer (sin pisar a otro)
-  if (modeSelector) modeSelector.value = "Briefer";
-
-  // Cambiar modo desde Briefer -> vuelve a Chat y guarda modo
-  if (modeSelector) {
-    modeSelector.addEventListener("change", (e) => {
-      const value = e.target.value;
-      localStorage.setItem(MODE_KEY, value);
-
-      if (value !== "Briefer") {
-        window.location.href = "../Chat/";
-      }
-    });
-  }
+  modeSelector.addEventListener("change", (e) => {
+    const value = e.target.value;
+    applyMode(value);
+    titleText.text = value;
+    document.title = modeValue;
+  });
 
   searchBtn.addEventListener("click", openSearchModal);
   closeSearchBtn.addEventListener("click", closeSearchModal);
@@ -708,15 +597,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     exportConversation(exportBtn, false);
   });
 
-  summaryPdfBtn.addEventListener("click", () => {
-    exportConversation(summaryPdfBtn, true);
-  });
-
-  summaryBtn.addEventListener("click", () => {
-    summarizeConversationButton(summaryBtn);
-  });
-
   fileInput.addEventListener("change", async (e) => onFileLoaded(e, fileInput));
+
+  briefButton.addEventListener("click", () => {
+    sendMessageToBrieferButton(briefButton);
+  });
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeSearchModal();

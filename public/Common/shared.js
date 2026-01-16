@@ -16,6 +16,7 @@ export const user = getLocalSession();
 
 export function logout(MODE_KEY) {
   localStorage.removeItem(MODE_KEY);
+  localStorage.removeItem("ultraUser");
   sb.auth.signOut();
   window.location.href = "../LogIn/";
 }

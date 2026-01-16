@@ -907,6 +907,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     titleText.text = value;
     document.title = modeValue;
   });
+  
   document.addEventListener("click", (e) => {
     if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target)) {
       settingsMenu.classList.remove("active");
