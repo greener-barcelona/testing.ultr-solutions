@@ -284,9 +284,17 @@ async function onFileLoaded(e, fileInput) {
     )
       continue;
 
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      alert("El archivo es demasiado grande. Máximo 5MB");
+    if (file.type === "application/pdf" && file.size > 30 * 1024 * 1024) {
+      alert("El archivo es demasiado grande. Máximo de 30MB para PDFs");
+      continue;
+    }
+    if (
+      (file.type === "image/jpeg" ||
+        file.type === "image/png" ||
+        file.type === "image/jpg") &&
+      file.size > 10 * 1024 * 1024
+    ) {
+      alert("El archivo es demasiado grande. Máximo de 10MB para imágenes");
       continue;
     }
 
@@ -506,7 +514,11 @@ function applyMode(mode) {
   conversationHistory.length = 0;
   responseDiv.innerHTML = "";
 
-  if (mode === "Brainstorming" || mode === "Naming" || mode === "Socialstorming") {
+  if (
+    mode === "Brainstorming" ||
+    mode === "Naming" ||
+    mode === "Socialstorming"
+  ) {
     window.location.href = "../Chat/";
     return;
   }
@@ -648,7 +660,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   newChatBtn.addEventListener("click", startNewConversation);
 
- logoutBtn.addEventListener("click", () => logout(MODE_KEY));
+  logoutBtn.addEventListener("click", () => logout(MODE_KEY));
 
   settingsBtn.addEventListener("click", (e) => {
     e.stopPropagation();
