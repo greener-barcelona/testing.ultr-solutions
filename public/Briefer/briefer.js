@@ -361,8 +361,6 @@ async function onFileLoaded(e, fileInput) {
 //Endpoints
 
 async function sendMessageToBriefer(conversationId) {
-  const perfil = brieferPerfil.content;
-
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
   pending.textContent = `Briefeando...`;
@@ -377,7 +375,7 @@ async function sendMessageToBriefer(conversationId) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        perfil,
+        brieferPerfil,
         messages: conversationHistory,
       }),
     });
