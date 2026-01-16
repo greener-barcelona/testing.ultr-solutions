@@ -565,14 +565,14 @@ body {
 
 .button-group {
   display: flex;
-  justify-content:center;
+  justify-content: space-between;
   flex-wrap: wrap;
   margin-bottom: 10px;
   margin-top: 10px;
 }
 
 .chat-btn {
-  width: 50%;
+  width: 10%;
   height: 37px;
   background-color: var(--primary-black);
   color: white;
