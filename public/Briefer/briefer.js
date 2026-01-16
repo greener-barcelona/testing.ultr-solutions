@@ -44,7 +44,7 @@ async function startNewConversation(newTitle) {
   const savedMode = localStorage.getItem("mode") || "Brainstorming";
   const newConv = await createConversation(
     title || "Nueva conversación",
-    savedMode
+    "Briefer"
   );
 
   if (newConv) {
