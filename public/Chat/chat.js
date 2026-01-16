@@ -15,7 +15,7 @@ import {
   refreshCachedConversations,
   renderMessage,
   extractPDFText,
-  fileToBase64WithType,
+  imageToBase64,
   replaceWeirdChars,
   extractBodyContent,
   toggleElement,
@@ -380,14 +380,13 @@ async function onFileLoaded(e, fileInput) {
       continue;
     }
 
-    if (!activeConversationId) {
-      title =
-        file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
-      await startNewConversation(title);
-    }
-
     try {
-      const fileContent = await fileToBase64WithType(file);
+      let fileContent;
+      if (file.type === "application/pdf") {
+        fileContent = await extractPDFText(file);
+      } else {
+        fileContent = await imageToBase64(file);
+      }
 
       if (!fileContent) {
         const errorDiv = document.createElement("div");
@@ -396,6 +395,12 @@ async function onFileLoaded(e, fileInput) {
         responseDiv.appendChild(errorDiv);
         responseDiv.scrollTop = responseDiv.scrollHeight;
         continue;
+      }
+
+      if (!activeConversationId) {
+        title =
+          file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
+        await startNewConversation(title);
       }
 
       const replyDiv = renderMessage({

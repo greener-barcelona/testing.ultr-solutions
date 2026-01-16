@@ -46,6 +46,7 @@ export function addMessageToConversationHistory(message, conversationHistory) {
       content: content,
     });
   }
+  console.log(conversationHistory);
 }
 
 export async function refreshCachedConversations(cachedConversations) {
@@ -120,9 +121,42 @@ export async function extractPDFText(file) {
   return fullText.trim();
 }
 
-export async function fileToBase64WithType(file) {
-  let PDFText = "";
-  if(file && file.type === "application/pdf") PDFText = await extractPDFText(file);
+async function compressImage(file, maxWidth = 800, quality = 0.7) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            resolve(new File([blob], file.name, { type: "image/jpeg" }));
+          },
+          "image/jpeg",
+          quality
+        );
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+export async function imageToBase64(file) {
+  const compressedImage = await compressImage(file);
 
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -130,11 +164,11 @@ export async function fileToBase64WithType(file) {
     reader.onload = () => {
       const imgBase64 = reader.result.split(",")[1];
       resolve({
-        type: file.type.startsWith("image/") ? "image" : "document",
+        type: "image",
         source: {
           type: "base64",
-          media_type: file.type,
-          data: file.type.startsWith("image/") ? imgBase64 : PDFText,
+          media_type: "image/jpeg",
+          data: imgBase64,
         },
       });
     };
@@ -143,7 +177,7 @@ export async function fileToBase64WithType(file) {
       reject(error);
     };
 
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(compressedImage);
   });
 }
 
@@ -180,7 +214,8 @@ Ejemplos de uso de mensajes con imagenes y PDFs: (para el briefer)
     role: "user",
     content: "Analiza estos documentos"  
   } 
-] */
+] 
+*/
 
 //Auxiliares
 
