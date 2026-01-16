@@ -665,11 +665,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     !summaryBtn ||
     !fileInput ||
     !modeSelector ||
-    //!multiplier3 ||
-    //!multiplier6 ||
-    //!multiplier12 ||
     !textarea ||
-    !responseDiv
+    !responseDiv ||
+    !titleText
   ) {
     console.warn("Buscador no inicializado (elementos faltantes)");
     return;
@@ -765,7 +763,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   newChatBtn.addEventListener("click", startNewConversation);
-  
+
   logoutBtn.addEventListener("click", logout(MODE_KEY));
 
   settingsBtn.addEventListener("click", (e) => {
