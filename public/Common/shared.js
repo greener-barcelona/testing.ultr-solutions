@@ -1,9 +1,14 @@
+import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.mjs";
+
 import {
   sb,
   getLocalSession,
   getAllConversations,
   getConversationMessages,
 } from "./db.js";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.mjs";
 
 //Sesión
 
@@ -114,6 +119,65 @@ export async function extractPDFText(file) {
   }
   return fullText.trim();
 }
+
+export async function fileToBase64WithType(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const base64 = reader.result.split(",")[1];
+      resolve({
+        type: file.type.startsWith("image/") ? "image" : "document",
+        source: {
+          type: "base64",
+          media_type: file.type,
+          data: base64,
+        },
+      });
+    };
+
+    reader.onerror = (error) => {
+      reject(error);
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+/* 
+Ejemplos de uso de mensajes con imagenes y PDFs: (para el briefer)
+[
+  {
+    role: "user",
+    content: [
+      {
+        type: "image",
+        source: {
+          type: "base64",
+          media_type: "image/jpeg",
+          data: imageBase64
+        }
+      }
+    ]
+  },
+  {
+    role: "user",
+    content: [
+      {
+        type: "document",
+        source: {
+          type: "base64",
+          media_type: "application/pdf",
+          data: pdfBase64
+        }
+      }
+    ]
+  },
+  {
+    role: "user",
+    content: "Analiza estos documentos"  
+  } 
+] */
 
 //Auxiliares
 

@@ -1,4 +1,3 @@
-import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.mjs";
 import {
   sb,
   ensureAppUser,
@@ -16,6 +15,7 @@ import {
   refreshCachedConversations,
   renderMessage,
   extractPDFText,
+  fileToBase64WithType,
   replaceWeirdChars,
   extractBodyContent,
   toggleElement,
@@ -28,9 +28,6 @@ import {
   socialInstrucciones,
   recordatorio,
 } from "../Common/perfiles.js";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.mjs";
 
 let isChainRunning = false;
 let activeToast = null;
@@ -214,7 +211,7 @@ async function loadConversation(conversationId) {
 
 //Mensajes
 
-export async function userSendMessage() {
+async function userSendMessage() {
   if (!textarea || !responseDiv) return;
 
   const text = textarea.value.trim();
@@ -300,7 +297,7 @@ async function sendMessageToProfileButton(perfilKey, API, triggerBtn) {
 
 //Archivos
 
-export async function onFileLoaded(e, fileInput) {
+/*async function onFileLoaded(e, fileInput) {
   const files = Array.from(e.target.files);
   for (const file of files) {
     if (!file) continue;
@@ -338,7 +335,7 @@ export async function onFileLoaded(e, fileInput) {
 
       conversationHistory.push({
         role: "user",
-        content: `${file.name}: ${PDFcontent}`,
+        content: PDFcontent,
       });
 
       if (!activeConversationId) {
@@ -352,7 +349,77 @@ export async function onFileLoaded(e, fileInput) {
       });
 
       await saveMessage(activeConversationId, {
-        text: `${file.name}: ${PDFcontent}`,
+        text: PDFcontent,
+        creativeAgent: "system",
+      });
+    } catch (error) {
+      console.error("Error al procesar el PDF:", error);
+      alert(`Error al procesar el archivo ${file.name}`);
+    }
+
+    fileInput.value = "";
+  }
+}*/
+
+async function onFileLoaded(e, fileInput) {
+  const files = Array.from(e.target.files);
+  for (const file of files) {
+    if (!file) continue;
+
+    if (
+      file.type !== "application/pdf" &&
+      file.type !== "image/jpeg" &&
+      file.type !== "image/png" &&
+      file.type !== "image/jpg"
+    )
+      continue;
+
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert("El archivo es demasiado grande. Máximo 5MB");
+      continue;
+    }
+
+    try {
+      const fileContent = await fileToBase64WithType(file);
+
+      if (!fileContent) {
+        const errorDiv = document.createElement("div");
+        errorDiv.className = `message error text-content`;
+        errorDiv.textContent = `el PDF ${file.name} no tiene texto extraíble.`;
+        responseDiv.appendChild(errorDiv);
+        responseDiv.scrollTop = responseDiv.scrollHeight;
+        continue;
+      }
+
+      const replyDiv = renderMessage({
+        author: user.name.split(" ")[0] || "Usuario",
+        text: `${file.name} cargado correctamente.`,
+        userProfile: user.profilePicture,
+      });
+
+      addMessageToConversationHistory(replyDiv, conversationHistory);
+
+      responseDiv.appendChild(replyDiv);
+      responseDiv.scrollTop = responseDiv.scrollHeight;
+
+      conversationHistory.push({
+        role: "user",
+        content: fileContent,
+      });
+
+      if (!activeConversationId) {
+        title =
+          file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
+        await startNewConversation(title);
+      }
+
+      await saveMessage(activeConversationId, {
+        text: replyDiv.textContent.trim(),
+      });
+
+      await saveMessage(activeConversationId, {
+        text: fileContent,
         creativeAgent: "system",
       });
     } catch (error) {
@@ -690,11 +757,6 @@ function initModeSelector(selector) {
     : selector.value || "Brainstorming";
 
   selector.value = initial;
-
-  if (initial === "Briefer") {
-    window.location.href = "../Briefer/";
-    return;
-  }
 
   applyMode(initial);
 }
