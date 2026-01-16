@@ -480,17 +480,23 @@ body {
   width: 100%;
   min-height: 24px;
   max-height: 140px;
+
   padding: 16px 24px;
   border: none;
   outline: none;
   resize: none;
+
   background: transparent;
   color: var(--text-dark);
+
   font-size: 14px;
   font-weight: 400;
   line-height: 1.5;
   font-family: inherit;
+
   overflow-y: auto;
+
+  place-content: center;
 }
 
 .chat-input::placeholder {
@@ -510,7 +516,7 @@ body {
 }
 
 .chat-btn {
-  width: 10%;
+  width: 50%;
   height: 37px;
   background-color: var(--primary-black);
   color: white;

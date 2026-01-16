@@ -645,7 +645,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         await userSendMessage();
       }
     });
-    textarea.addEventListener("input", autoResizeTextarea);
+    textarea.addEventListener("input", autoResizeTextarea(textarea));
   }
 
   newChatBtn.addEventListener("click", startNewConversation);
