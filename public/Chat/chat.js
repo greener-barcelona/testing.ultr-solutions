@@ -51,7 +51,8 @@ async function startNewConversation(newTitle) {
   title = newTitle || "Nueva conversación";
   responseDiv.innerHTML = "";
   conversationHistory.length = 0;
-  const newConv = await createConversation(title || "Nueva conversación");
+  const savedMode = localStorage.getItem("mode") || "Brainstorming";
+  const newConv = await createConversation(title || "Nueva conversación", savedMode);
 
   if (newConv) {
     activeConversationId = newConv.id;
@@ -174,9 +175,10 @@ async function loadSidebarConversations() {
 }
 
 async function loadConversation(conversationId) {
+  const mode = localStorage.getItem("mode") || "Brainstorming";
   const { data: convData, error } = await sb
     .from("conversations")
-    .select("title")
+    .select("title, mode")
     .eq("id", conversationId)
     .single();
 
@@ -744,26 +746,29 @@ async function summarizeConversation(conversationId, convTitle, history) {
 //Auxiliares
 
 function applyMode(mode) {
+  
+  localStorage.setItem(MODE_KEY, mode);
+  modeValue = mode;
+
+  activeConversationId = null;
+  title = "";
+  conversationHistory.length = 0;
+  responseDiv.innerHTML = "";
+
   if (mode === "Briefer") {
-    localStorage.setItem(MODE_KEY, "Briefer");
     window.location.href = "../Briefer/";
     return;
   }
 
-  localStorage.setItem(MODE_KEY, mode);
-  modeValue = mode;
+  window.location.href = "../Chat/";
 }
-
 function initModeSelector(selector) {
   const saved = localStorage.getItem(MODE_KEY);
   const valid = ["Brainstorming", "Naming", "Socialstorming", "Briefer"];
-  const initial = valid.includes(saved)
-    ? saved
-    : selector.value || "Brainstorming";
+  const initial = valid.includes(saved) ? saved : (selector.value || "Brainstorming");
 
   selector.value = initial;
-
-  applyMode(initial);
+  modeValue = initial; 
 }
 
 function getPerfilContent(perfilKey) {

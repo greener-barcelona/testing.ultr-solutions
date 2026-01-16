@@ -58,18 +58,18 @@ export async function ensureAppUser() {
   return data;
 }
 
-export async function createConversation(title = "Nueva conversación") {
-  const {
-    data: { user },
-  } = await sb.auth.getUser();
-
+export async function createConversation(title = "Nueva conversación", mode) {
+  const { data: { user } } = await sb.auth.getUser();
   if (!user) return null;
+
+  const safeMode = mode || localStorage.getItem("mode") || "Brainstorming";
 
   const { data, error } = await sb
     .from("conversations")
     .insert({
       title,
-      created_by: user.id,          
+      mode: safeMode,
+      created_by: user.id,
       created_by_email: user.email,
     })
     .select()
@@ -79,7 +79,6 @@ export async function createConversation(title = "Nueva conversación") {
     console.error("Error creando conversación", error);
     return null;
   }
-
   return data;
 }
 
@@ -87,10 +86,12 @@ export async function getAllConversations() {
   const appUser = await ensureAppUser();
   if (!appUser) return [];
 
+  const mode = localStorage.getItem("mode") || "Brainstorming";
   const { data, error } = await sb
     .from("conversations")
     .select("*")
     .eq("created_by", appUser.id)
+    .eq("mode", mode)
     .order("updated_at", { ascending: false });
   if (error) {
     console.error("Error cargando conversaciones", error);
