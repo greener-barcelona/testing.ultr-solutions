@@ -121,17 +121,20 @@ export async function extractPDFText(file) {
 }
 
 export async function fileToBase64WithType(file) {
+  const PDFText = "";
+  if(file && file.type === "application/pdf") PDFText = await extractPDFText(file);
+
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
     reader.onload = () => {
-      const base64 = reader.result.split(",")[1];
+      const imgBase64 = reader.result.split(",")[1];
       resolve({
         type: file.type.startsWith("image/") ? "image" : "document",
         source: {
           type: "base64",
           media_type: file.type,
-          data: base64,
+          data: file.type.startsWith("image/") ? imgBase64 : PDFText,
         },
       });
     };

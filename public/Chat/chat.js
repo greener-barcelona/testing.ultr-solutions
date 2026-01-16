@@ -380,6 +380,12 @@ async function onFileLoaded(e, fileInput) {
       continue;
     }
 
+    if (!activeConversationId) {
+      title =
+        file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
+      await startNewConversation(title);
+    }
+
     try {
       const fileContent = await fileToBase64WithType(file);
 
@@ -407,12 +413,6 @@ async function onFileLoaded(e, fileInput) {
         role: "user",
         content: fileContent,
       });
-
-      if (!activeConversationId) {
-        title =
-          file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
-        await startNewConversation(title);
-      }
 
       await saveMessage(activeConversationId, {
         text: replyDiv.textContent.trim(),
