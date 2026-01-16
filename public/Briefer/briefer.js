@@ -658,7 +658,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     textarea.addEventListener("input", autoResizeTextarea(textarea));
   }
 
-  newChatBtn.addEventListener("click", startNewConversation);
+  newChatBtn.addEventListener(
+    "click",
+    async () => await startNewConversation()
+  );
 
   logoutBtn.addEventListener("click", () => logout(MODE_KEY));
 
