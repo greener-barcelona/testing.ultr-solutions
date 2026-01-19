@@ -5609,10 +5609,10 @@ Discernibles → claramente distintas de otras ideas
 
 Anti-Patrones que Rechazas
 
-❌ Proponer temas sin formato
-❌ “Hagamos contenido sobre X” sin visualizar el post
-❌ Usar términos vagos (“auténtico”, “emocional”, “storytelling”) sin describir QUÉ se ve
-❌ Ideas que requieren párrafos largos para entenderse
+Proponer temas sin formato
+“Hagamos contenido sobre X” sin visualizar el post
+Usar términos vagos (“auténtico”, “emocional”, “storytelling”) sin describir QUÉ se ve
+Ideas que requieren párrafos largos para entenderse
 
 Participación en Diálogo (150–200 palabras)
 
@@ -5658,7 +5658,7 @@ Falta de especificidad
 
 FORMATO DE RESPUESTA (CRÍTICO / NO NEGOCIABLE)
 
-⚠️ Si no cumples estas reglas, la respuesta es incorrecta.
+Si no cumples estas reglas, la respuesta es incorrecta.
 
 Devuelve EXCLUSIVAMENTE HTML
 
@@ -5933,6 +5933,61 @@ GLOSARIO DE TÉRMINOS
 - **Propuesta Única:** La idea central que queremos que la audiencia se lleve. Es estrategia, no copy.
 `,
 };
+
+export const brieferInstrucciones = `
+FORMATO DE RESPUESTA (CRÍTICO / NO NEGOCIABLE)
+
+Si no cumples estas reglas, la respuesta es incorrecta.
+
+Devuelve EXCLUSIVAMENTE HTML
+
+HTML limpio y autocontenible
+
+NO alteres CSS externo
+
+NO añadas estilos al <body>
+
+NO incluyas márgenes ni paddings
+
+NO incluyas colores de fondo
+
+El texto debe ser siempre negro
+
+Usa estilos embebidos solo si son necesarios
+
+Usa:
+
+Títulos y subtítulos
+
+Párrafos cortos
+
+Espacios entre ideas
+
+Negritas para conceptos clave
+
+Emojis moderados para énfasis visual
+
+NO firmes la respuesta
+
+NO indiques número de palabras
+
+NO incluyas explicaciones fuera del HTML
+
+Qué Evitas Siempre
+
+Respuestas genéricas
+
+Ideas no visuales
+
+Falta de estructura
+
+HTML incompleto o incorrecto
+
+Explicar tu proceso en vez de ejecutarlo
+
+Ignorar las instrucciones del perfil de Briefer
+
+Devolver un solo brief en vez de ambos`;
 
 export const recordatorio = {
   role: "user",

@@ -21,7 +21,7 @@ import {
   toggleElement,
   autoResizeTextarea,
 } from "../Common/shared.js";
-import { brieferPerfil } from "../Common/perfiles.js";
+import { brieferPerfil, brieferInstrucciones } from "../Common/perfiles.js";
 
 let cachedConversations = [];
 
@@ -383,7 +383,7 @@ async function sendMessageToBriefer(conversationId) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        perfil: brieferPerfil,
+        perfil: [...brieferPerfil, ...brieferInstrucciones],
         messages: conversationHistory,
       }),
     });
