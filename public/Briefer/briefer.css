@@ -617,6 +617,22 @@ body {
   line-height: 1.35;
   white-space: normal;
 }
+
+.search-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #666;
+}
+
+.search-close-btn:hover {
+  color: #000;
+}
+
 /* RESPONSIVE */
 @media (max-width: 1024px) {
   :root {
