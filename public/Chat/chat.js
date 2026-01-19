@@ -1,3 +1,4 @@
+import AyahuascaTrip from "../Common/ayahuasca.js";
 import {
   sb,
   ensureAppUser,
@@ -719,6 +720,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const multiplier3 = document.getElementById("multiplier3");
   const multiplier6 = document.getElementById("multiplier6");
   const multiplier12 = document.getElementById("multiplier12");
+  const ayahuasca = document.getElementById("ayahuasca");
 
   if (
     !searchBtn ||
@@ -739,13 +741,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     !multiplier6 ||
     !multiplier12 ||
     !textarea ||
-    !responseDiv
+    !responseDiv ||
+    !ayahuasca
   ) {
     console.warn("Buscador no inicializado (elementos faltantes)");
     return;
   }
 
   initModeSelector(modeSelector);
+
+  /*ayahuasca.addEventListener("click", async () => {
+    const agent = new Agent({ id: "agent-test", modelProvider: "openai" });
+    const trip = new AyahuascaTrip(agent, {
+      intensity: "surreal",
+      tone: "explorer_dreamy",
+    });
+    await trip.withTrip({
+      brief: "Generate an abstract concept narrative",
+      taskType: "creative",
+    });
+  });*/
 
   multiplier3.addEventListener("click", () => runProfilesChain(3, multiplier3));
 
