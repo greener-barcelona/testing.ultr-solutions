@@ -417,6 +417,12 @@ body {
   transform: translateY(-1px);
 }
 
+.chat-action-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+}
+
 .multiplier-icon {
   width: 18px;
   height: 18px;
