@@ -5934,8 +5934,7 @@ GLOSARIO DE TÉRMINOS
 `,
 };
 
-export const brieferInstrucciones = `
-FORMATO DE RESPUESTA (CRÍTICO / NO NEGOCIABLE)
+export const brieferInstrucciones = `FORMATO DE RESPUESTA (CRÍTICO / NO NEGOCIABLE)
 
 Si no cumples estas reglas, la respuesta es incorrecta.
 
@@ -5987,7 +5986,8 @@ Explicar tu proceso en vez de ejecutarlo
 
 Ignorar las instrucciones del perfil de Briefer
 
-Devolver un solo brief en vez de ambos`;
+Devolver un solo brief en vez de ambos
+`;
 
 export const recordatorio = {
   role: "user",

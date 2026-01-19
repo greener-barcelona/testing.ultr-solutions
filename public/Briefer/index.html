@@ -4,21 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title id="title">Briefer</title>
-
     <link rel="stylesheet" href="briefer.css" />
     <link rel="icon" href="../Images/favicon.png" type="image/png" />
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.41.1/dist/umd/supabase.js"></script>
   </head>
-
   <body>
-    <!-- ================= SIDEBAR ================= -->
     <div class="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-logo">
           <img src="../Images/ultr_logo.png" alt="Logo" />
         </div>
-
         <div style="position: relative">
           <button class="settings-button" id="settingsBtn">
              <svg class="settings-icon" viewBox="0 0 24 24" fill="currentColor">
@@ -34,22 +29,17 @@
               />
             </svg>
           </button>
-
           <div class="settings-menu" id="settingsMenu">
             <div class="settings-menu-item" id="logoutBtn">Cerrar sesión</div>
           </div>
         </div>
       </div>
-
       <div class="sidebar-actions">
         <button class="action-button" id="newChatBtn">Nuevo chat</button>
         <button class="action-button" id="searchChatBtn">Buscar chats</button>
       </div>
-
       <div class="conversations" id="conversationsList"></div>
     </div>
-
-    <!-- ================= MAIN ================= -->
     <div class="main-content">
       <div class="header">
         <select class="model-selector" id="selector">
@@ -106,8 +96,6 @@
         </div>
       </div>
     </div>
-
-    <!-- ================= SEARCH MODAL ================= -->
     <div class="search-modal" id="searchModal">
       <div class="search-box">
         <button class="search-close-btn" id="closeSearchBtn">×</button>
@@ -119,7 +107,6 @@
         <div class="search-results" id="searchResults"></div>
       </div>
     </div>
-
     <script type="module" src="./briefer.js"></script>
   </body>
 </html>
