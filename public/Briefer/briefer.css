@@ -624,7 +624,7 @@ body {
   white-space: normal;
 }
 
-.search-close-btn {
+/*.search-close-btn {
   position: absolute;
   top: 12px;
   right: 14px;
@@ -637,7 +637,7 @@ body {
 
 .search-close-btn:hover {
   color: #000;
-}
+}*/
 
 /* RESPONSIVE */
 @media (max-width: 1024px) {
