@@ -383,7 +383,10 @@ async function sendMessageToBriefer(conversationId) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        perfil: [brieferPerfil.content, brieferInstrucciones],
+        perfil: {
+          role: "system",
+          content: `${brieferPerfil.content}\n\n${brieferInstrucciones}`,
+        },
         messages: conversationHistory,
       }),
     });
