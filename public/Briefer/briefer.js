@@ -557,7 +557,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const searchModal = document.getElementById("searchModal");
   const searchInput = document.getElementById("searchInput");
   const searchResults = document.getElementById("searchResults");
-  const closeSearchBtn = document.getElementById("closeSearchBtn");
   const settingsBtn = document.getElementById("settingsBtn");
   const settingsMenu = document.getElementById("settingsMenu");
   const logoutBtn = document.getElementById("logoutBtn");
@@ -573,7 +572,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     !searchModal ||
     !searchInput ||
     !searchResults ||
-    !closeSearchBtn ||
     !settingsBtn ||
     !settingsMenu ||
     !logoutBtn ||
@@ -601,7 +599,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   searchBtn.addEventListener("click", openSearchModal);
-  closeSearchBtn.addEventListener("click", closeSearchModal);
 
   searchModal.addEventListener("click", (e) => {
     if (e.target === searchModal) closeSearchModal();
