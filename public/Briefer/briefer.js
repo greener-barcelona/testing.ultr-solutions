@@ -437,54 +437,7 @@ async function sendMessageToBriefer(conversationId) {
 }
 
 async function exportConversation(button, summarize) {
-  toggleElement(button);
-  await userSendMessage();
-
-  if (!activeConversationId || conversationHistory.length <= 0) {
-    toggleElement(button);
-    return alert("Primero inicia una conversación antes de resumir.");
-  }
-  const pending = document.createElement("div");
-  pending.className = "message pending text-content";
-  pending.textContent = "Exportando...";
-  responseDiv.appendChild(pending);
-  responseDiv.scrollTop = responseDiv.scrollHeight;
-  try {
-    const res = await fetch(`/api/exportar`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        conversation: conversationHistory,
-        nombre: title || "Conversación sin titulo",
-        summarize: summarize,
-        usuario: user.email,
-      }),
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.error || "Error al enviar.");
-    }
-
-    const data = await res.json();
-
-    if (data.fileId) {
-      pending.remove();
-      const driveUrl = `https://drive.google.com/file/d/${data.fileId}`;
-      window.open(driveUrl, "_blank");
-    } else {
-      pending.textContent = "La IA no generó respuesta";
-      pending.classList.remove("pending");
-      pending.classList.add("error");
-    }
-  } catch (error) {
-    console.error("Error completo:", error);
-    pending.textContent = `Error: ${error.message}`;
-    pending.classList.remove("pending");
-    pending.classList.add("error");
-  } finally {
-    toggleElement(button);
-  }
+  return alert("Función de exportar deshabilitada en el entorno de pruebas");
 }
 
 //Modal
