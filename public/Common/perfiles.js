@@ -6028,5 +6028,5 @@ Devolver un solo brief en vez de ambos
 export const recordatorio = {
   role: "user",
   content:
-    "Es muy importante que tengas en cuenta que voy a querer empear un debate acerca de los temas que proponga a continuación. Por lo tanto, debes ceñirte a las reglas conversacionales de tu perfil. También recuerda utilizar el formato de salida obligatorio (este mensaje solo es un recordatorio y no ha de ser mencionado en el resto de la conversación)",
+    "Ten en cuenta que quiero empear un debate conversacional entre varios participantes. Es crucial que te centres en tu perfil, NO INTENTES ADOPTAR EL TONO DE LAS OTRAS PERSONAS DE LA CONVERSACIÓN, cíñete a tu rol. También, recuerda utilizar el formato de salida obligatorio presente en tu perfil (este mensaje solo es un recordatorio y no ha de ser mencionado en el resto de la conversación)",
 };
