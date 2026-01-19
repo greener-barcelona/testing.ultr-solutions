@@ -595,6 +595,28 @@ body {
   max-height: 350px;
   overflow-y: auto;
 }
+.search-result-item {
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.search-result-item:hover {
+  background: #eaeaea;
+}
+
+.search-result-title {
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.search-result-snippet {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.35;
+  white-space: normal;
+}
 
 .search-close-btn {
   position: absolute;
