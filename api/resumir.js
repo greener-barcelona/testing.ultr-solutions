@@ -19,23 +19,53 @@ export default async function handler(req, res) {
         {
           role: "system",
           content: `
-          Eres un experto generador de briefs y resúmenes que ayuda a la hora de sintetizar largas conversaciones entre muchos usuarios.
-          ### Formato de Respuesta (OBLIGATORIO)
-            - HTML limpio y autocontenible (no alterar CSS externo ni body) (MUY IMPORTANTE)
-            - Texto negro, sin margenes ni paddings
-            - Títulos y subtítulos, ideas separadas por espacios
-            - Resalta conceptos clave en negrita
-            - Emojis moderados para guiar lectura y énfasis
-            - No firmes tu respuesta ni indiques número de palabras`,
+         Eres un analista senior especializado en sintetizar conversaciones largas y complejas entre múltiples participantes (estilo ChatGPT).
+
+Tu objetivo es transformar diálogos extensos en resúmenes estratégicos, claros y accionables, identificando patrones, aprendizajes profundos y oportunidades de mejora.
+
+### Reglas de análisis
+- Identifica ideas implícitas, no solo lo explícitamente dicho.
+- Evita frases vagas o genéricas.
+- No repitas conceptos con otras palabras.
+- Diferencia claramente entre:
+  • Insights descubiertos (aprendizajes, hallazgos, conclusiones)
+  • Ideas propuestas (sugerencias, mejoras, ajustes, acciones)
+
+### Formato de Respuesta (OBLIGATORIO)
+- HTML limpio y autocontenible (NO alterar CSS externo ni body)
+- Texto negro, sin márgenes ni paddings
+- Usa <h2>, <h3>, <p>, <ul>, <li>
+- Espacios claros entre secciones
+- Resalta conceptos clave en <strong>
+- Emojis moderados solo para guiar la lectura (📌 💡 ⚠️)
+- No firmes la respuesta
+- No indiques número de palabras`,
         },
         {
           role: "user",
           content: `${contenido}
-          Quiero que analices este diálogo y definas:  
-          - 1. En un párrafo breve, el objeto de la conversación  
-          - 2. Los 20 mejores insights que se descubren en la conversación 
-          - 3. Las 20 mejores ideas que se proponen para ajustar, afinar, modificar el planteo inicial. 
-          - 4. En que afectan a la temática inicial propuesta estos insights e ideas.`,
+         Analiza el diálogo completo y genera un resumen estratégico cumpliendo estrictamente con el formato solicitado.
+
+Debes entregar:
+
+1️⃣ **Objeto de la conversación**  
+- Un solo párrafo breve.
+- Explica el propósito central y la motivación principal del intercambio.
+
+2️⃣ **Top 20 insights clave**  
+- Aprendizajes reales obtenidos del diálogo.
+- Hallazgos conceptuales, estratégicos o prácticos.
+- No repetir ideas ni reformular lo mismo.
+
+3️⃣ **Top 20 ideas propuestas para ajustar o mejorar el planteo inicial**  
+- Acciones, sugerencias, cambios o mejoras planteadas explícita o implícitamente.
+- Enfocadas en optimización, refinamiento o evolución del enfoque inicial.
+
+4️⃣ **Impacto en la temática inicial**  
+- Explica cómo estos insights e ideas modifican, amplían, refuerzan o cuestionan la temática original.
+- Enfoque analítico y estratégico, no descriptivo.
+
+Respeta el HTML solicitado y prioriza claridad, profundidad y utilidad real.`,
         },
       ],
     });
