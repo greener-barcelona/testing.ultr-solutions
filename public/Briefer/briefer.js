@@ -520,6 +520,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   //const titleText = document.getElementById("title");
   //const briefButton = document.getElementById("briefButton");
 
+console.log(searchBtn, searchModal, searchInput, searchResults, settingsBtn, settingsMenu, logoutBtn, newChatBtn, textarea, exportBtn, fileInput, modeSelector, responseDiv);
+
+
   if (
     !searchBtn ||
     !searchModal ||
