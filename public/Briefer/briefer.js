@@ -519,10 +519,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const modeSelector = document.getElementById("selector");
   //const titleText = document.getElementById("title");
   //const briefButton = document.getElementById("briefButton");
-
-console.log(searchBtn, searchModal, searchInput, searchResults, settingsBtn, settingsMenu, logoutBtn, newChatBtn, textarea, exportBtn, fileInput, modeSelector, responseDiv);
-
-
   if (
     !searchBtn ||
     !searchModal ||
@@ -532,11 +528,11 @@ console.log(searchBtn, searchModal, searchInput, searchResults, settingsBtn, set
     !settingsMenu ||
     !logoutBtn ||
     !newChatBtn ||
-    !textarea ||
+    //!textarea ||
     !exportBtn ||
     !fileInput ||
     !modeSelector ||
-    !textarea ||
+    //!textarea ||
     !responseDiv
     //!titleText
     //!briefButton
