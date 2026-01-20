@@ -497,22 +497,33 @@ body {
   width: 100%;
   min-height: 24px;
   max-height: 140px;
+
   padding: 16px 24px;
   border: none;
   outline: none;
   resize: none;
+
   background: transparent;
   color: var(--text-dark);
+
   font-size: 14px;
   font-weight: 400;
   line-height: 1.5;
-  font-family: inherit;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Helvetica Neue", Arial, sans-serif;
+
   overflow-y: auto;
+
+  place-content: center;
 }
 
 .chat-input::placeholder {
   color: var(--text-light);
   font-style: normal;
+}
+
+.chat.input::-webkit-scrollbar {
+  display: none;
 }
 
 .button-group {
@@ -574,11 +585,18 @@ body {
   display:flex;
   justify-content:center;
   gap: 18px;
+
 }
 /* Estado: por defecto gris */
 .chat-btn{
   background:#8b8b8b;
   color:#fff;
+  border:none;
+  border-radius: 25px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
 }
 
 /* Cuando NO esté disabled -> negro */
