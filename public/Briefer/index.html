@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -16,7 +16,7 @@
         </div>
         <div style="position: relative">
           <button class="settings-button" id="settingsBtn">
-             <svg class="settings-icon" viewBox="0 0 24 24" fill="currentColor">
+            <svg class="settings-icon" viewBox="0 0 24 24" fill="currentColor">
               <path
                 d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58
                   c0.18-0.14,0.23-0.41,0.12-0.61l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81
@@ -52,48 +52,70 @@
       </div>
 
       <div class="chat-area" id="messages"></div>
-      <div class="chat-actions" id="chatActions">
-        <div class="chat-actions-right">
-          <button
-            class="chat-action-btn"
-            id="exportBtn"
-            title="Exportar conversación"
-          >
-            <svg
-              class="export-icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
       <div class="input-area">
-        <div class="input-wrapper">
-          <div class="input-container">
-            <button class="upload-btn" type="button">
-              +
+        <!-- Dropzones -->
+        <div class="dropzones">
+          <div class="dropzone" id="briefDrop">
+            <div class="dropzone-title">Arroja aquí el brief del cliente</div>
+            <div class="dropzone-sub">
+              en formato .pdf, .doc o .txt. Máximo 10 MB.
+            </div>
+
+            <label class="dropzone-btn">
+              + Subir
               <input
                 type="file"
-                id="fileInput"
+                id="briefFileInput"
                 multiple
-                accept="image/*,application/pdf"
+                accept=".pdf,.doc,.docx,.txt"
               />
-            </button>
+            </label>
+
+            <div class="upload-status" id="briefUploadStatus"></div>
+            <div class="uploaded-files" id="briefFilesList"></div>
+          </div>
+
+          <div class="dropzone" id="contextDrop">
+            <div class="dropzone-title">Arroja aquí documentos de contexto</div>
+            <div class="dropzone-sub">
+              útiles para el desarrollo del brief en formato .pdf, .doc o .txt.
+              Máximo 10 MB.
+            </div>
+
+            <label class="dropzone-btn">
+              + Subir
+              <input
+                type="file"
+                id="contextFileInput"
+                multiple
+                accept=".pdf,.doc,.docx,.txt"
+              />
+            </label>
+
+            <div class="upload-status" id="contextUploadStatus"></div>
+            <div class="uploaded-files" id="contextFilesList"></div>
+          </div>
+        </div>
+
+        <!-- Textarea -->
+        <div class="input-wrapper">
+          <div class="input-container">
             <textarea
               id="userInputArea"
               class="chat-input"
-              placeholder="Agrega tu comentario..."
+              placeholder="Agrega tus comentarios para desarrollar el brief."
             ></textarea>
           </div>
         </div>
-        <div class="button-group">
-          <button id="briefButton" class="chat-btn">Genera el Brief</button>
+
+        <!-- Buttons -->
+        <div class="export-actions">
+          <button id="exportBtn" class="chat-btn disabled" disabled>
+            Exportar Brief
+          </button>
+          <button id="briefButton" class="chat-btn disabled" disabled>
+            Exportar Brief para IA
+          </button>
         </div>
       </div>
     </div>

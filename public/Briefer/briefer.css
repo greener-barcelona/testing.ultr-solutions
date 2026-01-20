@@ -528,7 +528,97 @@ body {
   margin-top: 10px;
 }
 
-.chat-btn {
+.dropzones{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:16px;
+  padding: 0 70px 14px;
+}
+
+.dropzone{
+  background:#f6f6f6;
+  border-radius:16px;
+  padding:16px;
+  box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+  border: 1px dashed rgba(0,0,0,0.12);
+}
+
+.dropzone-title{
+  font-size:14px;
+  color: var(--text-dark);
+  font-weight:600;
+  margin-bottom:6px;
+}
+
+.dropzone-sub{
+  font-size:12px;
+  color:#666;
+  line-height:1.35;
+  margin-bottom:12px;
+}
+
+.dropzone-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:34px;
+  padding: 0 14px;
+  border-radius:12px;
+  background:#eaeaea;
+  cursor:pointer;
+  font-size:13px;
+  color:#333;
+  user-select:none;
+}
+
+.dropzone-btn input{
+  display:none;
+}
+
+.uploaded-files{
+  margin-top:12px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.uploaded-file{
+  background:#fff;
+  border-radius:12px;
+  padding:10px 12px;
+  font-size:13px;
+  color:#333;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.upload-status{
+  margin-top:10px;
+  font-size:12px;
+  color:#666;
+  min-height: 16px;
+}
+
+.export-actions{
+  padding: 10px 70px 0;
+  display:flex;
+  gap:12px;
+  justify-content:center;
+}
+
+.export-actions .chat-btn{
+  width: 50%;
+}
+
+.chat-btn.disabled{
+  background:#bdbdbd;
+  cursor:not-allowed;
+}
+
+.chat-btn:active{
+  background:#9a9a9a; /* click gris */
+}
+
+/*.chat-btn {
   width: 50%;
   height: 37px;
   background-color: var(--primary-black);
@@ -548,7 +638,13 @@ body {
 
 .chat-btn:active {
   transform: scale(0.98);
+  background: #9a9a9a;
 }
+.chat-btn.disabled {
+  background: #bdbdbd;
+  cursor: not-allowed;
+}*/
+
 
 .conversations::-webkit-scrollbar,
 .chat-area::-webkit-scrollbar {

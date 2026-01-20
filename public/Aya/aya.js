@@ -21,12 +21,12 @@ import {
   toggleElement,
   autoResizeTextarea,
 } from "../Common/shared.js";
-import { brieferPerfil, brieferInstrucciones } from "../Common/perfiles.js";
+import { AyaPerfil, AyaInstrucciones } from "../Common/perfiles.js";
 
 let cachedConversations = [];
 
 const MODE_KEY = "mode";
-let modeValue = "Briefer";
+let modeValue = "Aya";
 let activeConversationId = null;
 let title = "";
 
@@ -44,7 +44,7 @@ async function startNewConversation(newTitle) {
   const savedMode = localStorage.getItem("mode") || "Brainstorming";
   const newConv = await createConversation(
     title || "Nueva conversación",
-    "Briefer"
+    "Aya",
   );
 
   if (newConv) {
@@ -253,7 +253,7 @@ async function userSendMessage() {
 
 //Botones
 
-async function sendMessageToBrieferButton(triggerBtn) {
+async function sendMessageToAyaButton(triggerBtn) {
   toggleElement(triggerBtn);
   await userSendMessage();
 
@@ -264,7 +264,7 @@ async function sendMessageToBrieferButton(triggerBtn) {
 
   const conversationIdAtStart = activeConversationId;
 
-  await sendMessageToBriefer(conversationIdAtStart);
+  await sendMessageToAya(conversationIdAtStart);
 
   toggleElement(triggerBtn);
 }
@@ -368,10 +368,10 @@ async function onFileLoaded(e, fileInput) {
 
 //Endpoints
 
-async function sendMessageToBriefer(conversationId) {
+async function sendMessageToAya(conversationId) {
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
-  pending.textContent = `Briefeando...`;
+  pending.textContent = `Tripping…`;
 
   if (activeConversationId === conversationId) {
     responseDiv.appendChild(pending);
@@ -385,7 +385,7 @@ async function sendMessageToBriefer(conversationId) {
       body: JSON.stringify({
         perfil: {
           role: "system",
-          content: `${brieferPerfil.content}\n\n${brieferInstrucciones}`,
+          content: `${AyaPerfil.content}\n\n${AyaInstrucciones}`,
         },
         messages: conversationHistory,
       }),
@@ -405,7 +405,7 @@ async function sendMessageToBriefer(conversationId) {
 
     await saveMessage(conversationId, {
       text: cleanhtml,
-      creativeAgent: "briefer-claude",
+      creativeAgent: "Aya-claude",
     });
 
     pending.remove();
@@ -418,7 +418,7 @@ async function sendMessageToBriefer(conversationId) {
 
     if (activeConversationId === conversationId) {
       const replyDiv = renderMessage({
-        author: "briefer-claude",
+        author: "Aya-claude",
         text: cleanhtml,
       });
       addMessageToConversationHistory(replyDiv, conversationHistory);
@@ -482,7 +482,7 @@ function applyMode(mode) {
 
 function initModeSelector(selector) {
   const saved = localStorage.getItem(MODE_KEY);
-  const valid = ["Brainstorming", "Naming", "Socialstorming", "Briefer"];
+  const valid = ["Brainstorming", "Naming", "Socialstorming", "Briefer", "Aya"];
   const initial = valid.includes(saved)
     ? saved
     : selector.value || "Brainstorming";
@@ -564,7 +564,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   fileInput.addEventListener("change", async (e) => onFileLoaded(e, fileInput));
 
   briefButton.addEventListener("click", () => {
-    sendMessageToBrieferButton(briefButton);
+    sendMessageToAyaButton(briefButton);
   });
 
   document.addEventListener("keydown", (e) => {
