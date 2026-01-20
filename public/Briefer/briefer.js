@@ -514,11 +514,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const settingsMenu = document.getElementById("settingsMenu");
   const logoutBtn = document.getElementById("logoutBtn");
   const newChatBtn = document.getElementById("newChatBtn");
-  const exportBtn = document.getElementById("exportBtn");
+  //const exportBtn = document.getElementById("exportBtn");
   const fileInput = document.getElementById("fileInput");
   const modeSelector = document.getElementById("selector");
   const titleText = document.getElementById("title");
-  const briefButton = document.getElementById("briefButton");
+  //const briefButton = document.getElementById("briefButton");
 
   if (
     !searchBtn ||
@@ -530,13 +530,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     !logoutBtn ||
     !newChatBtn ||
     !textarea ||
-    !exportBtn ||
+    //!exportBtn ||
     !fileInput ||
     !modeSelector ||
     !textarea ||
     !responseDiv ||
-    !titleText ||
-    !briefButton
+    !titleText
+    //!briefButton
   ) {
     console.warn("Buscador no inicializado (elementos faltantes)");
     return;
