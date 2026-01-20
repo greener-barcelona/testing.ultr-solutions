@@ -44,7 +44,7 @@ async function startNewConversation(newTitle) {
   const savedMode = localStorage.getItem("mode") || "Brainstorming";
   const newConv = await createConversation(
     title || "Nueva conversación",
-    "Briefer"
+    "Briefer",
   );
 
   if (newConv) {
@@ -113,7 +113,7 @@ function addConversationToSidebar(conv) {
     cachedConversations = cachedConversations.map((conversation) =>
       conversation.id === conv.id
         ? { ...conversation, title: newTitle.trim() }
-        : conversation
+        : conversation,
     );
 
     if (activeConversationId === conv.id) {
@@ -135,7 +135,7 @@ function addConversationToSidebar(conv) {
     }
 
     cachedConversations = cachedConversations.filter(
-      (conversation) => conversation.id !== conv.id
+      (conversation) => conversation.id !== conv.id,
     );
 
     if (activeConversationId === conv.id) {
@@ -161,7 +161,7 @@ async function loadSidebarConversations() {
   const all = await getAllConversations();
 
   const ordered = [...all].sort(
-    (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
+    (a, b) => new Date(b.updated_at) - new Date(a.updated_at),
   );
 
   ordered.forEach(addConversationToSidebar);
@@ -223,7 +223,7 @@ async function userSendMessage() {
     cachedConversations = cachedConversations.map((conversation) =>
       conversation.id === activeConversationId
         ? { ...conversation, title: title }
-        : conversation
+        : conversation,
     );
     await loadSidebarConversations();
   }
@@ -246,7 +246,7 @@ async function userSendMessage() {
           ...conversation,
           _messages: [...conversation._messages, uiMessage.textContent.trim()],
         }
-      : conversation
+      : conversation,
   );
   await saveMessage(activeConversationId, { text: text });
 }
@@ -328,7 +328,7 @@ async function onFileLoaded(e, fileInput) {
         cachedConversations = cachedConversations.map((conversation) =>
           conversation.id === activeConversationId
             ? { ...conversation, title: title }
-            : conversation
+            : conversation,
         );
         await loadSidebarConversations();
       }
@@ -413,7 +413,7 @@ async function sendMessageToBriefer(conversationId) {
     cachedConversations = cachedConversations.map((conversation) =>
       conversation.id === conversationId
         ? { ...conversation, _messages: [...conversation._messages, cleanhtml] }
-        : conversation
+        : conversation,
     );
 
     if (activeConversationId === conversationId) {
@@ -562,8 +562,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     exportConversation(exportBtn, false);
   });
 
- briefFileInput.addEventListener("change", (e) => onFileLoaded(e, briefFileInput));
-contextFileInput.addEventListener("change", (e) => onFileLoaded(e, contextFileInput));
+  briefFileInput.addEventListener("change", (e) =>
+    onFileLoaded(e, briefFileInput),
+  );
+  contextFileInput.addEventListener("change", (e) =>
+    onFileLoaded(e, contextFileInput),
+  );
 
   briefButton.addEventListener("click", () => {
     sendMessageToBrieferButton(briefButton);
@@ -615,7 +619,7 @@ contextFileInput.addEventListener("change", (e) => onFileLoaded(e, contextFileIn
 
   newChatBtn.addEventListener(
     "click",
-    async () => await startNewConversation()
+    async () => await startNewConversation(),
   );
 
   logoutBtn.addEventListener("click", () => logout(MODE_KEY));

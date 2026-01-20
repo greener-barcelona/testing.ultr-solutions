@@ -21,7 +21,7 @@ import {
   toggleElement,
   autoResizeTextarea,
 } from "../Common/shared.js";
-import { AyaPerfil, AyaInstrucciones } from "../Common/perfiles.js";
+import { AyaPerfil, AyaInstrucciones } from "../Common/agent.js";
 
 let cachedConversations = [];
 
