@@ -531,91 +531,96 @@ body {
 .dropzones{
   display:grid;
   grid-template-columns: 1fr 1fr;
-  gap:16px;
-  padding: 0 70px 14px;
+  gap: 18px;
+  padding: 0;
+  margin-bottom: 18px;
 }
 
 .dropzone{
-  background:#f6f6f6;
-  border-radius:16px;
-  padding:16px;
-  box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
-  border: 1px dashed rgba(0,0,0,0.12);
+  position: relative;
+  background: #eef0f3;
+  border: 1px solid #d2d5da;
+  border-radius: 2px;
+  padding: 18px 56px 18px 18px;
+  min-height: 92px;
+  box-shadow: none;              /* fuera “tarjeta” */
 }
 
-.dropzone-title{
-  font-size:14px;
-  color: var(--text-dark);
-  font-weight:600;
-  margin-bottom:6px;
+.dropzone-text{
+  color: #9aa3ad;
+  font-size: 22px;
+  line-height: 1.25;
+  font-style: italic;
+  font-weight: 600;
 }
 
-.dropzone-sub{
-  font-size:12px;
-  color:#666;
-  line-height:1.35;
-  margin-bottom:12px;
-}
-
-.dropzone-btn{
-  display:inline-flex;
+.dropzone-plus{
+  position:absolute;
+  right: 14px;
+  bottom: 14px;
+  width: 34px;
+  height: 34px;
+  border-radius: 4px;
+  background:#111;
+  color:#fff;
+  display:flex;
   align-items:center;
   justify-content:center;
-  height:34px;
-  padding: 0 14px;
-  border-radius:12px;
-  background:#eaeaea;
   cursor:pointer;
-  font-size:13px;
-  color:#333;
   user-select:none;
+  font-size: 22px;
+  line-height: 1;
+}
+.dropzone-plus input{ display:none; }
+
+/* TEXTAREA pill grande como la captura */
+.input-container{
+  position: relative;
+  background: #eef0f3;
+  border-radius: 40px;
+  padding: 30px 30px;
+  box-shadow:
+    18px 18px 30px rgba(0,0,0,0.12),
+    -18px -18px 30px rgba(255,255,255,0.9);
 }
 
-.dropzone-btn input{
-  display:none;
+.chat-input{
+  font-size: 22px;
+  font-style: italic;
+  color: #8e98a3;
 }
 
-.uploaded-files{
-  margin-top:12px;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-.uploaded-file{
-  background:#fff;
-  border-radius:12px;
-  padding:10px 12px;
-  font-size:13px;
-  color:#333;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-}
-
-.upload-status{
-  margin-top:10px;
-  font-size:12px;
-  color:#666;
-  min-height: 16px;
-}
-
+/* Botones pill centrados */
 .export-actions{
-  padding: 10px 70px 0;
+  padding: 18px 0 0;
   display:flex;
-  gap:12px;
   justify-content:center;
+  gap: 28px;
 }
 
 .export-actions .chat-btn{
-  width: 50%;
+  width: 320px;
+  height: 46px;
+  border-radius: 999px;
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
 }
 
-.chat-btn.disabled{
-  background:#bdbdbd;
-  cursor:not-allowed;
+/* Estado: por defecto gris */
+.chat-btn{
+  background:#8b8b8b;
+  color:#fff;
 }
 
+/* Cuando NO esté disabled -> negro */
+.chat-btn:not(.disabled){
+  background: #2d2d2d;
+}
+
+/* Click -> gris */
 .chat-btn:active{
-  background:#9a9a9a; /* click gris */
+  background:#8b8b8b;
 }
 
 /*.chat-btn {
