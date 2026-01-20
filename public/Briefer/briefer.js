@@ -534,8 +534,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     !fileInput ||
     !modeSelector ||
     !textarea ||
-    !responseDiv ||
-    !titleText
+    !responseDiv
+    //!titleText
     //!briefButton
   ) {
     console.warn("Buscador no inicializado (elementos faltantes)");
