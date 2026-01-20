@@ -646,16 +646,27 @@ function applyMode(mode) {
   conversationHistory.length = 0;
   responseDiv.innerHTML = "";
 
-  if (mode === "Briefer") {
+  switch (mode) {
+    case "Briefer":
+      window.location.href = "../Briefer/";
+      return;
+    case "Aya":
+      window.location.href = "../Aya/";
+      return;
+      default:
+      window.location.href = "../Chat/";
+      return;
+  }
+  /*if (mode === "Briefer") {
     window.location.href = "../Briefer/";
     return;
   }
 
-  window.location.href = "../Chat/";
+  window.location.href = "../Chat/";*/
 }
 function initModeSelector(selector) {
   const saved = localStorage.getItem(MODE_KEY);
-  const valid = ["Brainstorming", "Naming", "Socialstorming", "Briefer"];
+  const valid = ["Brainstorming", "Naming", "Socialstorming", "Briefer", "Aya"];
   const initial = valid.includes(saved)
     ? saved
     : selector.value || "Brainstorming";
