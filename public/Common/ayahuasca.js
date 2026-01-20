@@ -251,8 +251,7 @@ export default class AyahuascaTrip {
     this.start(provider);
     try {
       const outputs = await this.pipeline.run({
-        agent: this.agent,
-        task,
+        task: task,
         variants: options.variants || 6,
         intensity: this.intensity,
       });

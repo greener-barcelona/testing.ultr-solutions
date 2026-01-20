@@ -1,3 +1,4 @@
+import Agent from "../Common/agent.js";
 import AyahuascaTrip from "../Common/ayahuasca.js";
 import {
   sb,
