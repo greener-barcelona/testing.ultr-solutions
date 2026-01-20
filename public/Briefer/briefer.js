@@ -515,10 +515,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const logoutBtn = document.getElementById("logoutBtn");
   const newChatBtn = document.getElementById("newChatBtn");
   const exportBtn = document.getElementById("exportBtn");
-  const fileInput = document.getElementById("fileInput");
+  const briefFileInput = document.getElementById("briefFileInput");
+  const contextFileInput = document.getElementById("contextFileInput");
   const modeSelector = document.getElementById("selector");
-  //const titleText = document.getElementById("title");
-  //const briefButton = document.getElementById("briefButton");
+  const titleText = document.getElementById("title");
+  const briefButton = document.getElementById("briefButton");
   if (
     !searchBtn ||
     !searchModal ||
@@ -528,14 +529,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     !settingsMenu ||
     !logoutBtn ||
     !newChatBtn ||
-    //!textarea ||
+    !textarea ||
     !exportBtn ||
-    !fileInput ||
+    !briefFileInput ||
+    !contextFileInput ||
     !modeSelector ||
-    //!textarea ||
-    !responseDiv
-    //!titleText
-    //!briefButton
+    !textarea ||
+    !responseDiv ||
+    !titleText ||
+    !briefButton
   ) {
     console.warn("Buscador no inicializado (elementos faltantes)");
     return;
@@ -560,7 +562,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     exportConversation(exportBtn, false);
   });
 
-  fileInput.addEventListener("change", async (e) => onFileLoaded(e, fileInput));
+ briefFileInput.addEventListener("change", (e) => onFileLoaded(e, briefFileInput));
+contextFileInput.addEventListener("change", (e) => onFileLoaded(e, contextFileInput));
 
   briefButton.addEventListener("click", () => {
     sendMessageToBrieferButton(briefButton);
