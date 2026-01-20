@@ -1,5 +1,5 @@
 import Agent from "../Common/agent.js";
-import AyahuascaTrip from "../Common/ayahuasca.js";
+import AyahuascaTrip, { CreativePipeline } from "../Common/ayahuasca.js";
 import {
   sb,
   ensureAppUser,
@@ -55,7 +55,7 @@ async function startNewConversation(newTitle) {
   const savedMode = localStorage.getItem("mode") || "Brainstorming";
   const newConv = await createConversation(
     title || "Nueva conversación",
-    savedMode
+    savedMode,
   );
 
   if (newConv) {
@@ -124,7 +124,7 @@ function addConversationToSidebar(conv) {
     cachedConversations = cachedConversations.map((conversation) =>
       conversation.id === conv.id
         ? { ...conversation, title: newTitle.trim() }
-        : conversation
+        : conversation,
     );
 
     if (activeConversationId === conv.id) {
@@ -146,7 +146,7 @@ function addConversationToSidebar(conv) {
     }
 
     cachedConversations = cachedConversations.filter(
-      (conversation) => conversation.id !== conv.id
+      (conversation) => conversation.id !== conv.id,
     );
 
     if (activeConversationId === conv.id) {
@@ -172,7 +172,7 @@ async function loadSidebarConversations() {
   const all = await getAllConversations();
 
   const ordered = [...all].sort(
-    (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
+    (a, b) => new Date(b.updated_at) - new Date(a.updated_at),
   );
 
   ordered.forEach(addConversationToSidebar);
@@ -234,7 +234,7 @@ async function userSendMessage() {
     cachedConversations = cachedConversations.map((conversation) =>
       conversation.id === activeConversationId
         ? { ...conversation, title: title }
-        : conversation
+        : conversation,
     );
     await loadSidebarConversations();
   }
@@ -257,7 +257,7 @@ async function userSendMessage() {
           ...conversation,
           _messages: [...conversation._messages, uiMessage.textContent.trim()],
         }
-      : conversation
+      : conversation,
   );
   await saveMessage(activeConversationId, { text: text });
 }
@@ -279,7 +279,7 @@ async function summarizeConversationButton(button) {
   await summarizeConversation(
     conversationIdAtStart,
     convTitleAtStart,
-    conversationHistory
+    conversationHistory,
   );
 
   toggleElement(button);
@@ -340,7 +340,7 @@ async function onFileLoaded(e, fileInput) {
         cachedConversations = cachedConversations.map((conversation) =>
           conversation.id === activeConversationId
             ? { ...conversation, title: title }
-            : conversation
+            : conversation,
         );
         await loadSidebarConversations();
       }
@@ -382,7 +382,7 @@ async function onFileLoaded(e, fileInput) {
 
 function getRandomProfileButtons(count) {
   const all = Array.from(
-    document.querySelectorAll("button[data-perfil][data-api]")
+    document.querySelectorAll("button[data-perfil][data-api]"),
   );
 
   if (all.length === 0) {
@@ -439,7 +439,7 @@ async function runProfilesChain(count, multiplierBtn) {
     await summarizeConversation(
       conversationIdAtStart,
       convTitleAtStart,
-      historyAtStart
+      historyAtStart,
     );
   } finally {
     if (multiplierBtn) toggleElement(multiplierBtn);
@@ -511,7 +511,7 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        perfil,
+        perfil: perfil,
         messages: [recordatorio, ...conversationHistory],
       }),
     });
@@ -538,7 +538,7 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
     cachedConversations = cachedConversations.map((conversation) =>
       conversation.id === conversationId
         ? { ...conversation, _messages: [...conversation._messages, cleanhtml] }
-        : conversation
+        : conversation,
     );
 
     if (activeConversationId === conversationId) {
@@ -601,7 +601,7 @@ async function summarizeConversation(conversationId, convTitle, history) {
               ...conversation,
               _messages: [...conversation._messages, cleanhtml],
             }
-          : conversation
+          : conversation,
       );
 
       if (activeConversationId === conversationId) {
@@ -654,7 +654,7 @@ function applyMode(mode) {
     case "Aya":
       window.location.href = "../Aya/";
       return;
-      default:
+    default:
       window.location.href = "../Chat/";
       return;
   }
@@ -779,7 +779,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   multiplier6.addEventListener("click", () => runProfilesChain(6, multiplier6));
 
   multiplier12.addEventListener("click", () =>
-    runProfilesChain(12, multiplier12)
+    runProfilesChain(12, multiplier12),
   );
 
   searchBtn.addEventListener("click", () => {
@@ -809,7 +809,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     cachedConversations.forEach((conv) => {
       const titleMatch = conv.title.toLowerCase().includes(query);
       const contentMatch = conv._messages.some((m) =>
-        m.toLowerCase().includes(query)
+        m.toLowerCase().includes(query),
       );
 
       if (titleMatch || contentMatch) {
@@ -842,14 +842,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   newChatBtn.addEventListener(
     "click",
-    async () => await startNewConversation()
+    async () => await startNewConversation(),
   );
 
   const profileButtons = document.querySelectorAll("button[data-api]");
   profileButtons.forEach((btn) =>
     btn.addEventListener("click", () =>
-      sendMessageToProfileButton(btn.dataset.perfil, btn.dataset.api, btn)
-    )
+      sendMessageToProfileButton(btn.dataset.perfil, btn.dataset.api, btn),
+    ),
   );
 
   exportBtn.addEventListener("click", () => {
