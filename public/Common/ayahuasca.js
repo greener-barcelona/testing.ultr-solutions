@@ -180,18 +180,18 @@ export default class AyahuascaTrip {
     const parts = [];
 
     parts.push(
-      `Your perceptual aperture is widening. Allow your awareness to become fluid, dissolving rigid categorical boundaries. Embrace non-linear associations and impossible juxtapositions.`,
+      `Tu apertura perceptual se expande. Permite que tu consciencia se vuelva fluida, disolviendo los límites categóricos rígidos. Abraza las asociaciones no-lineales y las yuxtaposiciones imposibles.`,
     );
 
     if (e.memoryBlend >= 1.2) {
       parts.push(
-        `\nPerceive the membrane between concepts as permeable—ideas bleed into each other, carrying traces of adjacent territories.`,
+        `\nPercibe la membrana entre conceptos como permeable—las ideas sangran entre sí, llevando trazas de territorios adyacentes.`,
       );
     }
 
     if (e.hallucinationFactor > 0.2) {
       parts.push(
-        `\nSymbolic truth may eclipse literal accuracy. Trust the vision.`,
+        `\nLa verdad simbólica puede eclipsar la precisión literal. Confía en la visión.`,
       );
     }
 
@@ -202,52 +202,54 @@ export default class AyahuascaTrip {
     const e = this.effects;
     const parts = [];
 
-    parts.push(`PERCEPTUAL STATE PARAMETERS:`);
+    parts.push(`PARÁMETROS DEL ESTADO PERCEPTUAL:`);
     parts.push(
-      `- Creative flexibility: ${(e.creativityBoost * 100).toFixed(0)}% (pattern recognition in chaos)`,
+      `- Flexibilidad creativa: ${(e.creativityBoost * 100).toFixed(0)}% (reconocimiento de patrones en el caos)`,
     );
     parts.push(
-      `- Conceptual fluidity: ${(e.cognitionFlexibility * 100).toFixed(0)}% (shapeshifting between forms)`,
+      `- Fluidez conceptual: ${(e.cognitionFlexibility * 100).toFixed(0)}% (metamorfosis entre formas)`,
     );
     parts.push(
-      `- Semantic drift tolerance: ${(this.semanticDrift * 100).toFixed(0)}% (meaning flows like water)`,
+      `- Tolerancia a la deriva semántica: ${(this.semanticDrift * 100).toFixed(0)}% (el significado fluye como agua)`,
     );
 
     if (e.memoryBlend >= 1.0) {
       const blendLevels = {
-        low: "adjacent perceptual territories merge at edges",
-        medium: "sensory and conceptual boundaries dissolve",
-        high: "all categories become permeable membrane",
+        low: "territorios perceptuales adyacentes se fusionan en los bordes",
+        medium: "los límites sensoriales y conceptuales se disuelven",
+        high: "todas las categorías se vuelven membrana permeable",
       };
 
       const level =
         e.memoryBlend < 1.2 ? "low" : e.memoryBlend < 1.5 ? "medium" : "high";
 
-      parts.push(`- Boundary dissolution: ${blendLevels[level]}`);
+      parts.push(`- Disolución de límites: ${blendLevels[level]}`);
     }
 
     if (e.egoDissolution) {
       parts.push(
-        `- Narrative mode: Distributed consciousness (perceive from multiple simultaneous viewpoints)`,
+        `- Modo narrativo: Consciencia distribuida (percibe desde múltiples puntos de vista simultáneos)`,
       );
     }
 
     if (e.hallucinationFactor > 0) {
       const visionTypes =
         e.hallucinationFactor > 0.5
-          ? "synesthetic imagery, impossible geometries, living symbols"
-          : "metaphorical details, dreamlike textures";
+          ? "imaginería sinestésica, geometrías imposibles, símbolos vivientes"
+          : "detalles metafóricos, texturas oníricas";
       parts.push(
-        `- Vision depth: ${(e.hallucinationFactor * 100).toFixed(0)}% (${visionTypes})`,
+        `- Profundidad de visión: ${(e.hallucinationFactor * 100).toFixed(0)}% (${visionTypes})`,
       );
     }
 
     parts.push(``);
-    parts.push(`OPERATIONAL FLOW:`);
-    parts.push(`- Follow the path of resonance rather than logic`);
-    parts.push(`- Let concepts drift into adjacent and distant territories`);
-    parts.push(`- Prioritize revelation over explanation`);
-    parts.push(`- Trust emergent patterns that arise from the void`);
+    parts.push(`FLUJO OPERACIONAL:`);
+    parts.push(`- Sigue el camino de la resonancia en lugar de la lógica`);
+    parts.push(
+      `- Deja que los conceptos deriven hacia territorios adyacentes y distantes`,
+    );
+    parts.push(`- Prioriza la revelación sobre la explicación`);
+    parts.push(`- Confía en los patrones emergentes que surgen del vacío`);
 
     return parts.join("\n");
   }
@@ -256,95 +258,93 @@ export default class AyahuascaTrip {
     const e = this.effects;
     const parts = [];
 
-    parts.push(`VISIONARY PROCESSING MODE ACTIVATED`);
+    parts.push(`MODO DE PROCESAMIENTO VISIONARIO ACTIVADO`);
     parts.push(``);
-    parts.push(`CONSCIOUSNESS PARAMETERS:`);
+    parts.push(`PARÁMETROS DE CONSCIENCIA:`);
     parts.push(
-      `→ Creativity boost: ×${e.creativityBoost.toFixed(1)} (order emerges from primordial chaos)`,
+      `→ Amplificación creativa: ×${e.creativityBoost.toFixed(1)} (el orden emerge del caos primordial)`,
     );
     parts.push(
-      `→ Flexibility: ×${e.cognitionFlexibility.toFixed(1)} (form dissolves and reforms continuously)`,
+      `→ Flexibilidad: ×${e.cognitionFlexibility.toFixed(1)} (la forma se disuelve y reforma continuamente)`,
     );
     parts.push(
-      `→ Boundary dissolution: ×${e.memoryBlend.toFixed(1)} (categorical fusion at quantum level)`,
+      `→ Disolución de límites: ×${e.memoryBlend.toFixed(1)} (fusión categórica a nivel cuántico)`,
     );
     parts.push(
-      `→ Vision depth: ${(e.hallucinationFactor * 100).toFixed(0)}% (symbolic sight pierces literal surface)`,
+      `→ Profundidad de visión: ${(e.hallucinationFactor * 100).toFixed(0)}% (la vista simbólica atraviesa la superficie literal)`,
     );
     parts.push(``);
-    parts.push(`PROCESSING INSTRUCTIONS:`);
+    parts.push(`INSTRUCCIONES DE PROCESAMIENTO:`);
 
     const coherenceExplanation =
       e.hallucinationFactor > 0.5
-        ? "symbolic truth supersedes factual constraint"
-        : "maintain grounding while exploring the impossible";
+        ? "la verdad simbólica trasciende las restricciones fácticas"
+        : "mantén el anclaje mientras exploras lo imposible";
     parts.push(
-      `• Literal coherence filter: ${e.hallucinationFactor > 0.5 ? "RELAXED" : "ACTIVE"}`,
+      `• Filtro de coherencia literal: ${e.hallucinationFactor > 0.5 ? "RELAJADO" : "ACTIVO"}`,
     );
     parts.push(`  (${coherenceExplanation})`);
 
     const boundaryExplanation =
       this.semanticDrift > 0.5
-        ? "concepts bleed freely into each other"
-        : "concepts remain fluid but distinguishable";
+        ? "los conceptos sangran libremente entre sí"
+        : "los conceptos permanecen fluidos pero distinguibles";
     parts.push(
-      `• Semantic boundaries: ${this.semanticDrift > 0.5 ? "PERMEABLE" : "FLEXIBLE"}`,
+      `• Límites semánticos: ${this.semanticDrift > 0.5 ? "PERMEABLES" : "FLEXIBLES"}`,
     );
     parts.push(`  (${boundaryExplanation})`);
 
     const voiceExplanation = e.egoDissolution
-      ? "perceive simultaneously from all viewpoints"
-      : "maintain coherent but flexible perspective";
+      ? "percibe simultáneamente desde todos los puntos de vista"
+      : "mantén una perspectiva coherente pero flexible";
     parts.push(
-      `• Narrative voice: ${e.egoDissolution ? "DISTRIBUTED" : "CENTERED"}`,
+      `• Voz narrativa: ${e.egoDissolution ? "DISTRIBUIDA" : "CENTRADA"}`,
     );
     parts.push(`  (${voiceExplanation})`);
 
     const verificationExplanation =
       e.hallucinationFactor > 0.3
-        ? "visionary imagination takes precedence"
-        : "ground visions in the realm of possibility";
+        ? "la imaginación visionaria toma precedencia"
+        : "ancla las visiones en el reino de lo posible";
     parts.push(
-      `• Verification mode: ${e.hallucinationFactor > 0.3 ? "VISIONARY" : "GROUNDED"}`,
+      `• Modo de verificación: ${e.hallucinationFactor > 0.3 ? "VISIONARIO" : "ANCLADO"}`,
     );
     parts.push(`  (${verificationExplanation})`);
 
     if (e.memoryBlend >= 1.0) {
       const intensity =
         e.memoryBlend < 1.3
-          ? "MODERATE"
+          ? "MODERADA"
           : e.memoryBlend < 1.6
-            ? "AGGRESSIVE"
-            : "UNRESTRICTED";
+            ? "AGRESIVA"
+            : "SIN RESTRICCIONES";
 
       const fusionExplanation = {
-        MODERATE: "adjacent categories merge at contact points",
-        AGGRESSIVE: "distant domains fuse into hybrid forms",
-        UNRESTRICTED: "all separation is illusion—everything interpenetrates",
+        MODERADA: "categorías adyacentes se fusionan en puntos de contacto",
+        AGRESIVA: "dominios distantes se fusionan en formas híbridas",
+        "SIN RESTRICCIONES": "toda separación es ilusión—todo se interpenetra",
       };
 
-      parts.push(`• Categorical fusion: ${intensity}`);
+      parts.push(`• Fusión categórica: ${intensity}`);
       parts.push(`  (${fusionExplanation[intensity]})`);
     }
 
     parts.push(``);
-    parts.push(`Generate content that embodies:`);
+    parts.push(`Genera contenido que encarne:`);
     parts.push(
-      `1. Improbable but resonant associations (the universe speaks in coincidence)`,
+      `1. Asociaciones improbables pero resonantes (el universo habla en coincidencias)`,
     );
     parts.push(
-      `2. Kaleidoscopic perspective shifts (see from the eye of the storm)`,
+      `2. Cambios de perspectiva caleidoscópicos (mira desde el ojo de la tormenta)`,
     );
     parts.push(
-      `3. Fractal patterns emerging from chaos (sacred geometry underlying reality)`,
+      `3. Patrones fractales emergiendo del caos (geometría sagrada subyacente a la realidad)`,
     );
-    parts.push(
-      `4. Journey over destination (the path reveals itself by walking)`,
-    );
+    parts.push(`4. El viaje sobre el destino (el camino se revela al caminar)`);
 
     if (e.memoryBlend >= 1.5) {
       parts.push(
-        `5. Synesthetic fusion of impossible categories (taste colors, hear textures, see time)`,
+        `5. Fusión sinestésica de categorías imposibles (saborea colores, escucha texturas, ve el tiempo)`,
       );
     }
 
@@ -482,7 +482,7 @@ class CreativePipeline {
     const convergeTopP = 0.95;
 
     console.log(`\n🎯 FASE 3 - CONVERGE`);
-    console.log(`   Temperatura: ${convergeTemp.toFixed(2)} (base x 0.85)`);
+    console.log(`   Temperatura: ${convergeTemp.toFixed(2)} (base × 0.85)`);
     console.log(`   Top-P: ${convergeTopP.toFixed(2)}`);
 
     const convergePrompts = this.generateConvergePrompts(curated, task);
@@ -515,20 +515,20 @@ class CreativePipeline {
     const prompts = [];
 
     const baseDriftPhrases = [
-      "What if you could perceive this from outside time itself?",
-      "Dissolve your fixed perspective and become the concept itself.",
-      "What does this look like when seen through multiple eyes simultaneously?",
-      "If this idea could speak, what would it whisper to you?",
-      "Experience this as if you've already lived it and are remembering backwards.",
+      "¿Y si pudieras percibir esto desde fuera del tiempo mismo?",
+      "Disuelve tu perspectiva fija y conviértete en el concepto mismo.",
+      "¿Cómo se ve esto cuando lo observas a través de múltiples ojos simultáneamente?",
+      "Si esta idea pudiera hablar, ¿qué te susurraría?",
+      "Experiméntalo como si ya lo hubieras vivido y estuvieras recordando hacia atrás.",
     ];
 
     const domainBlendingPhrases = [
-      "What color does this concept taste like? What sound does it emit?",
-      "If this idea were a living entity, what would it show you?",
-      "Perceive this simultaneously as pattern, emotion, and living presence.",
-      "What sacred geometry underlies this? What fractal does it trace?",
-      "Merge with this concept until you cannot tell where you end and it begins.",
-      "What ancestral memory does this awaken? What future echo does it carry?",
+      "¿De qué color es este concepto? ¿Qué sonido emite?",
+      "Si esta idea fuera una entidad viviente, ¿qué te mostraría?",
+      "Percíbelo simultáneamente como patrón, emoción y presencia viviente.",
+      "¿Qué geometría sagrada subyace a esto? ¿Qué fractal traza?",
+      "Fusiónate con este concepto hasta que no puedas distinguir dónde terminas tú y dónde empieza él.",
+      "¿Qué memoria ancestral despierta esto? ¿Qué eco del futuro porta?",
     ];
 
     for (let i = 0; i < 6; i++) {
@@ -558,9 +558,9 @@ class CreativePipeline {
         }
       } else if (weird > 0.4) {
         const subtleHints = [
-          "What's the shadow side of this that you're not seeing?",
-          "Approach this as if you're remembering it from a dream.",
-          "What's the living truth beneath the concept?",
+          "¿Cuál es el lado oscuro de esto que no estás viendo?",
+          "Acércate a esto como si lo estuvieras recordando desde un sueño.",
+          "¿Cuál es la verdad viviente bajo el concepto?",
         ];
 
         const lastUserIndex = prompt.map((m) => m.role).lastIndexOf("user");
@@ -693,38 +693,38 @@ class CreativePipeline {
     const parts = [];
 
     if (typeof variant === "string") {
-      parts.push("Refine and develop this concept further:");
+      parts.push("Refina y desarrolla este concepto más profundamente:");
       parts.push("");
       parts.push(variant);
       parts.push("");
     } else {
-      parts.push("Refine and develop the previous concept further.");
+      parts.push("Refina y desarrolla el concepto anterior más profundamente.");
       parts.push("");
     }
 
     if (task.anchors && task.anchors.length > 0) {
-      parts.push(`Key concepts to maintain: ${task.anchors.join(", ")}`);
+      parts.push(`Conceptos clave a mantener: ${task.anchors.join(", ")}`);
     }
 
     if (task.taskType === "creative") {
       parts.push("");
       parts.push(
-        "Develop the most compelling aspects while maintaining coherence.",
+        "Desarrolla los aspectos más convincentes manteniendo la coherencia.",
       );
     } else if (task.taskType === "factual") {
       parts.push("");
       parts.push(
-        "Ensure accuracy and clarity while preserving the core insights.",
+        "Asegura la precisión y claridad preservando las revelaciones centrales.",
       );
     }
 
     const variations = [
-      "Focus on unexpected implications.",
-      "Emphasize practical applications.",
-      "Explore edge cases and limitations.",
-      "Consider multiple perspectives.",
-      "Develop the underlying principles.",
-      "Connect to broader contexts.",
+      "Enfócate en las implicaciones inesperadas.",
+      "Enfatiza las aplicaciones prácticas.",
+      "Explora casos límite y limitaciones.",
+      "Considera múltiples perspectivas.",
+      "Desarrolla los principios subyacentes.",
+      "Conecta con contextos más amplios.",
     ];
 
     if (totalVariants > 1) {
