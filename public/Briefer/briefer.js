@@ -520,6 +520,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const modeSelector = document.getElementById("selector");
   const titleText = document.getElementById("title");
   const briefButton = document.getElementById("briefButton");
+  const sendBtn = document.getElementById("sendBtn");
   if (
     !searchBtn ||
     !searchModal ||
@@ -551,6 +552,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     titleText.text = value;
     document.title = modeValue;
   });
+
+  sendBtn.addEventListener("click", async () => {
+  await userSendMessage();
+});
 
   searchBtn.addEventListener("click", openSearchModal);
 
@@ -609,7 +614,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (textarea) {
     textarea.addEventListener("keydown", async (e) => {
-      if (e.key === "Enter") {
+      if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         await userSendMessage();
       }

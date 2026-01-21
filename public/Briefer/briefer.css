@@ -457,6 +457,7 @@ body {
   border-radius: 30px;
   background-color: var(--background-gray);
   box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.08);
+  position: relative;
 }
 
 .upload-btn {
@@ -497,24 +498,21 @@ body {
   width: 100%;
   min-height: 24px;
   max-height: 140px;
-
   padding: 16px 24px;
   border: none;
   outline: none;
   resize: none;
-
   background: transparent;
   color: var(--text-dark);
-
   font-size: 14px;
   font-weight: 400;
   line-height: 1.5;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
     "Helvetica Neue", Arial, sans-serif;
-
   overflow-y: auto;
-
   place-content: center;
+  padding-right: 64px;
+  padding-bottom: 22px;
 }
 
 .chat-input::placeholder {
@@ -524,6 +522,25 @@ body {
 
 .chat.input::-webkit-scrollbar {
   display: none;
+}
+.send-btn{
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  background: #111;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.send-btn:active{
+  transform: scale(0.98);
 }
 
 .button-group {
