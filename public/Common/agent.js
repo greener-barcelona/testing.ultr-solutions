@@ -139,7 +139,7 @@ class Agent {
       throw new Error("Cada mensaje debe tener {role, content}");
     }
 
-    const finalTemp = temperature ?? this.llmConfig.temperature;
+    const finalTemp = (temperature ?? this.llmConfig.temperature) > 1.7 ? 1.7 : (temperature ?? this.llmConfig.temperature);
     const finalTopP = top_p ?? this.llmConfig.top_p;
     const finalMaxTokens = max_tokens ?? this.llmConfig.max_tokens;
 

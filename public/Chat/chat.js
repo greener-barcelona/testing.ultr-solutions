@@ -733,7 +733,7 @@ async function startTrip() {
     anchors: ["nostalgia", "construcción", "industria"],
   };
 
-  const results = await trip.withTrip(task, { variants: 5 });
+  const results = await trip.withTrip(task, { variants: 2 });
 
   for (const result of results) {
     console.log("Variante del viaje:", result.reply);

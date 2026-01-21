@@ -404,7 +404,7 @@ export default class AyahuascaTrip {
     try {
       const outputs = await this.pipeline.run({
         task,
-        variants: options.variants || 6,
+        variants: options.variants ?? 3,
         intensity: this.intensity,
         baseTemperature: this.agent.llmConfig.temperature,
       });
@@ -432,7 +432,7 @@ class CreativePipeline {
 
   async run({
     task,
-    variants = 6,
+    variants = 3,
     intensity = "surreal",
     baseTemperature = 1.0,
   }) {
@@ -595,72 +595,32 @@ class CreativePipeline {
   }
 
   curate(variants) {
-    console.log(`\n🔍 CURATE - Diagnóstico Detallado:`);
-    console.log(`   Input: ${variants.length} variantes`);
-
     const unique = [...new Set(variants)];
-    console.log(`   Después de deduplicar exactos: ${unique.length}`);
 
     const valid = unique.filter(
       (v) =>
         v.length > 50 && !v.startsWith("[ERROR") && !v.startsWith("// SAMPLE"),
     );
 
-    const errores = unique.length - valid.length;
-    console.log(
-      `   Después de filtrar inválidos: ${valid.length} (${errores} errores/cortos eliminados)`,
-    );
-
-    if (valid.length === 0) {
-      console.warn(`   ⚠️ ADVERTENCIA: No quedaron variantes válidas`);
-      return unique.slice(0, 4);
-    }
+    if (valid.length === 0) return unique.slice(0, 4);
 
     const deduplicated = [];
-    const duplicadosSemanticos = [];
-
     for (const variant of valid) {
-      const isDuplicate = deduplicated.some((existing) => {
-        const similarity = this.semanticSimilarity(variant, existing);
-        if (similarity > 0.85) {
-          duplicadosSemanticos.push({
-            variant: variant.substring(0, 100),
-            similarity,
-          });
-          return true;
-        }
-        return false;
-      });
-
+      const isDuplicate = deduplicated.some(
+        (existing) => this.semanticSimilarity(variant, existing) > 0.85,
+      );
       if (!isDuplicate) {
         deduplicated.push(variant);
       }
     }
 
-    console.log(
-      `   Después de eliminar duplicados semánticos: ${deduplicated.length}`,
-    );
-    if (duplicadosSemanticos.length > 0) {
-      console.log(`   Duplicados eliminados (>85% similitud):`);
-      duplicadosSemanticos.forEach((d, i) => {
-        console.log(
-          `     ${i + 1}. ${(d.similarity * 100).toFixed(0)}% - "${d.variant}..."`,
-        );
-      });
-    }
-
     let selected = deduplicated;
     if (deduplicated.length > 10) {
       selected = this.selectDiverse(deduplicated, 10);
-      console.log(`   Después de selectDiverse: ${selected.length}`);
     }
 
     const targetCount = Math.max(4, Math.min(10, selected.length));
-    const final = selected.slice(0, targetCount);
-
-    console.log(`   Output final: ${final.length} variantes\n`);
-
-    return final;
+    return selected.slice(0, targetCount);
   }
 
   selectDiverse(variants, n) {
@@ -787,8 +747,8 @@ class CreativePipeline {
     const out = [];
     const batches = [];
 
-    // Asegurar que n esté entre 4 y 10
-    const targetVariants = Math.max(4, Math.min(10, n));
+    // Asegurar que n esté entre 2 y 10
+    const targetVariants = Math.max(2, Math.min(10, n));
     const validPrompts = prompts.slice(
       0,
       Math.min(prompts.length, targetVariants),
