@@ -1,5 +1,5 @@
-import Agent from "../Common/agent.js";
-import AyahuascaTrip, { CreativePipeline } from "../Common/ayahuasca.js";
+import Agent from "./Agent.js";
+import AyahuascaTrip from "./AyahuascaTrip.js";
 import {
   sb,
   ensureAppUser,
@@ -700,6 +700,43 @@ function getPerfilContent(perfilKey) {
   };
 }
 
+//Ayahuasca
+
+async function startTrip() {
+  const perfil = getPerfilContent("Nemesis");
+
+  const agent = new Agent({
+    id: "test-01",
+    modelProvider: "openai",
+    debug: true,
+    perfil: perfil,
+  });
+  const trip = new AyahuascaTrip(agent, {
+    intensity: "surreal",
+    scriptIntensity: "extreme",
+    effects: {
+      memoryBlend: 1.7,
+      hallucinationFactor: 0.8,
+    },
+  });
+
+  const task = {
+    taskType: "creative",
+    brief: [
+      {
+        role: "user",
+        content: "Describe el sabor de un recuerdo de infancia",
+      },
+    ],
+  };
+
+  const results = await trip.withTrip(task, { variants: 5 });
+
+  for (const result of results) {
+    console.log("Variante del viaje:", result);
+  }
+}
+
 //Inicialización
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -762,17 +799,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   initModeSelector(modeSelector);
 
-  /*ayahuasca.addEventListener("click", async () => {
-    const agent = new Agent({ id: "agent-test", modelProvider: "openai" });
-    const trip = new AyahuascaTrip(agent, {
-      intensity: "surreal",
-      tone: "explorer_dreamy",
-    });
-    await trip.withTrip({
-      brief: "Generate an abstract concept narrative",
-      taskType: "creative",
-    });
-  });*/
+  ayahuasca.addEventListener("click", async () => {
+    await startTrip();
+  });
 
   multiplier3.addEventListener("click", () => runProfilesChain(3, multiplier3));
 

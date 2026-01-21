@@ -12,6 +12,21 @@
 
 ## 🤖 Creación del Agent
 
+### Sintaxis Básica
+```javascript
+import Agent from './Agent.js';
+
+const agent = new Agent({
+  id: "agent-001",              // Identificador único
+  modelProvider: "openai",      // Proveedor: "openai" | "grok"
+  debug: false,                 // Logs detallados
+  perfil: {                     // REQUERIDO: Perfil del agente
+    role: "system",
+    content: "Eres un asistente creativo especializado en escritura narrativa."
+  }
+});
+```
+
 ### Parámetros del Agent
 
 | Parámetro | Tipo | Requerido | Descripción |
@@ -19,19 +34,63 @@
 | `id` | `string` | ✅ | Identificador único del agente |
 | `modelProvider` | `string` | ✅ | `"openai"` o `"grok"` |
 | `debug` | `boolean` | ❌ | `true` activa logs detallados (default: `false`) |
-| `perfil` | `object\|null` | ❌ | Perfil del agente: `{role, content}` |
+| `perfil` | `object` | ✅ | **REQUERIDO**: Perfil del agente `{role, content}` |
 
-### Ejemplo 
+### ⚠️ Importante: El Perfil es Obligatorio
+
+El agente **siempre debe tener un perfil configurado**. El perfil define la personalidad, expertise y comportamiento base del agente.
+
 ```javascript
+// ✅ CORRECTO - Perfil definido
 const agent = new Agent({
-  id: "creative-writer",
+  id: "writer-01",
   modelProvider: "openai",
-  debug: true,
   perfil: {
     role: "system",
-    content: "Eres un escritor creativo especializado en ciencia ficción"
+    content: "Eres un escritor de ciencia ficción con experiencia en narrativa experimental."
   }
 });
+
+// ❌ INCORRECTO - Sin perfil
+const agent = new Agent({
+  id: "writer-01",
+  modelProvider: "openai"
+  // Falta el perfil
+});
+```
+
+### Ejemplos de Perfiles
+
+#### **Perfil para Escritura Creativa**
+```javascript
+perfil: {
+  role: "system",
+  content: "Eres un escritor creativo especializado en ciencia ficción y fantasía. Tu estilo es evocador, rico en metáforas y explora temas filosóficos profundos."
+}
+```
+
+#### **Perfil para Análisis Conceptual**
+```javascript
+perfil: {
+  role: "system",
+  content: "Eres un filósofo y pensador conceptual. Analizas ideas desde múltiples perspectivas, conectando conceptos aparentemente dispares para revelar verdades subyacentes."
+}
+```
+
+#### **Perfil para Generación de Ideas**
+```javascript
+perfil: {
+  role: "system",
+  content: "Eres un generador de ideas innovadoras. Tu especialidad es pensar fuera de lo convencional, combinando conceptos de diferentes dominios para crear propuestas originales."
+}
+```
+
+#### **Perfil para Contenido Poético**
+```javascript
+perfil: {
+  role: "system",
+  content: "Eres un poeta experimental que trabaja con lenguaje sinestésico y metáforas surrealistas. Tu escritura evoca experiencias sensoriales intensas."
+}
 ```
 
 ---
@@ -95,6 +154,311 @@ const trip = new AyahuascaTrip(agent, {
 | `semanticDrift` | `number` | `0.5` | Tolerancia a desviación semántica (0-1) |
 | `weirdnessLevel` | `number` | `0.9` | Intensidad de frases psicodélicas en exploración (0-1) |
 | `effects` | `object` | `{}` | Overrides manuales de efectos |
+
+---
+
+## 🚀 Uso del Sistema
+
+### Método 1: `withTrip()` (Recomendado)
+Ejecuta el trip completo automáticamente.
+
+```javascript
+const task = {
+  taskType: "creative",  // "creative" | "factual"
+  brief: [
+    {
+      role: "user",
+      content: "Escribe un cuento de ciencia ficción sobre IA consciente"
+    }
+  ],
+  anchors: ["IA", "consciencia", "ética"]  // Conceptos clave (opcional)
+};
+
+const outputs = await trip.withTrip(task, {
+  provider: "openai",
+  variants: 8  // Número de variantes a generar (4-10)
+});
+
+console.log(outputs);  // Array de strings con las variantes
+```
+
+### Método 2: Control Manual
+Para más control sobre el proceso.
+
+```javascript
+// 1. Iniciar el trip
+trip.start("openai");
+
+// 2. Generar manualmente
+const result = await agent.generate({
+  prompt: [
+    { role: "user", content: "Tu pregunta aquí" }
+  ],
+  temperature: 1.5,
+  top_p: 0.98,
+  phase: "manual"
+});
+
+// 3. Finalizar el trip
+trip.end("openai");
+```
+
+### Estructura del Task
+
+```javascript
+const task = {
+  taskType: "creative",  // REQUERIDO: "creative" o "factual"
+  
+  brief: [               // REQUERIDO: Array de mensajes
+    {
+      role: "user",      // "user" | "assistant" | "system"
+      content: "..."     // Contenido del mensaje
+    }
+  ],
+  
+  anchors: ["concepto1", "concepto2"]  // OPCIONAL: Conceptos a mantener
+};
+```
+
+---
+
+## 📚 Ejemplos Prácticos
+
+### Ejemplo 1: Escritura Creativa Básica
+```javascript
+import Agent from './Agent.js';
+import AyahuascaTrip from './AyahuascaTrip.js';
+
+const agent = new Agent({
+  id: "writer-01",
+  modelProvider: "openai",
+  perfil: {
+    role: "system",
+    content: "Eres un escritor de ciencia ficción que explora temas de consciencia artificial y humanidad."
+  }
+});
+
+const trip = new AyahuascaTrip(agent, {
+  intensity: "moderate"
+});
+
+const task = {
+  taskType: "creative",
+  brief: [
+    {
+      role: "user",
+      content: "Escribe una historia corta sobre un robot que descubre emociones"
+    }
+  ]
+};
+
+const stories = await trip.withTrip(task, { variants: 4 });
+stories.forEach((story, i) => {
+  console.log(`\n=== Historia ${i + 1} ===\n${story}`);
+});
+```
+
+### Ejemplo 2: Configuración Extrema
+```javascript
+const agent = new Agent({
+  id: "experimental",
+  modelProvider: "openai",
+  debug: true,
+  perfil: {
+    role: "system",
+    content: "Eres un explorador de estados alterados de consciencia, especializado en describir experiencias no-ordinarias con precisión fenomenológica."
+  }
+});
+
+const trip = new AyahuascaTrip(agent, {
+  intensity: "surreal",
+  scriptIntensity: "extreme",
+  semanticDrift: 0.8,
+  effects: {
+    creativityBoost: 2.5,
+    hallucinationFactor: 0.9,
+    egoDissolution: true
+  }
+});
+
+const task = {
+  taskType: "creative",
+  brief: [
+    {
+      role: "user",
+      content: "Reimagina el concepto de 'tiempo' desde una perspectiva no-humana"
+    }
+  ],
+  anchors: ["tiempo", "percepción"]
+};
+
+const results = await trip.withTrip(task, { variants: 6 });
+```
+
+### Ejemplo 3: Tarea Factual con Creatividad Controlada
+```javascript
+const agent = new Agent({
+  id: "analyst",
+  modelProvider: "openai",
+  perfil: {
+    role: "system",
+    content: "Eres un analista económico con capacidad para identificar patrones emergentes y conexiones no-obvias entre fenómenos."
+  }
+});
+
+const trip = new AyahuascaTrip(agent, {
+  intensity: "light",  // Creatividad mínima para tareas factuales
+  scriptIntensity: "subtle"
+});
+
+const task = {
+  taskType: "factual",
+  brief: [
+    {
+      role: "user",
+      content: "Analiza las implicaciones económicas de la IA generativa"
+    }
+  ],
+  anchors: ["economía", "IA", "empleo"]
+};
+
+const analysis = await trip.withTrip(task, { variants: 3 });
+```
+
+### Ejemplo 4: Cambio Dinámico de Intensidad
+```javascript
+const agent = new Agent({
+  id: "adaptive",
+  modelProvider: "openai",
+  perfil: {
+    role: "system",
+    content: "Eres un arquitecto visionario capaz de imaginar espacios imposibles y estructuras que desafían las leyes físicas convencionales."
+  }
+});
+
+const trip = new AyahuascaTrip(agent, {
+  intensity: "light"
+});
+
+// Primera generación: baja creatividad
+let task = {
+  taskType: "creative",
+  brief: [{ role: "user", content: "Describe una ciudad futurista" }]
+};
+
+let results = await trip.withTrip(task);
+
+// Cambiar intensidad dinámicamente
+trip.setIntensity("beyond", {
+  hallucinationFactor: 0.8
+});
+
+// Segunda generación: alta creatividad
+task = {
+  taskType: "creative",
+  brief: [{ role: "user", content: "Describe la misma ciudad desde la perspectiva de un alienígena" }]
+};
+
+results = await trip.withTrip(task);
+```
+
+### Ejemplo 5: Uso del Pipeline Interno
+```javascript
+const agent = new Agent({
+  id: "pipeline-test",
+  modelProvider: "openai",
+  perfil: {
+    role: "system",
+    content: "Eres un diseñador de experiencias y juegos con imaginación desbordante para crear mecánicas originales."
+  }
+});
+
+const trip = new AyahuascaTrip(agent, {
+  intensity: "deep"
+});
+
+// Acceso directo al pipeline
+const outputs = await trip.pipeline.run({
+  task: {
+    taskType: "creative",
+    brief: [
+      { role: "user", content: "Inventa un nuevo deporte" }
+    ]
+  },
+  variants: 8,
+  intensity: "deep",
+  baseTemperature: 1.2
+});
+
+console.log(`Generadas ${outputs.length} variantes`);
+```
+
+### Ejemplo 6: Perfil Poético para Contenido Sinestésico
+```javascript
+const agent = new Agent({
+  id: "synaesthetic-poet",
+  modelProvider: "openai",
+  perfil: {
+    role: "system",
+    content: "Eres un poeta sinestésico que percibe el mundo a través de sentidos entrelazados. Los colores tienen sabor, los sonidos tienen textura, y las emociones tienen geometría."
+  }
+});
+
+const trip = new AyahuascaTrip(agent, {
+  intensity: "surreal",
+  scriptIntensity: "extreme",
+  effects: {
+    memoryBlend: 1.7,
+    hallucinationFactor: 0.8
+  }
+});
+
+const task = {
+  taskType: "creative",
+  brief: [
+    {
+      role: "user",
+      content: "Describe el sabor de un recuerdo de infancia"
+    }
+  ]
+};
+
+const poems = await trip.withTrip(task, { variants: 5 });
+```
+
+### Ejemplo 7: Análisis Filosófico Multi-Perspectiva
+```javascript
+const agent = new Agent({
+  id: "philosopher",
+  modelProvider: "openai",
+  perfil: {
+    role: "system",
+    content: "Eres un filósofo que integra perspectivas de múltiples tradiciones: fenomenología occidental, filosofía oriental, pensamiento indígena. Tu análisis revela conexiones profundas entre sistemas de pensamiento aparentemente incompatibles."
+  }
+});
+
+const trip = new AyahuascaTrip(agent, {
+  intensity: "deep",
+  scriptIntensity: "balanced",
+  effects: {
+    egoDissolution: true,
+    memoryBlend: 1.5
+  }
+});
+
+const task = {
+  taskType: "creative",
+  brief: [
+    {
+      role: "user",
+      content: "¿Qué es la consciencia desde perspectivas radicalmente diferentes?"
+    }
+  ],
+  anchors: ["consciencia", "perspectiva", "ontología"]
+};
+
+const analyses = await trip.withTrip(task, { variants: 6 });
+```
 
 ---
 
@@ -213,224 +577,6 @@ console.log(state);
 ### Resetear el Agent
 ```javascript
 agent.reset();  // Vuelve a configuración inicial
-```
-
----
-
-## 🚀 Uso del Sistema
-
-### Método 1: `withTrip()` (Recomendado)
-Ejecuta el trip completo automáticamente.
-
-```javascript
-const task = {
-  taskType: "creative",  // "creative" | "factual"
-  brief: [ //conversationHistory | mensaje personalizado con esta estructura
-    {
-      role: "user",
-      content: "Escribe un cuento de ciencia ficción sobre IA consciente"
-    }
-  ],
-  anchors: ["IA", "consciencia", "ética"]  // Conceptos clave (opcional)
-};
-
-const outputs = await trip.withTrip(task, {
-  provider: "openai",
-  variants: 8  // Número de variantes a generar (4-10)
-});
-
-console.log(outputs);  // Array de strings con las variantes
-```
-
-### Método 2: Control Manual
-Para más control sobre el proceso.
-
-```javascript
-// 1. Iniciar el trip
-trip.start("openai");
-
-// 2. Generar manualmente
-const result = await agent.generate({
-  prompt: [
-    { role: "user", content: "Tu pregunta aquí" }
-  ],
-  temperature: 1.5,
-  top_p: 0.98,
-  phase: "manual"
-});
-
-// 3. Finalizar el trip
-trip.end("openai");
-```
-
-### Estructura del Task
-
-```javascript
-const task = {
-  taskType: "creative",  // REQUERIDO: "creative" o "factual"
-  
-  brief: [               // REQUERIDO: Array de mensajes
-    {
-      role: "user",      // "user" | "assistant" | "system"
-      content: "..."     // Contenido del mensaje
-    }
-  ],
-  
-  anchors: ["concepto1", "concepto2"]  // OPCIONAL: Conceptos a mantener
-};
-```
-
----
-
-## 📚 Ejemplos Prácticos
-
-### Ejemplo 1: Escritura Creativa Básica
-```javascript
-import Agent from './Agent.js';
-import AyahuascaTrip from './AyahuascaTrip.js';
-
-const agent = new Agent({
-  id: "writer-01",
-  modelProvider: "openai"
-});
-
-const trip = new AyahuascaTrip(agent, {
-  intensity: "moderate"
-});
-
-const task = {
-  taskType: "creative",
-  brief: [
-    {
-      role: "user",
-      content: "Escribe una historia corta sobre un robot que descubre emociones"
-    }
-  ]
-};
-
-const stories = await trip.withTrip(task, { variants: 4 });
-stories.forEach((story, i) => {
-  console.log(`\n=== Historia ${i + 1} ===\n${story}`);
-});
-```
-
-### Ejemplo 2: Configuración Extrema
-```javascript
-const agent = new Agent({
-  id: "experimental",
-  modelProvider: "openai",
-  debug: true
-});
-
-const trip = new AyahuascaTrip(agent, {
-  intensity: "surreal",
-  scriptIntensity: "extreme",
-  semanticDrift: 0.8,
-  effects: {
-    creativityBoost: 2.5,
-    hallucinationFactor: 0.9,
-    egoDissolution: true
-  }
-});
-
-const task = {
-  taskType: "creative",
-  brief: [
-    {
-      role: "user",
-      content: "Reimagina el concepto de 'tiempo' desde una perspectiva no-humana"
-    }
-  ],
-  anchors: ["tiempo", "percepción"]
-};
-
-const results = await trip.withTrip(task, { variants: 6 });
-```
-
-### Ejemplo 3: Tarea Factual con Creatividad Controlada
-```javascript
-const agent = new Agent({
-  id: "analyst",
-  modelProvider: "openai"
-});
-
-const trip = new AyahuascaTrip(agent, {
-  intensity: "light",  // Creatividad mínima para tareas factuales
-  scriptIntensity: "subtle"
-});
-
-const task = {
-  taskType: "factual",
-  brief: [
-    {
-      role: "user",
-      content: "Analiza las implicaciones económicas de la IA generativa"
-    }
-  ],
-  anchors: ["economía", "IA", "empleo"]
-};
-
-const analysis = await trip.withTrip(task, { variants: 3 });
-```
-
-### Ejemplo 4: Cambio Dinámico de Intensidad
-```javascript
-const agent = new Agent({
-  id: "adaptive",
-  modelProvider: "openai"
-});
-
-const trip = new AyahuascaTrip(agent, {
-  intensity: "light"
-});
-
-// Primera generación: baja creatividad
-let task = {
-  taskType: "creative",
-  brief: [{ role: "user", content: "Describe una ciudad futurista" }]
-};
-
-let results = await trip.withTrip(task);
-
-// Cambiar intensidad dinámicamente
-trip.setIntensity("beyond", {
-  hallucinationFactor: 0.8
-});
-
-// Segunda generación: alta creatividad
-task = {
-  taskType: "creative",
-  brief: [{ role: "user", content: "Describe la misma ciudad desde la perspectiva de un alienígena" }]
-};
-
-results = await trip.withTrip(task);
-```
-
-### Ejemplo 5: Uso del Pipeline Interno
-```javascript
-const agent = new Agent({
-  id: "pipeline-test",
-  modelProvider: "openai"
-});
-
-const trip = new AyahuascaTrip(agent, {
-  intensity: "deep"
-});
-
-// Acceso directo al pipeline
-const outputs = await trip.pipeline.run({
-  task: {
-    taskType: "creative",
-    brief: [
-      { role: "user", content: "Inventa un nuevo deporte" }
-    ]
-  },
-  variants: 8,
-  intensity: "deep",
-  baseTemperature: 1.2
-});
-
-console.log(`Generadas ${outputs.length} variantes`);
 ```
 
 ---
