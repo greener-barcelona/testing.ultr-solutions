@@ -29,6 +29,15 @@ const MODE_KEY = "mode";
 let modeValue = "Briefer";
 let activeConversationId = null;
 let title = "";
+let exportBtn = null;
+let briefButton = null;
+let sendBtn = null;
+let briefDrop = null;
+let contextDrop = null;
+let briefInputs = [];   // textos extraídos del brief cliente
+let contextInputs = []; // textos extraídos del contexto adicional
+let lastBriefHumano = "";
+let lastBriefIA = "";
 
 const conversationHistory = [];
 
@@ -249,6 +258,7 @@ async function userSendMessage() {
       : conversation,
   );
   await saveMessage(activeConversationId, { text: text });
+  setExportButtonsEnabled(true, false);
 }
 
 //Botones
@@ -269,9 +279,19 @@ async function sendMessageToBrieferButton(triggerBtn) {
   toggleElement(triggerBtn);
 }
 
+function setBtnEnabled(btn, enabled) {
+  btn.disabled = !enabled;
+  btn.classList.toggle("disabled", !enabled);
+}
+
+function setExportButtonsEnabled(humanoEnabled, iaEnabled) {
+  setBtnEnabled(exportBtn, !!humanoEnabled);
+  setBtnEnabled(briefButton, !!iaEnabled);
+}
+
 //Archivos
 
-async function onFileLoaded(e, fileInput) {
+/*async function onFileLoaded(e, fileInput) {
   const files = Array.from(e.target.files);
   for (const file of files) {
     if (!file) continue;
@@ -364,14 +384,136 @@ async function onFileLoaded(e, fileInput) {
 
     fileInput.value = "";
   }
+}*/
+
+function pushSystemDoc(kind, filename, content) {
+  const tag = kind === "brief" ? "BRIEF_CLIENTE" : "CONTEXTO";
+  conversationHistory.push({
+    role: "user",
+    content: `[${tag}] ${filename}\n\n${content}`,
+  });
 }
+
+async function handleFiles(files, kind) {
+  const arr = Array.from(files || []);
+  for (const file of arr) {
+    if (!file) continue;
+
+    const isPdf = file.type === "application/pdf";
+    const isImg = ["image/jpeg", "image/png", "image/jpg"].includes(file.type);
+    const isTxt = file.type === "text/plain";
+    const isDoc =
+      file.name.toLowerCase().endsWith(".doc") ||
+      file.name.toLowerCase().endsWith(".docx");
+
+    // Acepta lo que realmente soportas. OJO: ahora mismo NO procesas doc/docx.
+    if (!isPdf && !isImg && !isTxt) continue;
+
+    if (isPdf && file.size > 30 * 1024 * 1024) { alert("PDF > 30MB"); continue; }
+    if (isImg && file.size > 10 * 1024 * 1024) { alert("Imagen > 10MB"); continue; }
+    if (isTxt && file.size > 2 * 1024 * 1024) { alert("TXT > 2MB"); continue; }
+
+    let fileContent = "";
+    try {
+      if (isPdf) fileContent = await extractPDFText(file);
+      else if (isImg) fileContent = await imageToBase64(file);
+      else if (isTxt) fileContent = await file.text();
+
+      if (!fileContent || !fileContent.trim()) {
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "message error text-content";
+        errorDiv.textContent = `El archivo ${file.name} no tiene contenido.`;
+        responseDiv.appendChild(errorDiv);
+        continue;
+      }
+
+      // asegura conversación
+      if (!activeConversationId) {
+        title = file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
+        await startNewConversation(title);
+      }
+
+      // UI feedback
+      const replyDiv = renderMessage({
+        author: user.name.split(" ")[0] || "Usuario",
+        text: `${file.name} cargado (${kind === "brief" ? "brief" : "contexto"}).`,
+        userProfile: user.profilePicture,
+      });
+      responseDiv.appendChild(replyDiv);
+
+      // estado local
+      if (kind === "brief") briefInputs.push({ name: file.name, content: fileContent });
+      else contextInputs.push({ name: file.name, content: fileContent });
+
+      // IMPORTANT: etiqueta para que el modelo lo trate distinto
+      pushSystemDoc(kind, file.name, fileContent);
+
+      // persistencia
+      await saveMessage(activeConversationId, { text: replyDiv.textContent.trim() });
+      await saveMessage(activeConversationId, { text: fileContent, creativeAgent: "system" });
+
+    } catch (err) {
+      console.error(err);
+      alert(`Error procesando ${file.name}`);
+    }
+  }
+setExportButtonsEnabled(true, false);
+  responseDiv.scrollTop = responseDiv.scrollHeight;
+}
+
+function wireDropzone(zoneEl, kind) {
+  const setActive = (on) => zoneEl.classList.toggle("is-dragover", on);
+
+  zoneEl.addEventListener("dragover", (e) => { e.preventDefault(); setActive(true); });
+  zoneEl.addEventListener("dragleave", () => setActive(false));
+  zoneEl.addEventListener("drop", async (e) => {
+    e.preventDefault();
+    setActive(false);
+    const files = e.dataTransfer?.files;
+    if (files && files.length) await handleFiles(files, kind);
+  });
+}
+
+function downloadText(filename, content, mime = "text/plain;charset=utf-8") {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+exportBtn.addEventListener("click", () => {
+  if (!lastBriefHumano) return alert("Aún no hay brief humano generado.");
+  downloadText(`brief-creativo-${activeConversationId}.md`, lastBriefHumano);
+});
+
+briefButton.addEventListener("click", () => {
+  if (!lastBriefIA) return alert("Aún no hay brief IA generado.");
+  downloadText(`brief-ia-${activeConversationId}.json`, lastBriefIA);
+});
+
+function buildInputHeader() {
+  const b = briefInputs.map(x => `- ${x.name}`).join("\n") || "- (ninguno)";
+  const c = contextInputs.map(x => `- ${x.name}`).join("\n") || "- (ninguno)";
+  return `DOCUMENTOS CARGADOS:\nBRIEF_CLIENTE:\n${b}\n\nCONTEXTO:\n${c}\n`;
+}
+
 
 //Endpoints
 
 async function sendMessageToBriefer(conversationId) {
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
-  pending.textContent = `Briefeando...`;
+  pending.textContent = "Briefeando...";
+
+  const extractBlock = (text, start, end) => {
+    const a = text.indexOf(start);
+    const b = text.indexOf(end);
+    if (a === -1 || b === -1 || b <= a) return "";
+    return text.slice(a + start.length, b).trim();
+  };
 
   if (activeConversationId === conversationId) {
     responseDiv.appendChild(pending);
@@ -385,56 +527,90 @@ async function sendMessageToBriefer(conversationId) {
       body: JSON.stringify({
         perfil: {
           role: "system",
-          content: `${brieferPerfil.content}\n\n${brieferInstrucciones}`,
+          content: `${brieferPerfil.content}\n\n${brieferInstrucciones}\n\n${buildInputHeader()}`,
         },
         messages: conversationHistory,
       }),
     });
 
     if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.error || "Error al enviar.");
+      let msg = "Error al enviar.";
+      try {
+        const errorData = await res.json();
+        msg = errorData?.error || msg;
+      } catch {}
+      throw new Error(msg);
     }
 
     const data = await res.json();
     const text = replaceWeirdChars(data.reply);
     const cleanhtml = extractBodyContent(text);
+
     if (!cleanhtml || !cleanhtml.trim()) {
       throw new Error("La IA no generó respuesta");
     }
 
+    // Guarda respuesta completa (por si quieres auditar/debuggear)
     await saveMessage(conversationId, {
       text: cleanhtml,
       creativeAgent: "briefer-claude",
     });
 
-    pending.remove();
-
-    cachedConversations = cachedConversations.map((conversation) =>
-      conversation.id === conversationId
-        ? { ...conversation, _messages: [...conversation._messages, cleanhtml] }
-        : conversation,
+    // Extrae ambos artefactos
+    lastBriefHumano = extractBlock(
+      cleanhtml,
+      "<<<BRIEF_CREATIVO>>>",
+      "<<<END_BRIEF_CREATIVO>>>"
+    );
+    lastBriefIA = extractBlock(
+      cleanhtml,
+      "<<<BRIEF_TECNICO>>>",
+      "<<<END_BRIEF_TECNICO>>>"
     );
 
+    // Actualiza sidebar cache
+    cachedConversations = cachedConversations.map((c) =>
+      c.id === conversationId
+        ? { ...c, _messages: [...(c._messages || []), cleanhtml] }
+        : c
+    );
+
+    // Quita pending si está en pantalla
+    if (pending.isConnected) pending.remove();
+
+    // Renderiza SOLO el humano (si no vino con tags, muestra todo)
     if (activeConversationId === conversationId) {
+      const toShow = lastBriefHumano || cleanhtml;
+
       const replyDiv = renderMessage({
         author: "briefer-claude",
-        text: cleanhtml,
+        text: toShow,
       });
-      addMessageToConversationHistory(replyDiv, conversationHistory);
 
+      addMessageToConversationHistory(replyDiv, conversationHistory);
       responseDiv.appendChild(replyDiv);
       responseDiv.scrollTop = responseDiv.scrollHeight;
-    } else {
-      pending.remove();
+
+      // Habilita exports según existan
+      setExportButtonsEnabled(!!lastBriefHumano, !!lastBriefIA);
     }
   } catch (err) {
     console.error(err);
-    pending.textContent = `Error: ${err.message}`;
-    pending.classList.remove("pending");
-    pending.classList.add("error");
+
+    if (pending.isConnected) {
+      pending.textContent = `Error: ${err.message}`;
+      pending.classList.remove("pending");
+      pending.classList.add("error");
+    } else if (activeConversationId === conversationId) {
+      const errorDiv = document.createElement("div");
+      errorDiv.className = "message error text-content";
+      errorDiv.textContent = `Error: ${err.message}`;
+      responseDiv.appendChild(errorDiv);
+      responseDiv.scrollTop = responseDiv.scrollHeight;
+    }
   }
 }
+
 
 async function exportConversation(button, summarize) {
   return alert("Función de exportar deshabilitada en el entorno de pruebas");
@@ -514,13 +690,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   const settingsMenu = document.getElementById("settingsMenu");
   const logoutBtn = document.getElementById("logoutBtn");
   const newChatBtn = document.getElementById("newChatBtn");
-  const exportBtn = document.getElementById("exportBtn");
   const briefFileInput = document.getElementById("briefFileInput");
   const contextFileInput = document.getElementById("contextFileInput");
   const modeSelector = document.getElementById("selector");
   const titleText = document.getElementById("title");
-  const briefButton = document.getElementById("briefButton");
-  const sendBtn = document.getElementById("sendBtn");
+  exportBtn = document.getElementById("exportBtn");
+  briefButton = document.getElementById("briefButton");
+  sendBtn = document.getElementById("sendBtn");
+  briefDrop = document.getElementById("briefDrop");
+  contextDrop = document.getElementById("contextDrop");
   if (
     !searchBtn ||
     !searchModal ||
@@ -552,7 +730,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     titleText.text = value;
     document.title = modeValue;
   });
-
+wireDropzone(briefDrop, "brief");
+wireDropzone(contextDrop, "context");
   sendBtn.addEventListener("click", async () => {
   await userSendMessage();
 });
@@ -563,20 +742,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (e.target === searchModal) closeSearchModal();
   });
 
-  exportBtn.addEventListener("click", () => {
-    exportConversation(exportBtn, false);
-  });
+briefFileInput.addEventListener("change", async (e) => {
+  await handleFiles(e.target.files, "brief");
+  e.target.value = "";
+});
 
-  briefFileInput.addEventListener("change", (e) =>
-    onFileLoaded(e, briefFileInput),
-  );
-  contextFileInput.addEventListener("change", (e) =>
-    onFileLoaded(e, contextFileInput),
-  );
-
-  briefButton.addEventListener("click", () => {
-    sendMessageToBrieferButton(briefButton);
-  });
+contextFileInput.addEventListener("change", async (e) => {
+  await handleFiles(e.target.files, "context");
+  e.target.value = "";
+});
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeSearchModal();
@@ -645,6 +819,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         menu.classList.remove("active");
       }
     });
+  });
+
+   exportBtn.addEventListener("click", () => {
+    exportConversation(exportBtn, false);
+  });
+
+   briefButton.addEventListener("click", () => {
+    sendMessageToBrieferButton(briefButton);
   });
 
   cachedConversations = await refreshCachedConversations();
