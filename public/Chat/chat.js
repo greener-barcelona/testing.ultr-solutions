@@ -28,7 +28,7 @@ import {
   socialPerfiles,
   socialInstrucciones,
   recordatorio,
-  nemesisAya
+  nemesisAya,
 } from "../Common/perfiles.js";
 
 let isChainRunning = false;
@@ -724,9 +724,13 @@ async function startTrip() {
     brief: [
       {
         role: "user",
-        content: "Describe el sabor de un recuerdo de infancia",
+        content: `La nostalgia se vende como conexión con el pasado, 
+      pero ¿qué es realmente? Explora este concepto desde sus fracturas internas, 
+      no desde su marketing emocional. ¿Qué arquitectura oculta sostiene 
+      la industria de "lo retro"?`,
       },
     ],
+    anchors: ["nostalgia", "construcción", "industria"],
   };
 
   const results = await trip.withTrip(task, { variants: 5 });
