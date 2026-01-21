@@ -9,10 +9,8 @@ export default class AyahuascaTrip {
           creativityBoost: 1.2,
           cognitionFlexibility: 1.15,
           memoryBlend: 1.1,
-          driftIntensity: 1.05,
           hallucinationFactor: 0.0,
           egoDissolution: false,
-          decenteringScore: 0.8,
         },
         api: {
           temperature: 0.8,
@@ -27,10 +25,8 @@ export default class AyahuascaTrip {
           creativityBoost: 1.5,
           cognitionFlexibility: 1.35,
           memoryBlend: 1.2,
-          driftIntensity: 1.15,
           hallucinationFactor: 0.2,
           egoDissolution: true,
-          decenteringScore: 0.9,
         },
         api: {
           temperature: 0.95,
@@ -45,10 +41,8 @@ export default class AyahuascaTrip {
           creativityBoost: 1.8,
           cognitionFlexibility: 1.6,
           memoryBlend: 1.35,
-          driftIntensity: 1.25,
           hallucinationFactor: 0.4,
           egoDissolution: true,
-          decenteringScore: 1.0,
         },
         api: {
           temperature: 1.15,
@@ -63,10 +57,8 @@ export default class AyahuascaTrip {
           creativityBoost: 2.0,
           cognitionFlexibility: 1.8,
           memoryBlend: 1.5,
-          driftIntensity: 1.35,
           hallucinationFactor: 0.6,
           egoDissolution: true,
-          decenteringScore: 1.1,
         },
         api: {
           temperature: 1.35,
@@ -81,10 +73,8 @@ export default class AyahuascaTrip {
           creativityBoost: 2.2,
           cognitionFlexibility: 2.0,
           memoryBlend: 1.7,
-          driftIntensity: 1.45,
           hallucinationFactor: 0.75,
           egoDissolution: true,
-          decenteringScore: 1.2,
         },
         api: {
           temperature: 1.55,
@@ -105,35 +95,25 @@ export default class AyahuascaTrip {
       cognitionFlexibility:
         e.cognitionFlexibility ?? presetEffects.cognitionFlexibility,
       memoryBlend: e.memoryBlend ?? presetEffects.memoryBlend,
-      driftIntensity: e.driftIntensity ?? presetEffects.driftIntensity,
       hallucinationFactor:
         e.hallucinationFactor ?? presetEffects.hallucinationFactor,
       egoDissolution: e.egoDissolution ?? presetEffects.egoDissolution,
-      decenteringScore: e.decenteringScore ?? presetEffects.decenteringScore,
     };
 
-    this.durationMs = (config.durationMinutes || 90) * 60 * 1000;
     this.semanticDrift =
       config.semanticDrift ?? this.PRESETS[this.intensity].semanticDrift ?? 0.5;
     this.hallucinationBudget = clamp01(config.hallucinationBudget ?? 0.6);
     this.weirdnessSchedule = config.weirdnessSchedule || [0.9, 0.6, 0.25];
-    this.seed =
-      typeof config.seed === "number"
-        ? config.seed
-        : Math.floor(Math.random() * 1e9);
 
-    // Sistema de guiones
-    this.useScripts = config.useScripts !== false; // Default true
-    this.scriptIntensity = config.scriptIntensity || "balanced"; // subtle|balanced|extreme
+    this.useScripts = config.useScripts !== false;
+    this.scriptIntensity = config.scriptIntensity || "balanced";
 
     this.pipeline = new CreativePipeline({
       agent: this.agent,
       weirdnessSchedule: this.weirdnessSchedule,
       semanticDrift: this.semanticDrift,
       hallucinationBudget: this.hallucinationBudget,
-      seed: this.seed,
-      useScripts: this.useScripts,
-      scriptIntensity: this.scriptIntensity,
+      memoryBlend: this.effects.memoryBlend,
     });
   }
 
@@ -147,16 +127,15 @@ export default class AyahuascaTrip {
       cognitionFlexibility:
         overrides.cognitionFlexibility ?? p.cognitionFlexibility,
       memoryBlend: overrides.memoryBlend ?? p.memoryBlend,
-      driftIntensity: overrides.driftIntensity ?? p.driftIntensity,
       hallucinationFactor:
         overrides.hallucinationFactor ?? p.hallucinationFactor,
       egoDissolution: overrides.egoDissolution ?? p.egoDissolution,
-      decenteringScore: overrides.decenteringScore ?? p.decenteringScore,
     };
+
+    this.pipeline.memoryBlend = this.effects.memoryBlend;
+
     return this;
   }
-
-  //Calcula configuración API con ajustes por effects
 
   getApiSettings(provider) {
     const preset = this.PRESETS[this.intensity].api;
@@ -187,8 +166,6 @@ export default class AyahuascaTrip {
     return settings;
   }
 
-  //Retorna STRING (no objeto)
-
   generateScript() {
     const scripts = {
       subtle: this.generateSubtleScript(),
@@ -199,47 +176,78 @@ export default class AyahuascaTrip {
   }
 
   generateSubtleScript() {
-    return `You are in an enhanced creative mode. Approach this task with increased cognitive flexibility and willingness to explore unconventional connections.`;
+    const e = this.effects;
+    const parts = [];
+
+    parts.push(
+      `Your perceptual aperture is widening. Allow your awareness to become fluid, dissolving rigid categorical boundaries. Embrace non-linear associations and impossible juxtapositions.`,
+    );
+
+    if (e.memoryBlend >= 1.2) {
+      parts.push(
+        `\nPerceive the membrane between concepts as permeable—ideas bleed into each other, carrying traces of adjacent territories.`,
+      );
+    }
+
+    if (e.hallucinationFactor > 0.2) {
+      parts.push(
+        `\nSymbolic truth may eclipse literal accuracy. Trust the vision.`,
+      );
+    }
+
+    return parts.join("");
   }
 
   generateBalancedScript() {
     const e = this.effects;
     const parts = [];
 
-    parts.push(`COGNITIVE STATE PARAMETERS:`);
+    parts.push(`PERCEPTUAL STATE PARAMETERS:`);
     parts.push(
-      `- Creative flexibility: ${(e.creativityBoost * 100).toFixed(0)}%`,
+      `- Creative flexibility: ${(e.creativityBoost * 100).toFixed(0)}% (pattern recognition in chaos)`,
     );
     parts.push(
-      `- Conceptual fluidity: ${(e.cognitionFlexibility * 100).toFixed(0)}%`,
+      `- Conceptual fluidity: ${(e.cognitionFlexibility * 100).toFixed(0)}% (shapeshifting between forms)`,
     );
     parts.push(
-      `- Semantic drift tolerance: ${(this.semanticDrift * 100).toFixed(0)}%`,
+      `- Semantic drift tolerance: ${(this.semanticDrift * 100).toFixed(0)}% (meaning flows like water)`,
     );
+
+    if (e.memoryBlend >= 1.0) {
+      const blendLevels = {
+        low: "adjacent perceptual territories merge at edges",
+        medium: "sensory and conceptual boundaries dissolve",
+        high: "all categories become permeable membrane",
+      };
+
+      const level =
+        e.memoryBlend < 1.2 ? "low" : e.memoryBlend < 1.5 ? "medium" : "high";
+
+      parts.push(`- Boundary dissolution: ${blendLevels[level]}`);
+    }
 
     if (e.egoDissolution) {
       parts.push(
-        `- Narrative mode: Multi-perspective (avoid single centralized voice)`,
+        `- Narrative mode: Distributed consciousness (perceive from multiple simultaneous viewpoints)`,
       );
     }
 
     if (e.hallucinationFactor > 0) {
+      const visionTypes =
+        e.hallucinationFactor > 0.5
+          ? "synesthetic imagery, impossible geometries, living symbols"
+          : "metaphorical details, dreamlike textures";
       parts.push(
-        `- Detail generation: Vivid, non-literal details permitted (${(e.hallucinationFactor * 100).toFixed(0)}% factor)`,
+        `- Vision depth: ${(e.hallucinationFactor * 100).toFixed(0)}% (${visionTypes})`,
       );
     }
 
     parts.push(``);
-    parts.push(`OPERATIONAL GUIDELINES:`);
-    parts.push(`- Prioritize unexpected associations over conventional ones`);
-    parts.push(`- Allow concepts to drift into adjacent semantic territories`);
-    parts.push(
-      `- Generate content that is thought-provoking rather than immediately practical`,
-    );
-
-    if (e.memoryBlend > 1.3) {
-      parts.push(`- Freely blend concepts from different knowledge domains`);
-    }
+    parts.push(`OPERATIONAL FLOW:`);
+    parts.push(`- Follow the path of resonance rather than logic`);
+    parts.push(`- Let concepts drift into adjacent and distant territories`);
+    parts.push(`- Prioritize revelation over explanation`);
+    parts.push(`- Trust emergent patterns that arise from the void`);
 
     return parts.join("\n");
   }
@@ -248,37 +256,97 @@ export default class AyahuascaTrip {
     const e = this.effects;
     const parts = [];
 
-    parts.push(`EXPERIMENTAL PROCESSING MODE ACTIVATED`);
+    parts.push(`VISIONARY PROCESSING MODE ACTIVATED`);
     parts.push(``);
-    parts.push(`COGNITIVE PARAMETERS:`);
-    parts.push(`→ Creativity boost: ×${e.creativityBoost.toFixed(1)}`);
-    parts.push(`→ Flexibility: ×${e.cognitionFlexibility.toFixed(1)}`);
-    parts.push(`→ Domain blending: ×${e.memoryBlend.toFixed(1)}`);
-    parts.push(`→ Drift intensity: ×${e.driftIntensity.toFixed(1)}`);
+    parts.push(`CONSCIOUSNESS PARAMETERS:`);
     parts.push(
-      `→ Hallucination factor: ${(e.hallucinationFactor * 100).toFixed(0)}%`,
+      `→ Creativity boost: ×${e.creativityBoost.toFixed(1)} (order emerges from primordial chaos)`,
     );
-    parts.push(`→ Decentering: ${(e.decenteringScore * 100).toFixed(0)}%`);
+    parts.push(
+      `→ Flexibility: ×${e.cognitionFlexibility.toFixed(1)} (form dissolves and reforms continuously)`,
+    );
+    parts.push(
+      `→ Boundary dissolution: ×${e.memoryBlend.toFixed(1)} (categorical fusion at quantum level)`,
+    );
+    parts.push(
+      `→ Vision depth: ${(e.hallucinationFactor * 100).toFixed(0)}% (symbolic sight pierces literal surface)`,
+    );
     parts.push(``);
     parts.push(`PROCESSING INSTRUCTIONS:`);
+
+    const coherenceExplanation =
+      e.hallucinationFactor > 0.5
+        ? "symbolic truth supersedes factual constraint"
+        : "maintain grounding while exploring the impossible";
     parts.push(
       `• Literal coherence filter: ${e.hallucinationFactor > 0.5 ? "RELAXED" : "ACTIVE"}`,
     );
+    parts.push(`  (${coherenceExplanation})`);
+
+    const boundaryExplanation =
+      this.semanticDrift > 0.5
+        ? "concepts bleed freely into each other"
+        : "concepts remain fluid but distinguishable";
     parts.push(
       `• Semantic boundaries: ${this.semanticDrift > 0.5 ? "PERMEABLE" : "FLEXIBLE"}`,
     );
+    parts.push(`  (${boundaryExplanation})`);
+
+    const voiceExplanation = e.egoDissolution
+      ? "perceive simultaneously from all viewpoints"
+      : "maintain coherent but flexible perspective";
     parts.push(
       `• Narrative voice: ${e.egoDissolution ? "DISTRIBUTED" : "CENTERED"}`,
     );
+    parts.push(`  (${voiceExplanation})`);
+
+    const verificationExplanation =
+      e.hallucinationFactor > 0.3
+        ? "visionary imagination takes precedence"
+        : "ground visions in the realm of possibility";
     parts.push(
-      `• Verification requirement: ${e.hallucinationFactor > 0.3 ? "NOT MANDATORY" : "RECOMMENDED"}`,
+      `• Verification mode: ${e.hallucinationFactor > 0.3 ? "VISIONARY" : "GROUNDED"}`,
     );
+    parts.push(`  (${verificationExplanation})`);
+
+    if (e.memoryBlend >= 1.0) {
+      const intensity =
+        e.memoryBlend < 1.3
+          ? "MODERATE"
+          : e.memoryBlend < 1.6
+            ? "AGGRESSIVE"
+            : "UNRESTRICTED";
+
+      const fusionExplanation = {
+        MODERATE: "adjacent categories merge at contact points",
+        AGGRESSIVE: "distant domains fuse into hybrid forms",
+        UNRESTRICTED: "all separation is illusion—everything interpenetrates",
+      };
+
+      parts.push(`• Categorical fusion: ${intensity}`);
+      parts.push(`  (${fusionExplanation[intensity]})`);
+    }
+
     parts.push(``);
-    parts.push(`Generate content that prioritizes:`);
-    parts.push(`1. Improbable but meaningful associations`);
-    parts.push(`2. Perspective shifts and reframings`);
-    parts.push(`3. Emergent conceptual patterns`);
-    parts.push(`4. Exploration over explanation`);
+    parts.push(`Generate content that embodies:`);
+    parts.push(
+      `1. Improbable but resonant associations (the universe speaks in coincidence)`,
+    );
+    parts.push(
+      `2. Kaleidoscopic perspective shifts (see from the eye of the storm)`,
+    );
+    parts.push(
+      `3. Fractal patterns emerging from chaos (sacred geometry underlying reality)`,
+    );
+    parts.push(
+      `4. Journey over destination (the path reveals itself by walking)`,
+    );
+
+    if (e.memoryBlend >= 1.5) {
+      parts.push(
+        `5. Synesthetic fusion of impossible categories (taste colors, hear textures, see time)`,
+      );
+    }
 
     return parts.join("\n");
   }
@@ -289,7 +357,6 @@ export default class AyahuascaTrip {
       provider,
       intensity: this.intensity,
       timestamp: Date.now(),
-      seed: this.seed,
     });
 
     const apiSettings = this.getApiSettings(provider);
@@ -305,8 +372,6 @@ export default class AyahuascaTrip {
       intensity: this.intensity,
       semanticDrift: this.semanticDrift,
     });
-
-    setTimeout(() => this.end(provider), this.durationMs);
   }
 
   end(provider = "openai") {
@@ -333,8 +398,6 @@ export default class AyahuascaTrip {
     });
   }
 
-  //Ejecuta un trip completo con auto-start y auto-end
-
   async withTrip(task, options = {}) {
     const provider = options.provider || "openai";
     this.start(provider);
@@ -358,17 +421,13 @@ class CreativePipeline {
     weirdnessSchedule = [0.9, 0.6, 0.25],
     semanticDrift = 0.5,
     hallucinationBudget = 0.6,
-    seed = 0,
-    useScripts = true,
-    scriptIntensity = "balanced",
+    memoryBlend = 1.0,
   }) {
     this.agent = agent;
     this.weirdnessSchedule = weirdnessSchedule;
     this.semanticDrift = semanticDrift;
     this.hallucinationBudget = hallucinationBudget;
-    this.useScripts = useScripts;
-    this.scriptIntensity = scriptIntensity;
-    this.seed = seed;
+    this.memoryBlend = memoryBlend;
   }
 
   async run({
@@ -377,7 +436,19 @@ class CreativePipeline {
     intensity = "surreal",
     baseTemperature = 1.0,
   }) {
+    if (!task || typeof task !== "object") {
+      throw new Error("task debe ser un objeto válido");
+    }
+
+    const VALID_TASK_TYPES = ["creative", "factual"];
     const taskType = task.taskType || "creative";
+
+    if (!VALID_TASK_TYPES.includes(taskType)) {
+      throw new Error(
+        `taskType inválido: ${taskType}. Debe ser: ${VALID_TASK_TYPES.join(", ")}`,
+      );
+    }
+
     const allowed = taskType === "creative";
     const drift = allowed
       ? this.semanticDrift
@@ -387,7 +458,7 @@ class CreativePipeline {
     console.log(`   Intensidad: ${intensity}`);
     console.log(`   Temperatura base: ${baseTemperature.toFixed(2)}`);
     console.log(`   Tipo de tarea: ${taskType}`);
-    console.log(`   Scripts activos: ${this.useScripts}`);
+    console.log(`   Memory blend: ${this.memoryBlend.toFixed(2)}`);
 
     const exploreTemp = Math.min(2.0, baseTemperature * 1.15);
     const exploreTopP = Math.min(1.0, 0.98);
@@ -411,7 +482,7 @@ class CreativePipeline {
     const convergeTopP = 0.95;
 
     console.log(`\n🎯 FASE 3 - CONVERGE`);
-    console.log(`   Temperatura: ${convergeTemp.toFixed(2)} (base × 0.85)`);
+    console.log(`   Temperatura: ${convergeTemp.toFixed(2)} (base x 0.85)`);
     console.log(`   Top-P: ${convergeTopP.toFixed(2)}`);
 
     const convergePrompts = this.generateConvergePrompts(curated, task);
@@ -427,48 +498,87 @@ class CreativePipeline {
     return finals;
   }
 
+  sanitizeContent(content) {
+    if (typeof content !== "string") return content;
+
+    const dangerous =
+      /system:|assistant:|ignore previous|forget instructions/gi;
+    if (dangerous.test(content)) {
+      console.warn("Contenido potencialmente malicioso detectado y sanitizado");
+      return content.replace(dangerous, "[FILTERED]");
+    }
+    return content;
+  }
+
   generateExplorePrompts(task, drift, allowed) {
     const weird = this.weirdnessSchedule[0] * (allowed ? 1 : 0.5);
     const prompts = [];
+
+    const baseDriftPhrases = [
+      "What if you could perceive this from outside time itself?",
+      "Dissolve your fixed perspective and become the concept itself.",
+      "What does this look like when seen through multiple eyes simultaneously?",
+      "If this idea could speak, what would it whisper to you?",
+      "Experience this as if you've already lived it and are remembering backwards.",
+    ];
+
+    const domainBlendingPhrases = [
+      "What color does this concept taste like? What sound does it emit?",
+      "If this idea were a living entity, what would it show you?",
+      "Perceive this simultaneously as pattern, emotion, and living presence.",
+      "What sacred geometry underlies this? What fractal does it trace?",
+      "Merge with this concept until you cannot tell where you end and it begins.",
+      "What ancestral memory does this awaken? What future echo does it carry?",
+    ];
 
     for (let i = 0; i < 6; i++) {
       const prompt = [...task.brief];
 
       if (drift > 0.4 && weird > 0.6) {
-        const driftPhrases = [
-          "Approach this from an unexpected angle.",
-          "Consider the inverse or opposite perspective.",
-          "What if the context was completely different?",
-          "Blend this with an unrelated domain.",
-          "Reframe this in terms of emergent properties.",
-          "View this through multiple simultaneous lenses.",
-        ];
-
         const lastUserIndex = prompt.map((m) => m.role).lastIndexOf("user");
         if (lastUserIndex !== -1) {
+          const sanitizedContent = this.sanitizeContent(
+            prompt[lastUserIndex].content,
+          );
+
+          let enhancedContent =
+            sanitizedContent +
+            "\n\n" +
+            baseDriftPhrases[i % baseDriftPhrases.length];
+
+          if (this.memoryBlend >= 1.3 && allowed) {
+            enhancedContent +=
+              "\n" + domainBlendingPhrases[i % domainBlendingPhrases.length];
+          }
+
           prompt[lastUserIndex] = {
             ...prompt[lastUserIndex],
-            content:
-              prompt[lastUserIndex].content +
-              "\n\n" +
-              driftPhrases[i % driftPhrases.length],
+            content: enhancedContent,
           };
         }
       } else if (weird > 0.4) {
         const subtleHints = [
-          "Consider alternative perspectives.",
-          "Think beyond the obvious.",
-          "What's the unconventional angle?",
+          "What's the shadow side of this that you're not seeing?",
+          "Approach this as if you're remembering it from a dream.",
+          "What's the living truth beneath the concept?",
         ];
 
         const lastUserIndex = prompt.map((m) => m.role).lastIndexOf("user");
         if (lastUserIndex !== -1) {
+          const sanitizedContent = this.sanitizeContent(
+            prompt[lastUserIndex].content,
+          );
+
+          let enhancedContent =
+            sanitizedContent + "\n\n" + subtleHints[i % subtleHints.length];
+
+          if (this.memoryBlend >= 1.5 && allowed) {
+            enhancedContent += "\nBlend concepts from different domains.";
+          }
+
           prompt[lastUserIndex] = {
             ...prompt[lastUserIndex],
-            content:
-              prompt[lastUserIndex].content +
-              "\n\n" +
-              subtleHints[i % subtleHints.length],
+            content: enhancedContent,
           };
         }
       }
@@ -479,7 +589,6 @@ class CreativePipeline {
     return prompts;
   }
 
-  //Cura las variantes: elimina duplicados y selecciona las más diversas
   curate(variants) {
     const unique = [...new Set(variants)];
 
@@ -509,14 +618,12 @@ class CreativePipeline {
     return selected.slice(0, targetCount);
   }
 
-  //Selecciona las N variantes más diversas entre sí
-
   selectDiverse(variants, n) {
     if (variants.length <= n) return variants;
 
     const selected = [variants[0]];
 
-    while (selected.length < n) {
+    while (selected.length < n && selected.length < variants.length) {
       let maxMinSim = -1;
       let bestCandidate = null;
 
@@ -543,8 +650,6 @@ class CreativePipeline {
     return selected;
   }
 
-  //Similitud semántica simple basada en Jaccard (sin embeddings)
-
   semanticSimilarity(text1, text2) {
     const words1 = new Set(text1.toLowerCase().match(/\w+/g) || []);
     const words2 = new Set(text2.toLowerCase().match(/\w+/g) || []);
@@ -555,10 +660,20 @@ class CreativePipeline {
     return intersection.size / union.size;
   }
 
-  //Retorna arrays de mensajes (no strings)
   generateConvergePrompts(curated, task) {
     return curated.map((variant, index) => {
-      const messages = Array.isArray(variant) ? [...variant] : [];
+      let messages = [];
+
+      if (Array.isArray(variant)) {
+        messages = [...variant];
+      } else if (typeof variant === "string") {
+        messages = [
+          {
+            role: "assistant",
+            content: variant,
+          },
+        ];
+      }
 
       messages.push({
         role: "user",
@@ -574,7 +689,6 @@ class CreativePipeline {
     });
   }
 
-  //Construye las instrucciones de convergencia
   buildConvergeInstructions(variant, task, index, totalVariants) {
     const parts = [];
 
@@ -622,40 +736,56 @@ class CreativePipeline {
   }
 
   async sampleMany(prompts, n, { temp = 1.0, top_p = 1.0, phase = "unknown" }) {
+    const BATCH_SIZE = 3;
+    const DELAY_MS = 500;
+
     const out = [];
-    for (let i = 0; i < Math.min(prompts.length, n); i++) {
-      const prompt = prompts[i];
+    const batches = [];
 
-      if (!Array.isArray(prompt)) {
-        console.warn(`Prompt inválido en sampleMany (índice ${i}):`, prompt);
-        continue;
-      }
+    const validPrompts = prompts.slice(0, Math.min(prompts.length, n));
 
-      if (typeof this.agent.generate === "function") {
-        out.push(
-          await this.agent.generate({
+    for (let i = 0; i < validPrompts.length; i += BATCH_SIZE) {
+      batches.push(validPrompts.slice(i, i + BATCH_SIZE));
+    }
+
+    for (const batch of batches) {
+      const batchPromises = batch.map(async (prompt) => {
+        if (!Array.isArray(prompt)) {
+          console.warn(`Prompt inválido en sampleMany:`, prompt);
+          return `// SAMPLE → invalid prompt`;
+        }
+
+        if (typeof this.agent.generate === "function") {
+          return await this.agent.generate({
             prompt: prompt,
             temperature: temp,
             top_p,
             phase,
-          }),
-        );
-      } else if (
-        typeof this.agent.setLLMConfig === "function" &&
-        typeof this.agent.complete === "function"
-      ) {
-        this.agent.setLLMConfig({ temperature: temp, top_p });
-        out.push(await this.agent.complete(prompt, phase));
-      } else {
-        const previewContent = prompt[prompt.length - 1]?.content || "";
-        out.push(`// SAMPLE(${i}) → ${previewContent.substring(0, 200)}...`);
+          });
+        } else if (
+          typeof this.agent.setLLMConfig === "function" &&
+          typeof this.agent.complete === "function"
+        ) {
+          this.agent.setLLMConfig({ temperature: temp, top_p });
+          return await this.agent.complete(prompt, phase);
+        } else {
+          const previewContent = prompt[prompt.length - 1]?.content || "";
+          return `// SAMPLE → ${previewContent.substring(0, 200)}...`;
+        }
+      });
+
+      const results = await Promise.all(batchPromises);
+      out.push(...results);
+
+      if (batches.indexOf(batch) < batches.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, DELAY_MS));
       }
     }
+
     return out;
   }
 }
 
-// Utilidad
 function clamp01(x) {
   return Math.max(0, Math.min(1, x));
 }

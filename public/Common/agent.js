@@ -35,8 +35,6 @@ class Agent {
     this.events = [];
   }
 
-  //Espera un string
-
   setSystemPrompt(prompt) {
     this.systemPrompt = prompt;
     if (this.debug) {
@@ -69,8 +67,6 @@ class Agent {
     this.perfil = null;
   }
 
-  //Configura parámetros del LLM - REQUERIDO por AyahuascaTrip
-
   setLLMConfig(config) {
     const oldConfig = { ...this.llmConfig };
 
@@ -98,8 +94,6 @@ class Agent {
     }
   }
 
-  //Modifica el estado del trip - REQUERIDO por AyahuascaTrip
-
   modifyParameters(params) {
     this.tripState = {
       ...this.tripState,
@@ -111,7 +105,6 @@ class Agent {
       console.log(`[Agent ${this.id}] Trip state:`, this.tripState);
     }
   }
-  //Registra eventos del trip
 
   logEvent(event) {
     const logEntry = {
@@ -127,14 +120,6 @@ class Agent {
     }
   }
 
-  /*
-   * Estrategia de fusión:
-   * 1. Parámetros inline (temp, top_p) > llmConfig si se proveen
-   * 2. Penalties SIEMPRE vienen de llmConfig
-   * 3. System prompt se añade automáticamente
-   * 4. prompt es SIEMPRE un array de objetos {role, content}
-   */
-
   async generate({
     prompt,
     temperature,
@@ -142,6 +127,18 @@ class Agent {
     max_tokens,
     phase = "unknown",
   }) {
+    if (!Array.isArray(prompt)) {
+      throw new Error("prompt debe ser un array de mensajes");
+    }
+
+    const isValid = prompt.every(
+      (msg) => msg && typeof msg === "object" && msg.role && msg.content,
+    );
+
+    if (!isValid) {
+      throw new Error("Cada mensaje debe tener {role, content}");
+    }
+
     const finalTemp = temperature ?? this.llmConfig.temperature;
     const finalTopP = top_p ?? this.llmConfig.top_p;
     const finalMaxTokens = max_tokens ?? this.llmConfig.max_tokens;
@@ -194,8 +191,6 @@ class Agent {
     }
   }
 
-  // Método alternativo: usa solo llmConfig
-
   async complete(prompt, phase = "unknown") {
     return await this.generate({
       prompt,
@@ -205,16 +200,6 @@ class Agent {
       phase,
     });
   }
-
-  /**
-   * OpenAI implementation - CORREGIDO
-   *
-   * @param {Array} prompt - Array de objetos {role, content}
-   * @param {number} temperature - Temperatura para generación
-   * @param {number} top_p - Top-p sampling
-   * @param {number} max_tokens - Máximo de tokens
-   * @returns {string} - Contenido de la respuesta
-   */
 
   async generateOpenAI(prompt, temperature, top_p, max_tokens) {
     const messages = [...prompt];
@@ -241,31 +226,43 @@ class Agent {
       body.frequency_penalty = this.llmConfig.frequency_penalty;
     }
 
-    const response = await fetch("/api/openai", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        `OpenAI ${response.status}: ${errorData.error?.message || "Unknown"}`,
-      );
+    try {
+      const response = await fetch("/api/openai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          `OpenAI ${response.status}: ${errorData.error?.message || "Unknown"}`,
+        );
+      }
+
+      const data = await response.json();
+
+      if (data.usage) {
+        this.metrics.totalTokens += data.usage.total_tokens;
+      }
+
+      return data;
+    } catch (error) {
+      clearTimeout(timeout);
+
+      if (error.name === "AbortError") {
+        throw new Error("Request timeout después de 30s");
+      }
+      throw error;
     }
-
-    const data = await response.json();
-
-    if (data.usage) {
-      this.metrics.totalTokens += data.usage.total_tokens;
-    }
-
-    return data;
   }
 
-  /**
-   * Obtiene métricas de uso
-   */
   getMetrics() {
     return {
       ...this.metrics,
@@ -273,8 +270,6 @@ class Agent {
       currentIntensity: this.tripState.intensity,
     };
   }
-
-  //Obtiene el estado completo
 
   getState() {
     return {
@@ -288,8 +283,6 @@ class Agent {
       eventCount: this.events.length,
     };
   }
-
-  // Resetea el agente a estado inicial
 
   reset() {
     this.llmConfig = {
