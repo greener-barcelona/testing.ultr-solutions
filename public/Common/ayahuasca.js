@@ -13,10 +13,10 @@ export default class AyahuascaTrip {
           egoDissolution: false,
         },
         api: {
-          temperature: 0.8,
+          temperature: 0.75,
           top_p: 0.9,
-          presence_penalty: 0.0,
-          frequency_penalty: 0.0,
+          presence_penalty: 0.1,
+          frequency_penalty: 0.1,
         },
       },
       moderate: {
@@ -30,9 +30,9 @@ export default class AyahuascaTrip {
         },
         api: {
           temperature: 0.95,
-          top_p: 0.95,
-          presence_penalty: -0.1,
-          frequency_penalty: 0.0,
+          top_p: 0.92,
+          presence_penalty: 0.25,
+          frequency_penalty: 0.2,
         },
       },
       deep: {
@@ -45,10 +45,10 @@ export default class AyahuascaTrip {
           egoDissolution: true,
         },
         api: {
-          temperature: 1.15,
-          top_p: 0.98,
-          presence_penalty: -0.2,
-          frequency_penalty: -0.05,
+          temperature: 1.1,
+          top_p: 0.93,
+          presence_penalty: 0.4,
+          frequency_penalty: 0.3,
         },
       },
       beyond: {
@@ -61,10 +61,10 @@ export default class AyahuascaTrip {
           egoDissolution: true,
         },
         api: {
-          temperature: 1.35,
-          top_p: 1.0,
-          presence_penalty: -0.35,
-          frequency_penalty: -0.1,
+          temperature: 1.25,
+          top_p: 0.9,
+          presence_penalty: 0.6,
+          frequency_penalty: 0.45,
         },
       },
       surreal: {
@@ -77,10 +77,10 @@ export default class AyahuascaTrip {
           egoDissolution: true,
         },
         api: {
-          temperature: 1.55,
-          top_p: 1.0,
-          presence_penalty: -0.45,
-          frequency_penalty: -0.15,
+          temperature: 1.35,
+          top_p: 0.88,
+          presence_penalty: 0.85,
+          frequency_penalty: 0.65,
         },
         semanticDrift: 0.65,
       },
@@ -460,11 +460,11 @@ class CreativePipeline {
     console.log(`   Tipo de tarea: ${taskType}`);
     console.log(`   Memory blend: ${this.memoryBlend.toFixed(2)}`);
 
-    const exploreTemp = Math.min(2.0, baseTemperature * 1.15);
+    const exploreTemp = Math.min(1.5, baseTemperature);
     const exploreTopP = Math.min(1.0, 0.98);
 
     console.log(`\n📡 FASE 1 - EXPLORE`);
-    console.log(`   Temperatura: ${exploreTemp.toFixed(2)} (base × 1.15)`);
+    console.log(`   Temperatura: ${exploreTemp.toFixed(2)} `);
     console.log(`   Top-P: ${exploreTopP.toFixed(2)}`);
 
     const explorePrompts = this.generateExplorePrompts(
