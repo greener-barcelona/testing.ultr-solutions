@@ -103,14 +103,14 @@ export default class AyahuascaTrip {
     this.semanticDrift =
       config.semanticDrift ?? this.PRESETS[this.intensity].semanticDrift ?? 0.5;
     this.hallucinationBudget = clamp01(config.hallucinationBudget ?? 0.6);
-    this.weirdnessSchedule = config.weirdnessSchedule || [0.9, 0.6, 0.25];
+    this.weirdnessLevel = clamp01(config.weirdnessLevel ?? 0.9);
 
     this.useScripts = config.useScripts !== false;
     this.scriptIntensity = config.scriptIntensity || "balanced";
 
     this.pipeline = new CreativePipeline({
       agent: this.agent,
-      weirdnessSchedule: this.weirdnessSchedule,
+      weirdnessLevel: this.weirdnessLevel,
       semanticDrift: this.semanticDrift,
       hallucinationBudget: this.hallucinationBudget,
       memoryBlend: this.effects.memoryBlend,
@@ -418,13 +418,13 @@ export default class AyahuascaTrip {
 class CreativePipeline {
   constructor({
     agent,
-    weirdnessSchedule = [0.9, 0.6, 0.25],
+    weirdnessLevel = 0.9,
     semanticDrift = 0.5,
     hallucinationBudget = 0.6,
     memoryBlend = 1.0,
   }) {
     this.agent = agent;
-    this.weirdnessSchedule = weirdnessSchedule;
+    this.weirdnessLevel = weirdnessLevel;
     this.semanticDrift = semanticDrift;
     this.hallucinationBudget = hallucinationBudget;
     this.memoryBlend = memoryBlend;
@@ -467,12 +467,17 @@ class CreativePipeline {
     console.log(`   Temperatura: ${exploreTemp.toFixed(2)} (base × 1.15)`);
     console.log(`   Top-P: ${exploreTopP.toFixed(2)}`);
 
-    const explorePrompts = this.generateExplorePrompts(task, drift, allowed);
-    const rawVariants = await this.sampleMany(
-      explorePrompts,
-      Math.max(variants, 4),
-      { temp: exploreTemp, top_p: exploreTopP, phase: "explore" },
+    const explorePrompts = this.generateExplorePrompts(
+      task,
+      drift,
+      allowed,
+      variants,
     );
+    const rawVariants = await this.sampleMany(explorePrompts, variants, {
+      temp: exploreTemp,
+      top_p: exploreTopP,
+      phase: "explore",
+    });
 
     console.log(`\n🔍 FASE 2 - CURATE`);
     const curated = this.curate(rawVariants);
@@ -511,7 +516,7 @@ class CreativePipeline {
   }
 
   generateExplorePrompts(task, drift, allowed) {
-    const weird = this.weirdnessSchedule[0] * (allowed ? 1 : 0.5);
+    const weird = this.weirdnessLevel * (allowed ? 1 : 0.5);
     const prompts = [];
 
     const baseDriftPhrases = [
@@ -523,7 +528,7 @@ class CreativePipeline {
     ];
 
     const domainBlendingPhrases = [
-      "¿De qué color es este concepto? ¿Qué sonido emite?",
+      "¿De qué color sabe este concepto? ¿Qué sonido emite?",
       "Si esta idea fuera una entidad viviente, ¿qué te mostraría?",
       "Percíbelo simultáneamente como patrón, emoción y presencia viviente.",
       "¿Qué geometría sagrada subyace a esto? ¿Qué fractal traza?",
@@ -610,11 +615,11 @@ class CreativePipeline {
     }
 
     let selected = deduplicated;
-    if (deduplicated.length > 6) {
-      selected = this.selectDiverse(deduplicated, 6);
+    if (deduplicated.length > 10) {
+      selected = this.selectDiverse(deduplicated, 10);
     }
 
-    const targetCount = Math.max(3, Math.min(6, selected.length));
+    const targetCount = Math.max(4, Math.min(10, selected.length));
     return selected.slice(0, targetCount);
   }
 
@@ -742,7 +747,12 @@ class CreativePipeline {
     const out = [];
     const batches = [];
 
-    const validPrompts = prompts.slice(0, Math.min(prompts.length, n));
+    // Asegurar que n esté entre 4 y 10
+    const targetVariants = Math.max(4, Math.min(10, n));
+    const validPrompts = prompts.slice(
+      0,
+      Math.min(prompts.length, targetVariants),
+    );
 
     for (let i = 0; i < validPrompts.length; i += BATCH_SIZE) {
       batches.push(validPrompts.slice(i, i + BATCH_SIZE));

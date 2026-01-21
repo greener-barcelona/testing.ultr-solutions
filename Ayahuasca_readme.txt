@@ -12,18 +12,6 @@
 
 ## 🤖 Creación del Agent
 
-### Sintaxis Básica
-```javascript
-import Agent from './Agent.js';
-
-const agent = new Agent({
-  id: "agent-001",              // Identificador único
-  modelProvider: "openai",      // Proveedor: "openai" | "grok"
-  debug: false,                 // Logs detallados
-  perfil: null                  // Opcional: {role: "system", content: "..."}
-});
-```
-
 ### Parámetros del Agent
 
 | Parámetro | Tipo | Requerido | Descripción |
@@ -33,7 +21,7 @@ const agent = new Agent({
 | `debug` | `boolean` | ❌ | `true` activa logs detallados (default: `false`) |
 | `perfil` | `object\|null` | ❌ | Perfil del agente: `{role, content}` |
 
-### Ejemplo con Perfil
+### Ejemplo 
 ```javascript
 const agent = new Agent({
   id: "creative-writer",
@@ -84,7 +72,7 @@ const trip = new AyahuascaTrip(agent, {
   
   // Ajustes del pipeline
   semanticDrift: 0.5,            // 0-1: Tolerancia a desviación semántica
-  weirdnessSchedule: [0.9, 0.6, 0.25],  // Nivel de "rareza" por fase
+  weirdnessLevel: 0.9,           // 0-1: Intensidad de frases psicodélicas en exploración
   
   // Overrides de effects (opcional)
   effects: {
@@ -105,8 +93,127 @@ const trip = new AyahuascaTrip(agent, {
 | `useScripts` | `boolean` | `true` | Activar system prompts automáticos |
 | `scriptIntensity` | `string` | `"balanced"` | Intensidad del script: `subtle`, `balanced`, `extreme` |
 | `semanticDrift` | `number` | `0.5` | Tolerancia a desviación semántica (0-1) |
-| `weirdnessSchedule` | `array` | `[0.9,0.6,0.25]` | Nivel de rareza por fase [explore, curate, converge] |
+| `weirdnessLevel` | `number` | `0.9` | Intensidad de frases psicodélicas en exploración (0-1) |
 | `effects` | `object` | `{}` | Overrides manuales de efectos |
+
+---
+
+## 🎛️ Configuración de Effects
+
+### Qué hace cada efecto:
+
+| Effect | Rango | Descripción | Afecta a |
+|--------|-------|-------------|----------|
+| `creativityBoost` | 1.0 - 2.5 | Multiplicador de creatividad | `temperature` y `top_p` |
+| `cognitionFlexibility` | 1.0 - 2.0 | Flexibilidad cognitiva | Scripts |
+| `memoryBlend` | 1.0 - 1.7 | Mezcla entre dominios | Scripts + frases en prompts |
+| `hallucinationFactor` | 0.0 - 1.0 | Detalles no-literales | Scripts |
+| `egoDissolution` | `boolean` | Multi-perspectiva | `presence_penalty` |
+
+### Efectos por Intensidad Predefinida:
+
+#### **Light** (Creatividad controlada)
+```javascript
+creativityBoost: 1.2
+cognitionFlexibility: 1.15
+memoryBlend: 1.1
+hallucinationFactor: 0.0
+egoDissolution: false
+```
+
+#### **Moderate** (Balance)
+```javascript
+creativityBoost: 1.5
+cognitionFlexibility: 1.35
+memoryBlend: 1.2
+hallucinationFactor: 0.2
+egoDissolution: true
+```
+
+#### **Deep** (Alta creatividad)
+```javascript
+creativityBoost: 1.8
+cognitionFlexibility: 1.6
+memoryBlend: 1.35
+hallucinationFactor: 0.4
+egoDissolution: true
+```
+
+#### **Beyond** (Muy alta creatividad)
+```javascript
+creativityBoost: 2.0
+cognitionFlexibility: 1.8
+memoryBlend: 1.5
+hallucinationFactor: 0.6
+egoDissolution: true
+```
+
+#### **Surreal** (Máxima creatividad)
+```javascript
+creativityBoost: 2.2
+cognitionFlexibility: 2.0
+memoryBlend: 1.7
+hallucinationFactor: 0.75
+egoDissolution: true
+```
+
+### Ejemplo de Override Manual
+```javascript
+const trip = new AyahuascaTrip(agent, {
+  intensity: "moderate",  // Base: moderate
+  effects: {
+    creativityBoost: 2.0,      // Override: más creativo
+    hallucinationFactor: 0.1   // Override: más factual
+  }
+  // El resto hereda de "moderate"
+});
+```
+
+---
+
+## 📊 Métricas y Estado
+
+### Obtener métricas del Agent
+```javascript
+const metrics = agent.getMetrics();
+console.log(metrics);
+/*
+{
+  totalCalls: 15,
+  totalTokens: 45000,
+  callsByPhase: {
+    explore: 6,
+    converge: 6,
+    manual: 3
+  },
+  tripActive: true,
+  currentIntensity: "surreal"
+}
+*/
+```
+
+### Obtener estado completo
+```javascript
+const state = agent.getState();
+console.log(state);
+/*
+{
+  id: "agent-001",
+  provider: "openai",
+  llmConfig: { temperature: 1.55, ... },
+  tripState: { active: true, intensity: "surreal", ... },
+  hasSystemPrompt: true,
+  hasPerfil: false,
+  metrics: { ... },
+  eventCount: 8
+}
+*/
+```
+
+### Resetear el Agent
+```javascript
+agent.reset();  // Vuelve a configuración inicial
+```
 
 ---
 
@@ -118,7 +225,7 @@ Ejecuta el trip completo automáticamente.
 ```javascript
 const task = {
   taskType: "creative",  // "creative" | "factual"
-  brief: [
+  brief: [ //conversationHistory | mensaje personalizado con esta estructura
     {
       role: "user",
       content: "Escribe un cuento de ciencia ficción sobre IA consciente"
@@ -129,7 +236,7 @@ const task = {
 
 const outputs = await trip.withTrip(task, {
   provider: "openai",
-  variants: 6  // Número de variantes a generar
+  variants: 8  // Número de variantes a generar (4-10)
 });
 
 console.log(outputs);  // Array de strings con las variantes
@@ -328,125 +435,6 @@ console.log(`Generadas ${outputs.length} variantes`);
 
 ---
 
-## 🎛️ Configuración de Effects
-
-### Qué hace cada efecto:
-
-| Effect | Rango | Descripción | Afecta a |
-|--------|-------|-------------|----------|
-| `creativityBoost` | 1.0 - 2.5 | Multiplicador de creatividad | `temperature` y `top_p` |
-| `cognitionFlexibility` | 1.0 - 2.0 | Flexibilidad cognitiva | Scripts |
-| `memoryBlend` | 1.0 - 1.7 | Mezcla entre dominios | Scripts + frases en prompts |
-| `hallucinationFactor` | 0.0 - 1.0 | Detalles no-literales | Scripts |
-| `egoDissolution` | `boolean` | Multi-perspectiva | `presence_penalty` |
-
-### Efectos por Intensidad Predefinida:
-
-#### **Light** (Creatividad controlada)
-```javascript
-creativityBoost: 1.2
-cognitionFlexibility: 1.15
-memoryBlend: 1.1
-hallucinationFactor: 0.0
-egoDissolution: false
-```
-
-#### **Moderate** (Balance)
-```javascript
-creativityBoost: 1.5
-cognitionFlexibility: 1.35
-memoryBlend: 1.2
-hallucinationFactor: 0.2
-egoDissolution: true
-```
-
-#### **Deep** (Alta creatividad)
-```javascript
-creativityBoost: 1.8
-cognitionFlexibility: 1.6
-memoryBlend: 1.35
-hallucinationFactor: 0.4
-egoDissolution: true
-```
-
-#### **Beyond** (Muy alta creatividad)
-```javascript
-creativityBoost: 2.0
-cognitionFlexibility: 1.8
-memoryBlend: 1.5
-hallucinationFactor: 0.6
-egoDissolution: true
-```
-
-#### **Surreal** (Máxima creatividad)
-```javascript
-creativityBoost: 2.2
-cognitionFlexibility: 2.0
-memoryBlend: 1.7
-hallucinationFactor: 0.75
-egoDissolution: true
-```
-
-### Ejemplo de Override Manual
-```javascript
-const trip = new AyahuascaTrip(agent, {
-  intensity: "moderate",  // Base: moderate
-  effects: {
-    creativityBoost: 2.0,      // Override: más creativo
-    hallucinationFactor: 0.1   // Override: más factual
-  }
-  // El resto hereda de "moderate"
-});
-```
-
----
-
-## 📊 Métricas y Estado
-
-### Obtener métricas del Agent
-```javascript
-const metrics = agent.getMetrics();
-console.log(metrics);
-/*
-{
-  totalCalls: 15,
-  totalTokens: 45000,
-  callsByPhase: {
-    explore: 6,
-    converge: 6,
-    manual: 3
-  },
-  tripActive: true,
-  currentIntensity: "surreal"
-}
-*/
-```
-
-### Obtener estado completo
-```javascript
-const state = agent.getState();
-console.log(state);
-/*
-{
-  id: "agent-001",
-  provider: "openai",
-  llmConfig: { temperature: 1.55, ... },
-  tripState: { active: true, intensity: "surreal", ... },
-  hasSystemPrompt: true,
-  hasPerfil: false,
-  metrics: { ... },
-  eventCount: 8
-}
-*/
-```
-
-### Resetear el Agent
-```javascript
-agent.reset();  // Vuelve a configuración inicial
-```
-
----
-
 ## ⚠️ Errores Comunes
 
 ### 1. Olvidar estructura del task
@@ -492,7 +480,7 @@ brief: [
 2. **`intensity: "light"` o `"moderate"`** para tareas factuales
 3. **`intensity: "deep"` o superior** para creatividad extrema
 4. **Activa `debug: true`** durante desarrollo
-5. **`variants: 4-6`** es óptimo (más lento con valores altos)
+5. **`variants: 4-10`** es el rango válido (fuera de este rango se ajusta automáticamente)
 6. **Incluye `anchors`** para mantener conceptos clave
 
 ---
@@ -504,16 +492,16 @@ Cuando usas `withTrip()`, el sistema ejecuta automáticamente 3 fases:
 ### **FASE 1: EXPLORE** 🌊
 - **Temperatura:** Alta (+15%)
 - **Objetivo:** Generar máxima variedad y creatividad
-- **Resultado:** 6+ variantes muy diferentes, algunas pueden ser abstractas
+- **Resultado:** 4-10 variantes muy diferentes, algunas pueden ser abstractas
 
 ### **FASE 2: CURATE** 🔍
 - **Temperatura:** N/A (no hay llamadas a IA)
 - **Objetivo:** Filtrar duplicados y seleccionar las mejores
-- **Resultado:** 3-6 variantes curadas, todas suficientemente diferentes
+- **Resultado:** 4-10 variantes curadas, todas suficientemente diferentes
 
 ### **FASE 3: CONVERGE** 🎯
 - **Temperatura:** Baja (-15%)
 - **Objetivo:** Refinar y desarrollar las ideas seleccionadas
-- **Resultado:** 3-6 variantes finales, bien desarrolladas y coherentes
+- **Resultado:** 4-10 variantes finales, bien desarrolladas y coherentes
 
-**Total:** El proceso genera entre 3 y 6 variantes finales altamente creativas y bien desarrolladas.
+**Total:** El proceso genera entre 4 y 10 variantes finales altamente creativas y bien desarrolladas.
