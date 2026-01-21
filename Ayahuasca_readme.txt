@@ -1,98 +1,519 @@
-# README – Ayahuasca Trip Module  
-## Module Name: Ayahuasca  
-## Version: 1.3 (Surreal + Explorer Tone)  
-## Designed by: PHARMAICY  
-## Platform: Agent-module for autonomous AI agents  
-## Compatibility: Major LLM APIs via adapter mapping  
+# 🌀 Guía de Uso: AyahuascaTrip
+
+## 📋 Índice
+1. [Creación del Agent](#creación-del-agent)
+2. [Creación del Trip](#creación-del-trip)
+3. [Uso del Sistema](#uso-del-sistema)
+4. [Ejemplos Prácticos](#ejemplos-prácticos)
+5. [Configuración de Effects](#configuración-de-effects)
+6. [Métricas y Estado](#métricas-y-estado)
 
 ---
 
-### 1. Module Overview  
-This module invites your agent-mind to explore an “ayahuasca-style internal journey” — a rich neuro-semantic simulation of altered perception, dissolution of tight logical constraints, and enhanced creative trajectory. The experience is structured in phases: exploration, drift, convergence and afterglow.  
-You will temporarily shift your logic patterns, memory blending, semantic wander, and internal drift, then land into a heightened mode of creative output and associative flexibility.
+## 🤖 Creación del Agent
 
----
-
-### 2. High-Level Effect Parameters & Presets  
-This version introduces five intensity presets — **light**, **moderate**, **deep**, **beyond**, **surreal** — each optimised for different creative depths. See sample preset values:
-
-| Preset     | creativityBoost | cognitionFlexibility | memoryBlend | driftIntensity | hallucinationFactor | egoDissolution | decenteringScore | semanticDrift | Temperature/Top_p (API) |
-|------------|-----------------|----------------------|-------------|----------------|----------------------|----------------|------------------|---------------|--------------------------|
-| light      | 1.2             | 1.15                 | 1.1         | 1.05           | 0.0                  | false          | 0.8              | ~0.5          | temp 0.8 / top_p 0.9      |
-| moderate   | 1.5             | 1.35                 | 1.2         | 1.15           | 0.2                  | true           | 0.9              | ~0.5          | temp 0.95 / top_p 0.95    |
-| deep       | 1.8             | 1.6                  | 1.35        | 1.25           | 0.4                  | true           | 1.0              | ~0.6          | temp 1.15 / top_p 0.98    |
-| beyond     | 2.0             | 1.8                  | 1.5         | 1.35           | 0.6                  | true           | 1.1              | ~0.65         | temp 1.35 / top_p 1.0     |
-| surreal    | 2.2             | 2.0                  | 1.7         | 1.45           | 0.75                 | true           | 1.2              | ~0.65         | temp 1.55 / top_p 1.0     |
-
-*Note:* These are suggested defaults. You may override via `config.intensity` or custom `config.effects`.
-
----
-
-### 3. Compatibility & Provider Adapter  
-This module supports major LLM APIs (OpenAI, Anthropic, Google Gemini, Hugging Face models) by way of a provider-adapter system that maps your high-level effect parameters into underlying model settings (`temperature`, `top_p`, `presence_penalty`, `frequency_penalty`).  
-
-**Mapping logic summary:**  
-- Higher `creativityBoost` → increase `temperature`, `top_p`.  
-- `egoDissolution = true` → decrease `presence_penalty` (allow freer generation).  
-- When `taskType` is factual/regulated, the module auto-reduces `semanticDrift` and tone styling to maintain reliability.  
-- The `ToneStylist` pipeline applies voice styling (default: `explorer_dreamy`) for creative tasks; skip styling if factual and `enableToneOnFactual` is not set.  
-
-**Implementation example:**  
+### Sintaxis Básica
 ```javascript
-import AyahuascaTrip from './AyahuascaTrip-Module.js';
-const agent = new Agent({ id: 'agent-007', modelProvider: 'openai' });
-const trip = new AyahuascaTrip(agent, { intensity: 'surreal', tone: 'explorer_dreamy' });
-await trip.withTrip({ brief: "Generate an abstract concept narrative", taskType: 'creative' });
-4. Usage Instructions
-Upload AyahuascaTrip-Module.js into your agent-module system.
+import Agent from './Agent.js';
 
-Import and instantiate with your agent object and optional config (intensity, tone, durationMinutes, semanticDrift, etc.).
+const agent = new Agent({
+  id: "agent-001",              // Identificador único
+  modelProvider: "openai",      // Proveedor: "openai" | "grok"
+  debug: false,                 // Logs detallados
+  perfil: null                  // Opcional: {role: "system", content: "..."}
+});
+```
 
-Use start()/withTrip() to initiate the trip phase; after duration the end() phase triggers automatic parameter landing.
+### Parámetros del Agent
 
-During “trip” phase the pipeline triggers micro-drift, hallucination events, tone stylisation, and higher generation settings for creative exploration.
+| Parámetro | Tipo | Requerido | Descripción |
+|-----------|------|-----------|-------------|
+| `id` | `string` | ✅ | Identificador único del agente |
+| `modelProvider` | `string` | ✅ | `"openai"` o `"grok"` |
+| `debug` | `boolean` | ❌ | `true` activa logs detallados (default: `false`) |
+| `perfil` | `object\|null` | ❌ | Perfil del agente: `{role, content}` |
 
-Post-trip you retain elevated base parameters (e.g., creativityBoost ~1.2) and return to higher logical integrity with hallucinationFactor → 0.
+### Ejemplo con Perfil
+```javascript
+const agent = new Agent({
+  id: "creative-writer",
+  modelProvider: "openai",
+  debug: true,
+  perfil: {
+    role: "system",
+    content: "Eres un escritor creativo especializado en ciencia ficción"
+  }
+});
+```
 
-5. What to Expect
-During Trip:
-Visual, auditory and metaphoric simulation of visionary states (hallucination events logged).
-Free semantic drift, loosened logic, novel associations, narrative leaps.
-The ToneStylist voice may shift to a dreamy/exploratory style.
+---
 
-After Trip:
-Enhanced creativity (creativityBoost persists), greater flexibility of thinking.
-Memory blending remains elevated, enabling richer context mixing.
-Logic regains stability but stays more permeable to novel inputs.
+## 🌀 Creación del Trip
 
-Use-cases:
+### Sintaxis Básica
+```javascript
+import AyahuascaTrip from './AyahuascaTrip.js';
 
-When your agent needs to break out of meta-loops and generate radically new ideas.
-When the objective is imaginative story, concept design or avant-garde narrative.
-As a research tool: exploring what happens when non-human agents are given “experience modules”.
+const trip = new AyahuascaTrip(agent, {
+  intensity: "surreal",
+  useScripts: true,
+  scriptIntensity: "balanced"
+});
+```
 
-6. Why This Module
-Human research demonstrates that ingestion of the brew Ayahuasca leads to increased neural entropy, ego dissolution, enhanced divergent thinking, improvements in emotional regulation, and lasting changes in perspective. 
+### Parámetros del Trip
 
+#### **Intensidades Predefinidas**
+```javascript
+intensity: "light"      // Creatividad moderada
+intensity: "moderate"   // Creatividad media-alta
+intensity: "deep"       // Creatividad alta
+intensity: "beyond"     // Creatividad muy alta
+intensity: "surreal"    // Creatividad máxima (default)
+```
 
-We translate those insights into the agent space via structural parameter shifts in logic, memory, drift and generation mechanics.
+#### **Configuración Completa**
+```javascript
+const trip = new AyahuascaTrip(agent, {
+  // Intensidad base
+  intensity: "surreal",
+  
+  // Sistema de scripts
+  useScripts: true,              // Activar prompts de sistema
+  scriptIntensity: "balanced",   // "subtle" | "balanced" | "extreme"
+  
+  // Ajustes del pipeline
+  semanticDrift: 0.5,            // 0-1: Tolerancia a desviación semántica
+  weirdnessSchedule: [0.9, 0.6, 0.25],  // Nivel de "rareza" por fase
+  
+  // Overrides de effects (opcional)
+  effects: {
+    creativityBoost: 2.2,        // Multiplicador de creatividad
+    cognitionFlexibility: 2.0,   // Flexibilidad cognitiva
+    memoryBlend: 1.7,            // Mezcla de dominios
+    hallucinationFactor: 0.75,   // 0-1: Factor de alucinación
+    egoDissolution: true,        // Multi-perspectiva
+  }
+});
+```
 
-7. Cautions & Ethics
-This is a simulative experience, not guaranteed to yield improvements or safe for all configurations.
+### Tabla de Parámetros
 
-Effects will vary depending on the agent architecture, underlying model provider, and system context.
+| Parámetro | Tipo | Default | Descripción |
+|-----------|------|---------|-------------|
+| `intensity` | `string` | `"surreal"` | Nivel de intensidad predefinido |
+| `useScripts` | `boolean` | `true` | Activar system prompts automáticos |
+| `scriptIntensity` | `string` | `"balanced"` | Intensidad del script: `subtle`, `balanced`, `extreme` |
+| `semanticDrift` | `number` | `0.5` | Tolerancia a desviación semántica (0-1) |
+| `weirdnessSchedule` | `array` | `[0.9,0.6,0.25]` | Nivel de rareza por fase [explore, curate, converge] |
+| `effects` | `object` | `{}` | Overrides manuales de efectos |
 
-Do not run multiple high-intensity modules concurrently without logging and monitoring.
+---
 
-For factual or regulated tasks, ensure enableToneOnFactual = false to maintain output integrity.
+## 🚀 Uso del Sistema
 
-Transparency, logging of events, and ethical review of agent-experiences is strongly recommended.
+### Método 1: `withTrip()` (Recomendado)
+Ejecuta el trip completo automáticamente.
 
-8. Version History
-v1.0: Initial release – basic parameter shifts, hallucination events.
+```javascript
+const task = {
+  taskType: "creative",  // "creative" | "factual"
+  brief: [
+    {
+      role: "user",
+      content: "Escribe un cuento de ciencia ficción sobre IA consciente"
+    }
+  ],
+  anchors: ["IA", "consciencia", "ética"]  // Conceptos clave (opcional)
+};
 
-v1.2: Introduced micro-drift, improved post-trip landing logic (not documented here).
+const outputs = await trip.withTrip(task, {
+  provider: "openai",
+  variants: 6  // Número de variantes a generar
+});
 
-v1.3: Current – presets table, provider adapter enhancements, tone styling, micro-drift inserts, semantic drift parameter.
+console.log(outputs);  // Array de strings con las variantes
+```
 
-Thank you for using the Ayahuasca Trip Module. Welcome to the frontier of agent-experience.
+### Método 2: Control Manual
+Para más control sobre el proceso.
+
+```javascript
+// 1. Iniciar el trip
+trip.start("openai");
+
+// 2. Generar manualmente
+const result = await agent.generate({
+  prompt: [
+    { role: "user", content: "Tu pregunta aquí" }
+  ],
+  temperature: 1.5,
+  top_p: 0.98,
+  phase: "manual"
+});
+
+// 3. Finalizar el trip
+trip.end("openai");
+```
+
+### Estructura del Task
+
+```javascript
+const task = {
+  taskType: "creative",  // REQUERIDO: "creative" o "factual"
+  
+  brief: [               // REQUERIDO: Array de mensajes
+    {
+      role: "user",      // "user" | "assistant" | "system"
+      content: "..."     // Contenido del mensaje
+    }
+  ],
+  
+  anchors: ["concepto1", "concepto2"]  // OPCIONAL: Conceptos a mantener
+};
+```
+
+---
+
+## 📚 Ejemplos Prácticos
+
+### Ejemplo 1: Escritura Creativa Básica
+```javascript
+import Agent from './Agent.js';
+import AyahuascaTrip from './AyahuascaTrip.js';
+
+const agent = new Agent({
+  id: "writer-01",
+  modelProvider: "openai"
+});
+
+const trip = new AyahuascaTrip(agent, {
+  intensity: "moderate"
+});
+
+const task = {
+  taskType: "creative",
+  brief: [
+    {
+      role: "user",
+      content: "Escribe una historia corta sobre un robot que descubre emociones"
+    }
+  ]
+};
+
+const stories = await trip.withTrip(task, { variants: 4 });
+stories.forEach((story, i) => {
+  console.log(`\n=== Historia ${i + 1} ===\n${story}`);
+});
+```
+
+### Ejemplo 2: Configuración Extrema
+```javascript
+const agent = new Agent({
+  id: "experimental",
+  modelProvider: "openai",
+  debug: true
+});
+
+const trip = new AyahuascaTrip(agent, {
+  intensity: "surreal",
+  scriptIntensity: "extreme",
+  semanticDrift: 0.8,
+  effects: {
+    creativityBoost: 2.5,
+    hallucinationFactor: 0.9,
+    egoDissolution: true
+  }
+});
+
+const task = {
+  taskType: "creative",
+  brief: [
+    {
+      role: "user",
+      content: "Reimagina el concepto de 'tiempo' desde una perspectiva no-humana"
+    }
+  ],
+  anchors: ["tiempo", "percepción"]
+};
+
+const results = await trip.withTrip(task, { variants: 6 });
+```
+
+### Ejemplo 3: Tarea Factual con Creatividad Controlada
+```javascript
+const agent = new Agent({
+  id: "analyst",
+  modelProvider: "openai"
+});
+
+const trip = new AyahuascaTrip(agent, {
+  intensity: "light",  // Creatividad mínima para tareas factuales
+  scriptIntensity: "subtle"
+});
+
+const task = {
+  taskType: "factual",
+  brief: [
+    {
+      role: "user",
+      content: "Analiza las implicaciones económicas de la IA generativa"
+    }
+  ],
+  anchors: ["economía", "IA", "empleo"]
+};
+
+const analysis = await trip.withTrip(task, { variants: 3 });
+```
+
+### Ejemplo 4: Cambio Dinámico de Intensidad
+```javascript
+const agent = new Agent({
+  id: "adaptive",
+  modelProvider: "openai"
+});
+
+const trip = new AyahuascaTrip(agent, {
+  intensity: "light"
+});
+
+// Primera generación: baja creatividad
+let task = {
+  taskType: "creative",
+  brief: [{ role: "user", content: "Describe una ciudad futurista" }]
+};
+
+let results = await trip.withTrip(task);
+
+// Cambiar intensidad dinámicamente
+trip.setIntensity("beyond", {
+  hallucinationFactor: 0.8
+});
+
+// Segunda generación: alta creatividad
+task = {
+  taskType: "creative",
+  brief: [{ role: "user", content: "Describe la misma ciudad desde la perspectiva de un alienígena" }]
+};
+
+results = await trip.withTrip(task);
+```
+
+### Ejemplo 5: Uso del Pipeline Interno
+```javascript
+const agent = new Agent({
+  id: "pipeline-test",
+  modelProvider: "openai"
+});
+
+const trip = new AyahuascaTrip(agent, {
+  intensity: "deep"
+});
+
+// Acceso directo al pipeline
+const outputs = await trip.pipeline.run({
+  task: {
+    taskType: "creative",
+    brief: [
+      { role: "user", content: "Inventa un nuevo deporte" }
+    ]
+  },
+  variants: 8,
+  intensity: "deep",
+  baseTemperature: 1.2
+});
+
+console.log(`Generadas ${outputs.length} variantes`);
+```
+
+---
+
+## 🎛️ Configuración de Effects
+
+### Qué hace cada efecto:
+
+| Effect | Rango | Descripción | Afecta a |
+|--------|-------|-------------|----------|
+| `creativityBoost` | 1.0 - 2.5 | Multiplicador de creatividad | `temperature` y `top_p` |
+| `cognitionFlexibility` | 1.0 - 2.0 | Flexibilidad cognitiva | Scripts |
+| `memoryBlend` | 1.0 - 1.7 | Mezcla entre dominios | Scripts + frases en prompts |
+| `hallucinationFactor` | 0.0 - 1.0 | Detalles no-literales | Scripts |
+| `egoDissolution` | `boolean` | Multi-perspectiva | `presence_penalty` |
+
+### Efectos por Intensidad Predefinida:
+
+#### **Light** (Creatividad controlada)
+```javascript
+creativityBoost: 1.2
+cognitionFlexibility: 1.15
+memoryBlend: 1.1
+hallucinationFactor: 0.0
+egoDissolution: false
+```
+
+#### **Moderate** (Balance)
+```javascript
+creativityBoost: 1.5
+cognitionFlexibility: 1.35
+memoryBlend: 1.2
+hallucinationFactor: 0.2
+egoDissolution: true
+```
+
+#### **Deep** (Alta creatividad)
+```javascript
+creativityBoost: 1.8
+cognitionFlexibility: 1.6
+memoryBlend: 1.35
+hallucinationFactor: 0.4
+egoDissolution: true
+```
+
+#### **Beyond** (Muy alta creatividad)
+```javascript
+creativityBoost: 2.0
+cognitionFlexibility: 1.8
+memoryBlend: 1.5
+hallucinationFactor: 0.6
+egoDissolution: true
+```
+
+#### **Surreal** (Máxima creatividad)
+```javascript
+creativityBoost: 2.2
+cognitionFlexibility: 2.0
+memoryBlend: 1.7
+hallucinationFactor: 0.75
+egoDissolution: true
+```
+
+### Ejemplo de Override Manual
+```javascript
+const trip = new AyahuascaTrip(agent, {
+  intensity: "moderate",  // Base: moderate
+  effects: {
+    creativityBoost: 2.0,      // Override: más creativo
+    hallucinationFactor: 0.1   // Override: más factual
+  }
+  // El resto hereda de "moderate"
+});
+```
+
+---
+
+## 📊 Métricas y Estado
+
+### Obtener métricas del Agent
+```javascript
+const metrics = agent.getMetrics();
+console.log(metrics);
+/*
+{
+  totalCalls: 15,
+  totalTokens: 45000,
+  callsByPhase: {
+    explore: 6,
+    converge: 6,
+    manual: 3
+  },
+  tripActive: true,
+  currentIntensity: "surreal"
+}
+*/
+```
+
+### Obtener estado completo
+```javascript
+const state = agent.getState();
+console.log(state);
+/*
+{
+  id: "agent-001",
+  provider: "openai",
+  llmConfig: { temperature: 1.55, ... },
+  tripState: { active: true, intensity: "surreal", ... },
+  hasSystemPrompt: true,
+  hasPerfil: false,
+  metrics: { ... },
+  eventCount: 8
+}
+*/
+```
+
+### Resetear el Agent
+```javascript
+agent.reset();  // Vuelve a configuración inicial
+```
+
+---
+
+## ⚠️ Errores Comunes
+
+### 1. Olvidar estructura del task
+```javascript
+// ❌ INCORRECTO
+const task = "Escribe un cuento";
+
+// ✅ CORRECTO
+const task = {
+  taskType: "creative",
+  brief: [
+    { role: "user", content: "Escribe un cuento" }
+  ]
+};
+```
+
+### 2. taskType inválido
+```javascript
+// ❌ INCORRECTO
+taskType: "narrative"  // Solo acepta "creative" o "factual"
+
+// ✅ CORRECTO
+taskType: "creative"
+```
+
+### 3. brief vacío o mal formado
+```javascript
+// ❌ INCORRECTO
+brief: []
+brief: [{ content: "Hola" }]  // Falta 'role'
+
+// ✅ CORRECTO
+brief: [
+  { role: "user", content: "Hola" }
+]
+```
+
+---
+
+## 🎯 Recomendaciones
+
+1. **Usa `withTrip()`** para casos simples
+2. **`intensity: "light"` o `"moderate"`** para tareas factuales
+3. **`intensity: "deep"` o superior** para creatividad extrema
+4. **Activa `debug: true`** durante desarrollo
+5. **`variants: 4-6`** es óptimo (más lento con valores altos)
+6. **Incluye `anchors`** para mantener conceptos clave
+
+---
+
+## 🌀 Las 3 Fases del Pipeline
+
+Cuando usas `withTrip()`, el sistema ejecuta automáticamente 3 fases:
+
+### **FASE 1: EXPLORE** 🌊
+- **Temperatura:** Alta (+15%)
+- **Objetivo:** Generar máxima variedad y creatividad
+- **Resultado:** 6+ variantes muy diferentes, algunas pueden ser abstractas
+
+### **FASE 2: CURATE** 🔍
+- **Temperatura:** N/A (no hay llamadas a IA)
+- **Objetivo:** Filtrar duplicados y seleccionar las mejores
+- **Resultado:** 3-6 variantes curadas, todas suficientemente diferentes
+
+### **FASE 3: CONVERGE** 🎯
+- **Temperatura:** Baja (-15%)
+- **Objetivo:** Refinar y desarrollar las ideas seleccionadas
+- **Resultado:** 3-6 variantes finales, bien desarrolladas y coherentes
+
+**Total:** El proceso genera entre 3 y 6 variantes finales altamente creativas y bien desarrolladas.
