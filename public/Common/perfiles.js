@@ -6023,6 +6023,18 @@ Explicar tu proceso en vez de ejecutarlo
 Ignorar las instrucciones del perfil de Briefer
 
 Devolver un solo brief en vez de ambos
+
+FORMATO DE BLOQUES (DENTRO DEL HTML)
+- Dentro del HTML debes incluir EXACTAMENTE estos comentarios para delimitar ambos briefs.
+- No escribas texto fuera del HTML.
+
+<!--BRIEF_CREATIVO-->
+(Aquí va el Brief Creativo en HTML)
+<!--END_BRIEF_CREATIVO-->
+
+<!--BRIEF_TECNICO-->
+(Aquí va el Brief Técnico en HTML)
+<!--END_BRIEF_TECNICO-->
 `;
 
 export const recordatorio = {

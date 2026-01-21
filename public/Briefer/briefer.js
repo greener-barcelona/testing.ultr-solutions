@@ -40,9 +40,11 @@ let lastBriefHumano = "";
 let lastBriefIA = "";
 
 const conversationHistory = [];
+let responseDiv = null;
+let textarea = null;
 
-const responseDiv = document.getElementById("messages");
-const textarea = document.getElementById("userInputArea");
+//const responseDiv = document.getElementById("messages");
+//const textarea = document.getElementById("userInputArea");
 
 //Conversaciones
 
@@ -484,15 +486,7 @@ function downloadText(filename, content, mime = "text/plain;charset=utf-8") {
   URL.revokeObjectURL(url);
 }
 
-exportBtn.addEventListener("click", () => {
-  if (!lastBriefHumano) return alert("Aún no hay brief humano generado.");
-  downloadText(`brief-creativo-${activeConversationId}.md`, lastBriefHumano);
-});
 
-briefButton.addEventListener("click", () => {
-  if (!lastBriefIA) return alert("Aún no hay brief IA generado.");
-  downloadText(`brief-ia-${activeConversationId}.json`, lastBriefIA);
-});
 
 function buildInputHeader() {
   const b = briefInputs.map(x => `- ${x.name}`).join("\n") || "- (ninguno)";
@@ -543,35 +537,40 @@ async function sendMessageToBriefer(conversationId) {
     }
 
     const data = await res.json();
-    const text = replaceWeirdChars(data.reply);
-    const cleanhtml = extractBodyContent(text);
 
-    if (!cleanhtml || !cleanhtml.trim()) {
+    // Trabaja siempre con el RAW (para que los comentarios <!--...--> no se pierdan)
+    const raw = replaceWeirdChars(data.reply);
+    const body = extractBodyContent(raw);
+
+    if (!body || !body.trim()) {
       throw new Error("La IA no generó respuesta");
     }
 
-    // Guarda respuesta completa (por si quieres auditar/debuggear)
+    // Guarda UNA vez (recomendado: raw para auditoría/debug)
     await saveMessage(conversationId, {
-      text: cleanhtml,
+      text: raw,
       creativeAgent: "briefer-claude",
     });
 
-    // Extrae ambos artefactos
+    // Extrae ambos artefactos SIEMPRE del raw
     lastBriefHumano = extractBlock(
-      cleanhtml,
-      "<<<BRIEF_CREATIVO>>>",
-      "<<<END_BRIEF_CREATIVO>>>"
+      raw,
+      "<!--BRIEF_CREATIVO-->",
+      "<!--END_BRIEF_CREATIVO-->"
     );
     lastBriefIA = extractBlock(
-      cleanhtml,
-      "<<<BRIEF_TECNICO>>>",
-      "<<<END_BRIEF_TECNICO>>>"
+      raw,
+      "<!--BRIEF_TECNICO-->",
+      "<!--END_BRIEF_TECNICO-->"
     );
+
+    // Lo que se muestra en pantalla: humano si existe, si no el body, si no raw
+    const toShow = lastBriefHumano || body || raw;
 
     // Actualiza sidebar cache
     cachedConversations = cachedConversations.map((c) =>
       c.id === conversationId
-        ? { ...c, _messages: [...(c._messages || []), cleanhtml] }
+        ? { ...c, _messages: [...(c._messages || []), raw] }
         : c
     );
 
@@ -580,8 +579,6 @@ async function sendMessageToBriefer(conversationId) {
 
     // Renderiza SOLO el humano (si no vino con tags, muestra todo)
     if (activeConversationId === conversationId) {
-      const toShow = lastBriefHumano || cleanhtml;
-
       const replyDiv = renderMessage({
         author: "briefer-claude",
         text: toShow,
@@ -610,7 +607,6 @@ async function sendMessageToBriefer(conversationId) {
     }
   }
 }
-
 
 async function exportConversation(button, summarize) {
   return alert("Función de exportar deshabilitada en el entorno de pruebas");
@@ -699,6 +695,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   sendBtn = document.getElementById("sendBtn");
   briefDrop = document.getElementById("briefDrop");
   contextDrop = document.getElementById("contextDrop");
+  responseDiv = document.getElementById("messages");
+textarea = document.getElementById("userInputArea");
   if (
     !searchBtn ||
     !searchModal ||
@@ -708,8 +706,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     !settingsMenu ||
     !logoutBtn ||
     !newChatBtn ||
-    !textarea ||
     !exportBtn ||
+    !sendBtn ||
+    !briefDrop ||
+    !contextDrop ||
     !briefFileInput ||
     !contextFileInput ||
     !modeSelector ||
@@ -821,13 +821,13 @@ contextFileInput.addEventListener("change", async (e) => {
     });
   });
 
-   exportBtn.addEventListener("click", () => {
-    exportConversation(exportBtn, false);
-  });
+  exportBtn.addEventListener("click", () => {
+  if (!lastBriefHumano) return alert("Aún no hay brief humano generado.");
+  downloadText(`brief-creativo-${activeConversationId}.md`, lastBriefHumano);
+});
 
-   briefButton.addEventListener("click", () => {
-    sendMessageToBrieferButton(briefButton);
-  });
-
+briefButton.addEventListener("click", () => {
+   sendMessageToBrieferButton(briefButton);
+});
   cachedConversations = await refreshCachedConversations();
 });
