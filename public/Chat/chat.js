@@ -28,6 +28,7 @@ import {
   socialPerfiles,
   socialInstrucciones,
   recordatorio,
+  nemesisAya
 } from "../Common/perfiles.js";
 
 let isChainRunning = false;
@@ -703,13 +704,11 @@ function getPerfilContent(perfilKey) {
 //Ayahuasca
 
 async function startTrip() {
-  const perfil = getPerfilContent("Nemesis");
-
   const agent = new Agent({
     id: "test-01",
     modelProvider: "openai",
     debug: true,
-    perfil: perfil,
+    perfil: nemesisAya,
   });
   const trip = new AyahuascaTrip(agent, {
     intensity: "surreal",
@@ -733,7 +732,7 @@ async function startTrip() {
   const results = await trip.withTrip(task, { variants: 5 });
 
   for (const result of results) {
-    console.log("Variante del viaje:", result);
+    console.log("Variante del viaje:", result.reply);
   }
 }
 

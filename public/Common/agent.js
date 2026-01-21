@@ -181,7 +181,7 @@ class Agent {
       }
 
       if (this.debug) {
-        console.log(`[Agent ${this.id}] ✅ Response length:`, response.length);
+        console.log(`[Agent ${this.id}] ✅ Response length:`, response.reply.length);
       }
 
       return response;
