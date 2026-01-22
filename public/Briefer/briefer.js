@@ -282,8 +282,19 @@ async function sendMessageToBrieferButton(triggerBtn) {
 }
 
 function setBtnEnabled(btn, enabled) {
-  btn.disabled = !enabled;
-  btn.classList.toggle("disabled", !enabled);
+  if (!btn) return;
+  try {
+    // atributo disabled para comportamiento nativo
+    btn.disabled = !enabled;
+    // clase para estilos
+    if (!enabled) {
+      btn.classList.add("disabled");
+    } else {
+      btn.classList.remove("disabled");
+    }
+  } catch (e) {
+    console.warn("setBtnEnabled error", e);
+  }
 }
 
 function setExportButtonsEnabled(humanoEnabled, iaEnabled) {
@@ -822,7 +833,13 @@ contextFileInput.addEventListener("change", async (e) => {
     textarea.addEventListener("keydown", async (e) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        await userSendMessage();
+        // Al presionar Enter enviamos el mensaje y solicitamos al briefer
+        // que genere el brief (misma acción que el botón `briefButton`).
+        if (typeof sendMessageToBrieferButton === "function" && briefButton) {
+          await sendMessageToBrieferButton(briefButton);
+        } else {
+          await userSendMessage();
+        }
       }
     });
     textarea.addEventListener("input", autoResizeTextarea(textarea));
