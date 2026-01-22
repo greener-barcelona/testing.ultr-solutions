@@ -147,18 +147,20 @@ export default class AyahuascaTrip {
 
     let temperature = Math.min(
       2.0,
-      preset.temperature + (this.effects.creativityBoost - 1.0) * 0.25,
+      preset.temperature //+ (this.effects.creativityBoost - 1.0) * 0.25,
     );
 
     let top_p = Math.min(
       1.0,
-      preset.top_p + (this.effects.creativityBoost - 1.0) * 0.1,
+      preset.top_p //+ (this.effects.creativityBoost - 1.0) * 0.1,
     );
 
     const settings = {
-      temperature,
-      top_p,
-      max_tokens: preset.max_tokens || this.agent.llmConfig.max_tokens || 5000, // ← RESPETA PRESET Y AGENTE
+      temperature: preset.temperature,
+      top_p: preset.top_p,
+      max_tokens: preset.max_tokens || this.agent.llmConfig.max_tokens || 5000, 
+      //presence_penalty: preset.presence_penalty,
+      //frequency_penalty: preset.frequency_penalty,
     };
 
     if (provider === "openai" || provider === "grok") {
@@ -411,7 +413,6 @@ export default class AyahuascaTrip {
         task,
         variants: options.variants ?? 3,
         intensity: this.intensity,
-        //baseTemperature: this.agent.llmConfig.temperature,
       });
       return outputs;
     } finally {
@@ -439,7 +440,6 @@ class CreativePipeline {
     task,
     variants = 3,
     intensity = "surreal",
-    //baseTemperature = 1.0,
   }) {
     if (!task || typeof task !== "object") {
       throw new Error("task debe ser un objeto válido");
@@ -448,7 +448,7 @@ class CreativePipeline {
     const VALID_TASK_TYPES = ["creative", "factual"];
     const taskType = task.taskType || "creative";
 
-    const presetConfig = this.agent.PRESETS.intensity;
+    const presetConfig = this.agent.llmConfig;
 
     if (!VALID_TASK_TYPES.includes(taskType)) {
       throw new Error(
