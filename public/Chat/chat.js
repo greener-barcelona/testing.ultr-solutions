@@ -708,15 +708,11 @@ async function startTrip() {
     id: "test-01",
     modelProvider: "openai",
     debug: true,
-    perfil: nemesisAya,
+    //perfil: nemesisAya,
   });
   const trip = new AyahuascaTrip(agent, {
     intensity: "surreal",
     scriptIntensity: "extreme",
-    effects: {
-      memoryBlend: 1.7,
-      hallucinationFactor: 0.8,
-    },
   });
 
   const task = {

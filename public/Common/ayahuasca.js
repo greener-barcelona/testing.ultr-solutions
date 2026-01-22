@@ -165,7 +165,7 @@ export default class AyahuascaTrip {
 
     if (provider === "openai" || provider === "grok") {
       settings.presence_penalty = this.effects.egoDissolution
-        ? Math.min(preset.presence_penalty, preset.presence_penalty - 0.25)
+        ? preset.presence_penalty - 0.25
         : preset.presence_penalty;
       settings.frequency_penalty = preset.frequency_penalty;
     }
