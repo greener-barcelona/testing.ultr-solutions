@@ -67,8 +67,8 @@ export default class AyahuascaTrip {
           temperature: 1.25,
           top_p: 0.9,
           max_tokens: 5000,
-          presence_penalty: 0.6,
-          frequency_penalty: 0.45,
+          presence_penalty: 0.5,
+          frequency_penalty: 0.4,
         },
       },
       surreal: {
@@ -84,8 +84,8 @@ export default class AyahuascaTrip {
           temperature: 1.35,
           top_p: 0.95,
           max_tokens: 5000,
-          presence_penalty: 0.85,
-          frequency_penalty: 0.65,
+          presence_penalty: 0.65,
+          frequency_penalty: 0.55,
         },
         semanticDrift: 0.65,
       },
@@ -411,7 +411,7 @@ export default class AyahuascaTrip {
         task,
         variants: options.variants ?? 3,
         intensity: this.intensity,
-        baseTemperature: this.agent.llmConfig.temperature,
+        //baseTemperature: this.agent.llmConfig.temperature,
       });
       return outputs;
     } finally {
@@ -439,7 +439,7 @@ class CreativePipeline {
     task,
     variants = 3,
     intensity = "surreal",
-    baseTemperature = 1.0,
+    //baseTemperature = 1.0,
   }) {
     if (!task || typeof task !== "object") {
       throw new Error("task debe ser un objeto válido");
@@ -447,6 +447,8 @@ class CreativePipeline {
 
     const VALID_TASK_TYPES = ["creative", "factual"];
     const taskType = task.taskType || "creative";
+
+    const presetConfig = this.agent.PRESETS[intensity];
 
     if (!VALID_TASK_TYPES.includes(taskType)) {
       throw new Error(
@@ -461,16 +463,13 @@ class CreativePipeline {
 
     console.log(`\n🌀 Iniciando pipeline creativo:`);
     console.log(`   Intensidad: ${intensity}`);
-    console.log(`   Temperatura base: ${baseTemperature.toFixed(2)}`);
+    console.log(`   Temperatura base: ${presetConfig.temperature.toFixed(2)}`);
     console.log(`   Tipo de tarea: ${taskType}`);
     console.log(`   Memory blend: ${this.memoryBlend.toFixed(2)}`);
 
-    const exploreTemp = Math.min(1.5, baseTemperature);
-    const exploreTopP = Math.min(1.0, 0.98);
-
     console.log(`\n📡 FASE 1 - EXPLORE`);
-    console.log(`   Temperatura: ${exploreTemp.toFixed(2)} `);
-    console.log(`   Top-P: ${exploreTopP.toFixed(2)}`);
+    console.log(`   Temperatura: ${presetConfig.temperature.toFixed(2)} `);
+    console.log(`   Top-P: ${presetConfig.top_p.toFixed(2)}`);
 
     const explorePrompts = this.generateExplorePrompts(
       task,
@@ -479,8 +478,8 @@ class CreativePipeline {
       variants,
     );
     const rawVariants = await this.sampleMany(explorePrompts, variants, {
-      temp: exploreTemp,
-      top_p: exploreTopP,
+      temp: presetConfig.temperature,
+      top_p: presetConfig.top_p,
       phase: "explore",
     });
 
@@ -488,18 +487,17 @@ class CreativePipeline {
     const curated = this.curate(rawVariants);
     console.log(`   Variantes: ${rawVariants.length} → ${curated.length}`);
 
-    const convergeTemp = baseTemperature * 0.85;
-    const convergeTopP = 0.95;
+    const convergeTemp = presetConfig.temperature * 0.85;
 
     console.log(`\n🎯 FASE 3 - CONVERGE`);
     console.log(`   Temperatura: ${convergeTemp.toFixed(2)} (base × 0.85)`);
-    console.log(`   Top-P: ${convergeTopP.toFixed(2)}`);
+    console.log(`   Top-P: ${presetConfig.top_p.toFixed(2)}`);
 
     const convergePrompts = this.generateConvergePrompts(curated, task);
     const finals = await this.sampleMany(
       convergePrompts,
       convergePrompts.length,
-      { temp: convergeTemp, top_p: convergeTopP, phase: "converge" },
+      { temp: convergeTemp, top_p: presetConfig.top_p, phase: "converge" },
     );
 
     console.log(
