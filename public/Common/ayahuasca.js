@@ -15,6 +15,7 @@ export default class AyahuascaTrip {
         api: {
           temperature: 0.75,
           top_p: 0.9,
+          max_tokens: 5000,
           presence_penalty: 0.1,
           frequency_penalty: 0.1,
         },
@@ -31,6 +32,7 @@ export default class AyahuascaTrip {
         api: {
           temperature: 0.95,
           top_p: 0.92,
+          max_tokens: 5000,
           presence_penalty: 0.25,
           frequency_penalty: 0.2,
         },
@@ -47,6 +49,7 @@ export default class AyahuascaTrip {
         api: {
           temperature: 1.1,
           top_p: 0.93,
+          max_tokens: 5000,
           presence_penalty: 0.4,
           frequency_penalty: 0.3,
         },
@@ -63,6 +66,7 @@ export default class AyahuascaTrip {
         api: {
           temperature: 1.25,
           top_p: 0.9,
+          max_tokens: 5000,
           presence_penalty: 0.6,
           frequency_penalty: 0.45,
         },
@@ -78,7 +82,8 @@ export default class AyahuascaTrip {
         },
         api: {
           temperature: 1.35,
-          top_p: 0.88,
+          top_p: 0.95,
+          max_tokens: 5000,
           presence_penalty: 0.85,
           frequency_penalty: 0.65,
         },
@@ -153,7 +158,7 @@ export default class AyahuascaTrip {
     const settings = {
       temperature,
       top_p,
-      max_tokens: 2000,
+      max_tokens: preset.max_tokens || this.agent.llmConfig.max_tokens || 5000, // ← RESPETA PRESET Y AGENTE
     };
 
     if (provider === "openai" || provider === "grok") {
