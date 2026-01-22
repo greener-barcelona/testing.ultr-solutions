@@ -398,28 +398,47 @@ function pushSystemDoc(kind, filename, content) {
 
 async function handleFiles(files, kind) {
   const arr = Array.from(files || []);
+
+  const toStringContent = (v) => {
+    if (typeof v === "string") return v;
+
+    if (Array.isArray(v)) return v.join("\n");
+
+    if (v && typeof v === "object") {
+      if (typeof v.text === "string") return v.text;
+      if (typeof v.content === "string") return v.content;
+      if (typeof v.data === "string") return v.data;
+
+     
+      if (Array.isArray(v.pages)) return v.pages.join("\n");
+      if (Array.isArray(v.items)) return v.items.join("\n");
+    }
+    return "";
+  };
+
   for (const file of arr) {
     if (!file) continue;
 
     const isPdf = file.type === "application/pdf";
     const isImg = ["image/jpeg", "image/png", "image/jpg"].includes(file.type);
     const isTxt = file.type === "text/plain";
-    const isDoc =
-      file.name.toLowerCase().endsWith(".doc") ||
-      file.name.toLowerCase().endsWith(".docx");
 
-    // Acepta lo que realmente soportas. OJO: ahora mismo NO procesas doc/docx.
+   
     if (!isPdf && !isImg && !isTxt) continue;
 
     if (isPdf && file.size > 30 * 1024 * 1024) { alert("PDF > 30MB"); continue; }
     if (isImg && file.size > 10 * 1024 * 1024) { alert("Imagen > 10MB"); continue; }
     if (isTxt && file.size > 2 * 1024 * 1024) { alert("TXT > 2MB"); continue; }
 
-    let fileContent = "";
     try {
-      if (isPdf) fileContent = await extractPDFText(file);
-      else if (isImg) fileContent = await imageToBase64(file);
-      else if (isTxt) fileContent = await file.text();
+      let rawContent = "";
+
+      if (isPdf) rawContent = await extractPDFText(file);
+      else if (isImg) rawContent = await imageToBase64(file);
+      else if (isTxt) rawContent = await file.text();
+
+      const fileContent = toStringContent(rawContent);
+      console.log("PDF extract type:", typeof fileContent, fileContent);
 
       if (!fileContent || !fileContent.trim()) {
         const errorDiv = document.createElement("div");
@@ -428,8 +447,6 @@ async function handleFiles(files, kind) {
         responseDiv.appendChild(errorDiv);
         continue;
       }
-
-      // asegura conversación
       if (!activeConversationId) {
         title = file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
         await startNewConversation(title);
@@ -443,14 +460,11 @@ async function handleFiles(files, kind) {
       });
       responseDiv.appendChild(replyDiv);
 
-      // estado local
       if (kind === "brief") briefInputs.push({ name: file.name, content: fileContent });
       else contextInputs.push({ name: file.name, content: fileContent });
 
-      // IMPORTANT: etiqueta para que el modelo lo trate distinto
       pushSystemDoc(kind, file.name, fileContent);
 
-      // persistencia
       await saveMessage(activeConversationId, { text: replyDiv.textContent.trim() });
       await saveMessage(activeConversationId, { text: fileContent, creativeAgent: "system" });
 
@@ -459,7 +473,8 @@ async function handleFiles(files, kind) {
       alert(`Error procesando ${file.name}`);
     }
   }
-setExportButtonsEnabled(true, false);
+
+  setExportButtonsEnabled(true, false);
   responseDiv.scrollTop = responseDiv.scrollHeight;
 }
 
