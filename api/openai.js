@@ -45,7 +45,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4.5",
+      model: "gpt-4.1",
       messages: finalMessages,
       temperature: temperature ?? 1, // 1 → normal; > 1 → mas aleatoriedad; < 1 → mas seriedad y predecible
       top_p: top_p ?? 1, // < 0.7 → errático y muy restrictivo; < 1 && > .7 → rango adecuado; 1 → no restringe nada
