@@ -14,21 +14,22 @@ export default async function handler(req, res) {
     presence_penalty,
     frequency_penalty,
   } = req.body;
-  
+
   if (!messages || !perfil) {
     return res.status(400).json({ error: "Falta mensaje o perfil" });
   }
 
   let finalMessages = [...messages];
+  let perfilContent = "";
 
   if (perfil && perfil.content) {
-    const perfilContent = perfil.content.trim();
+    perfilContent = perfil.content.trim();
 
     // Si el primer mensaje es system, fusionar
     if (finalMessages.length > 0 && finalMessages[0]?.role === "system") {
       finalMessages[0] = {
         role: "system",
-        content: `${perfilContent}\n\n---\n\n${finalMessages[0].content.trim()}`,
+        content: `${perfilContent}\n---\n${finalMessages[0].content.trim()}`,
       };
     }
     // Si no hay system al inicio, añadir perfil

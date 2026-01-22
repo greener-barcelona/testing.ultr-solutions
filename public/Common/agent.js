@@ -215,7 +215,7 @@ class Agent {
     }
 
     const body = {
-      perfil: this.perfil || "",
+      perfil: this.perfil ?? "",
       messages: messages,
       temperature,
       top_p,
