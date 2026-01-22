@@ -514,6 +514,7 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
       body: JSON.stringify({
         perfil: perfil,
         messages: [recordatorio, ...conversationHistory],
+        temperature: 1.35,
       }),
     });
 
