@@ -22,7 +22,7 @@ export default async function handler(req, res) {
   let finalMessages = [...messages];
   let perfilContent = "";
 
-  if (perfil && perfil.content) {
+  if (perfil && perfil.content && perfil.content.trim() !== "") {
     perfilContent = perfil.content.trim();
 
     // Si el primer mensaje es system, fusionar
@@ -40,6 +40,8 @@ export default async function handler(req, res) {
       });
     }
   }
+
+  console.log(finalMessages);
 
   try {
     const response = await openai.chat.completions.create({
