@@ -15,8 +15,8 @@ export default async function handler(req, res) {
     frequency_penalty,
   } = req.body;
 
-  if (!messages || !perfil) {
-    return res.status(400).json({ error: "Falta mensaje o perfil" });
+  if (!messages) {
+    return res.status(400).json({ error: "No hay mensajes" });
   }
 
   let finalMessages = [...messages];
