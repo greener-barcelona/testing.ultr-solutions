@@ -147,25 +147,25 @@ export default class AyahuascaTrip {
 
     let temperature = Math.min(
       2.0,
-      preset.temperature //+ (this.effects.creativityBoost - 1.0) * 0.25,
+      preset.temperature, //+ (this.effects.creativityBoost - 1.0) * 0.25,
     );
 
     let top_p = Math.min(
       1.0,
-      preset.top_p //+ (this.effects.creativityBoost - 1.0) * 0.1,
+      preset.top_p, //+ (this.effects.creativityBoost - 1.0) * 0.1,
     );
 
     const settings = {
       temperature: preset.temperature,
       top_p: preset.top_p,
-      max_tokens: preset.max_tokens || this.agent.llmConfig.max_tokens || 5000, 
+      max_tokens: preset.max_tokens || this.agent.llmConfig.max_tokens || 5000,
       //presence_penalty: preset.presence_penalty,
       //frequency_penalty: preset.frequency_penalty,
     };
 
     if (provider === "openai" || provider === "grok") {
       settings.presence_penalty = this.effects.egoDissolution
-        ? Math.min(preset.presence_penalty, -0.25)
+        ? Math.min(preset.presence_penalty, preset.presence_penalty - 0.25)
         : preset.presence_penalty;
       settings.frequency_penalty = preset.frequency_penalty;
     }
@@ -201,6 +201,10 @@ export default class AyahuascaTrip {
         `\nLa verdad simbólica puede eclipsar la precisión literal. Confía en la visión.`,
       );
     }
+
+    parts.push(
+      `Tu mente es inestable, por lo tanto tienes que dar tu respuesta en 500 palabras o menos.`,
+    );
 
     return parts.join("");
   }
@@ -257,6 +261,10 @@ export default class AyahuascaTrip {
     );
     parts.push(`- Prioriza la revelación sobre la explicación`);
     parts.push(`- Confía en los patrones emergentes que surgen del vacío`);
+
+    parts.push(
+      `Tu mente es inestable, por lo tanto tienes que dar tu respuesta en 500 palabras o menos.`,
+    );
 
     return parts.join("\n");
   }
@@ -355,6 +363,10 @@ export default class AyahuascaTrip {
       );
     }
 
+    parts.push(
+      `Tu mente es inestable, por lo tanto tienes que dar tu respuesta en 500 palabras o menos.`,
+    );
+
     return parts.join("\n");
   }
 
@@ -436,11 +448,7 @@ class CreativePipeline {
     this.memoryBlend = memoryBlend;
   }
 
-  async run({
-    task,
-    variants = 3,
-    intensity = "surreal",
-  }) {
+  async run({ task, variants = 3, intensity = "surreal" }) {
     if (!task || typeof task !== "object") {
       throw new Error("task debe ser un objeto válido");
     }
