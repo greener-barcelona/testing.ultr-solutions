@@ -448,7 +448,7 @@ class CreativePipeline {
     const VALID_TASK_TYPES = ["creative", "factual"];
     const taskType = task.taskType || "creative";
 
-    const presetConfig = this.agent.PRESETS[intensity];
+    const presetConfig = this.agent.PRESETS.intensity;
 
     if (!VALID_TASK_TYPES.includes(taskType)) {
       throw new Error(
