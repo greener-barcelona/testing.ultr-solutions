@@ -260,7 +260,7 @@ async function userSendMessage() {
       : conversation,
   );
   await saveMessage(activeConversationId, { text: text });
-  setExportButtonsEnabled(true, false);
+  setExportButtonsEnabled(false, false);
 }
 
 //Botones
@@ -422,9 +422,12 @@ async function handleFiles(files, kind) {
     const isPdf = file.type === "application/pdf";
     const isImg = ["image/jpeg", "image/png", "image/jpg"].includes(file.type);
     const isTxt = file.type === "text/plain";
+    const isDoc = [
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ].includes(file.type) || /\.docx?$/.test((file.name || "").toLowerCase());
 
-   
-    if (!isPdf && !isImg && !isTxt) continue;
+    if (!isPdf && !isImg && !isTxt && !isDoc) continue;
 
     if (isPdf && file.size > 30 * 1024 * 1024) { alert("PDF > 30MB"); continue; }
     if (isImg && file.size > 10 * 1024 * 1024) { alert("Imagen > 10MB"); continue; }
@@ -436,6 +439,18 @@ async function handleFiles(files, kind) {
       if (isPdf) rawContent = await extractPDFText(file);
       else if (isImg) rawContent = await imageToBase64(file);
       else if (isTxt) rawContent = await file.text();
+      else if (isDoc) {
+        try {
+          rawContent = await file.text();
+        } catch (e) {
+          try {
+            const ab = await file.arrayBuffer();
+            rawContent = new TextDecoder("utf-8").decode(ab);
+          } catch (e2) {
+            rawContent = "";
+          }
+        }
+      }
 
       const fileContent = toStringContent(rawContent);
       console.log("PDF extract type:", typeof fileContent, fileContent);
@@ -474,7 +489,7 @@ async function handleFiles(files, kind) {
     }
   }
 
-  setExportButtonsEnabled(true, false);
+  setExportButtonsEnabled(false, false);
   responseDiv.scrollTop = responseDiv.scrollHeight;
 }
 
@@ -736,6 +751,8 @@ textarea = document.getElementById("userInputArea");
     console.warn("Buscador no inicializado (elementos faltantes)");
     return;
   }
+  // Inicializa botones de exportar como deshabilitados hasta que la IA responda
+  setExportButtonsEnabled(false, false);
 
   initModeSelector(modeSelector);
 
