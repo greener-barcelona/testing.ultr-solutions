@@ -577,13 +577,16 @@ async function sendMessageToBriefer(conversationId) {
   }
   for (let i = 0; i < 2; i++) {
     try {
+      console.log(
+        `${i === 0 ? brieferCreativo.content : brieferTecnico.content}\n\n${brieferInstrucciones.content}`,
+      );
       const res = await fetch("/api/claude", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           perfil: {
             role: "system",
-            content: `${i === 0 ? brieferCreativo.content : brieferTecnico.content}\n\n${brieferInstrucciones}`,
+            content: `${i === 0 ? brieferCreativo.content : brieferTecnico.content}\n\n${brieferInstrucciones.content}`,
           },
           messages: convHistoryAtStart,
         }),
