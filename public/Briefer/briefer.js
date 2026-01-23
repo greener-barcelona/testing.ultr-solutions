@@ -558,7 +558,7 @@ function downloadText(filename, content, mime = "text/plain;charset=utf-8") {
 //Endpoints
 
 async function sendMessageToBriefer(conversationId) {
-  const convHistoryAtStart = conversationHistory;
+  const convHistoryAtStart = structuredClone(conversationHistory);
 
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
@@ -577,9 +577,6 @@ async function sendMessageToBriefer(conversationId) {
   }
   for (let i = 0; i < 2; i++) {
     try {
-      console.log(
-        `${i === 0 ? brieferCreativo.content : brieferTecnico.content}\n\n${brieferInstrucciones.content}`,
-      );
       const res = await fetch("/api/claude", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
