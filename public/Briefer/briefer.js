@@ -558,6 +558,8 @@ function downloadText(filename, content, mime = "text/plain;charset=utf-8") {
 //Endpoints
 
 async function sendMessageToBriefer(conversationId) {
+  const convHistoryAtStart = conversationHistory;
+
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
   pending.textContent = "Creando brief creativo...";
@@ -583,7 +585,7 @@ async function sendMessageToBriefer(conversationId) {
             role: "system",
             content: `${i === 0 ? brieferCreativo.content : brieferTecnico.content}\n\n${brieferInstrucciones}`,
           },
-          messages: conversationHistory,
+          messages: convHistoryAtStart,
         }),
       });
 
