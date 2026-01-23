@@ -43,7 +43,7 @@ export function addMessageToConversationHistory(message, conversationHistory) {
 
   if (userClass || systemClass || profileClass) {
     conversationHistory.push({
-      role: "user",
+      role: autor.startsWith("briefer-") ? "assistant" : "user",
       content: content,
     });
   }
