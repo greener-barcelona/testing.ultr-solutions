@@ -21,7 +21,11 @@ import {
   toggleElement,
   autoResizeTextarea,
 } from "../Common/shared.js";
-import { brieferPerfil, brieferInstrucciones } from "../Common/perfiles.js";
+import {
+  brieferCreativo,
+  brieferTecnico,
+  brieferInstrucciones,
+} from "../Common/perfiles.js";
 
 let cachedConversations = [];
 
@@ -34,7 +38,7 @@ let briefButton = null;
 let sendBtn = null;
 let briefDrop = null;
 let contextDrop = null;
-let briefInputs = [];   // textos extraídos del brief cliente
+let briefInputs = []; // textos extraídos del brief cliente
 let contextInputs = []; // textos extraídos del contexto adicional
 let lastBriefHumano = "";
 let lastBriefIA = "";
@@ -420,7 +424,6 @@ async function handleFiles(files, kind) {
       if (typeof v.content === "string") return v.content;
       if (typeof v.data === "string") return v.data;
 
-     
       if (Array.isArray(v.pages)) return v.pages.join("\n");
       if (Array.isArray(v.items)) return v.items.join("\n");
     }
@@ -433,16 +436,26 @@ async function handleFiles(files, kind) {
     const isPdf = file.type === "application/pdf";
     const isImg = ["image/jpeg", "image/png", "image/jpg"].includes(file.type);
     const isTxt = file.type === "text/plain";
-    const isDoc = [
-      "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    ].includes(file.type) || /\.docx?$/.test((file.name || "").toLowerCase());
+    const isDoc =
+      [
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      ].includes(file.type) || /\.docx?$/.test((file.name || "").toLowerCase());
 
     if (!isPdf && !isImg && !isTxt && !isDoc) continue;
 
-    if (isPdf && file.size > 30 * 1024 * 1024) { alert("PDF > 30MB"); continue; }
-    if (isImg && file.size > 10 * 1024 * 1024) { alert("Imagen > 10MB"); continue; }
-    if (isTxt && file.size > 2 * 1024 * 1024) { alert("TXT > 2MB"); continue; }
+    if (isPdf && file.size > 30 * 1024 * 1024) {
+      alert("PDF > 30MB");
+      continue;
+    }
+    if (isImg && file.size > 10 * 1024 * 1024) {
+      alert("Imagen > 10MB");
+      continue;
+    }
+    if (isTxt && file.size > 2 * 1024 * 1024) {
+      alert("TXT > 2MB");
+      continue;
+    }
 
     try {
       let rawContent = "";
@@ -474,7 +487,8 @@ async function handleFiles(files, kind) {
         continue;
       }
       if (!activeConversationId) {
-        title = file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
+        title =
+          file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
         await startNewConversation(title);
       }
 
@@ -486,14 +500,19 @@ async function handleFiles(files, kind) {
       });
       responseDiv.appendChild(replyDiv);
 
-      if (kind === "brief") briefInputs.push({ name: file.name, content: fileContent });
+      if (kind === "brief")
+        briefInputs.push({ name: file.name, content: fileContent });
       else contextInputs.push({ name: file.name, content: fileContent });
 
       pushSystemDoc(kind, file.name, fileContent);
 
-      await saveMessage(activeConversationId, { text: replyDiv.textContent.trim() });
-      await saveMessage(activeConversationId, { text: fileContent, creativeAgent: "system" });
-
+      await saveMessage(activeConversationId, {
+        text: replyDiv.textContent.trim(),
+      });
+      await saveMessage(activeConversationId, {
+        text: fileContent,
+        creativeAgent: "system",
+      });
     } catch (err) {
       console.error(err);
       alert(`Error procesando ${file.name}`);
@@ -507,7 +526,10 @@ async function handleFiles(files, kind) {
 function wireDropzone(zoneEl, kind) {
   const setActive = (on) => zoneEl.classList.toggle("is-dragover", on);
 
-  zoneEl.addEventListener("dragover", (e) => { e.preventDefault(); setActive(true); });
+  zoneEl.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    setActive(true);
+  });
   zoneEl.addEventListener("dragleave", () => setActive(false));
   zoneEl.addEventListener("drop", async (e) => {
     e.preventDefault();
@@ -527,74 +549,68 @@ function downloadText(filename, content, mime = "text/plain;charset=utf-8") {
   URL.revokeObjectURL(url);
 }
 
-
-
-function buildInputHeader() {
-  const b = briefInputs.map(x => `- ${x.name}`).join("\n") || "- (ninguno)";
-  const c = contextInputs.map(x => `- ${x.name}`).join("\n") || "- (ninguno)";
+/*function buildInputHeader() {
+  const b = briefInputs.map((x) => `- ${x.name}`).join("\n") || "- (ninguno)";
+  const c = contextInputs.map((x) => `- ${x.name}`).join("\n") || "- (ninguno)";
   return `DOCUMENTOS CARGADOS:\nBRIEF_CLIENTE:\n${b}\n\nCONTEXTO:\n${c}\n`;
-}
-
+}*/
 
 //Endpoints
 
 async function sendMessageToBriefer(conversationId) {
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
-  pending.textContent = "Briefeando...";
+  pending.textContent = "Creando brief creativo...";
 
-  const extractBlock = (text, start, end) => {
+  /*const extractBlock = (text, start, end) => {
     const a = text.indexOf(start);
     const b = text.indexOf(end);
     if (a === -1 || b === -1 || b <= a) return "";
     return text.slice(a + start.length, b).trim();
-  };
+  };*/
 
   if (activeConversationId === conversationId) {
     responseDiv.appendChild(pending);
     responseDiv.scrollTop = responseDiv.scrollHeight;
   }
+  for (const i = 0; i < 2; i++) {
+    try {
+      const res = await fetch("/api/claude", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          perfil: {
+            role: "system",
+            content: `${i === 0 ? brieferCreativo.content : brieferTecnico.content}\n\n${brieferInstrucciones}`,
+          },
+          messages: conversationHistory,
+        }),
+      });
 
-  try {
-    const res = await fetch("/api/claude", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        perfil: {
-          role: "system",
-          content: `${brieferPerfil.content}\n\n${brieferInstrucciones}\n\n${buildInputHeader()}`,
-        },
-        messages: conversationHistory,
-      }),
-    });
+      if (!res.ok) {
+        let msg = "Error al enviar.";
+        try {
+          const errorData = await res.json();
+          msg = errorData?.error || msg;
+        } catch {}
+        throw new Error(msg);
+      }
 
-    if (!res.ok) {
-      let msg = "Error al enviar.";
-      try {
-        const errorData = await res.json();
-        msg = errorData?.error || msg;
-      } catch {}
-      throw new Error(msg);
-    }
+      const data = await res.json();
 
-    const data = await res.json();
+      const raw = replaceWeirdChars(data.reply);
+      const body = extractBodyContent(raw);
 
-    // Trabaja siempre con el RAW (para que los comentarios <!--...--> no se pierdan)
-    const raw = replaceWeirdChars(data.reply);
-    const body = extractBodyContent(raw);
+      if (!body || !body.trim()) {
+        throw new Error("La IA no generó respuesta");
+      }
 
-    if (!body || !body.trim()) {
-      throw new Error("La IA no generó respuesta");
-    }
+      await saveMessage(conversationId, {
+        text: body,
+        creativeAgent: "briefer-claude",
+      });
 
-    // Guarda UNA vez (recomendado: raw para auditoría/debug)
-    await saveMessage(conversationId, {
-      text: raw,
-      creativeAgent: "briefer-claude",
-    });
-
-    // Extrae ambos artefactos SIEMPRE del raw
-    lastBriefHumano = extractBlock(
+      /*lastBriefHumano = extractBlock(
       raw,
       "<!--BRIEF_CREATIVO-->",
       "<!--END_BRIEF_CREATIVO-->"
@@ -603,50 +619,48 @@ async function sendMessageToBriefer(conversationId) {
       raw,
       "<!--BRIEF_TECNICO-->",
       "<!--END_BRIEF_TECNICO-->"
-    );
+    );*/
 
-    // Lo que se muestra en pantalla: humano si existe, si no el body, si no raw
-    const toShow = lastBriefHumano || body || raw;
+      //const toShow = lastBriefHumano || body || raw;
 
-    // Actualiza sidebar cache
-    cachedConversations = cachedConversations.map((c) =>
-      c.id === conversationId
-        ? { ...c, _messages: [...(c._messages || []), raw] }
-        : c
-    );
+      cachedConversations = cachedConversations.map((c) =>
+        c.id === conversationId
+          ? { ...c, _messages: [...(c._messages || []), body] }
+          : c,
+      );
 
-    // Quita pending si está en pantalla
-    if (pending.isConnected) pending.remove();
+      if (pending.isConnected) pending.remove();
 
-    // Renderiza SOLO el humano (si no vino con tags, muestra todo)
-    if (activeConversationId === conversationId) {
-      const replyDiv = renderMessage({
-        author: "briefer-claude",
-        text: toShow,
-      });
+      if (activeConversationId === conversationId) {
+        const replyDiv = renderMessage({
+          author: "briefer-claude",
+          text: body,
+        });
 
-      addMessageToConversationHistory(replyDiv, conversationHistory);
-      responseDiv.appendChild(replyDiv);
-      responseDiv.scrollTop = responseDiv.scrollHeight;
+        addMessageToConversationHistory(replyDiv, conversationHistory);
+        responseDiv.appendChild(replyDiv);
+        responseDiv.scrollTop = responseDiv.scrollHeight;
 
-      // Habilita exports según existan
-      setExportButtonsEnabled(!!lastBriefHumano, !!lastBriefIA);
-    }
-  } catch (err) {
-    console.error(err);
-
-    if (pending.isConnected) {
-      pending.textContent = `Error: ${err.message}`;
-      pending.classList.remove("pending");
-      pending.classList.add("error");
-    } else if (activeConversationId === conversationId) {
-      const errorDiv = document.createElement("div");
-      errorDiv.className = "message error text-content";
-      errorDiv.textContent = `Error: ${err.message}`;
-      responseDiv.appendChild(errorDiv);
-      responseDiv.scrollTop = responseDiv.scrollHeight;
+        pending.textContent = "Creando brief técnico...";
+        responseDiv.appendChild(pending);
+      }
+    } catch (err) {
+      console.error(err);
+      if (pending.isConnected) {
+        pending.textContent = `Error: ${err.message}`;
+        pending.classList.remove("pending");
+        pending.classList.add("error");
+      } else if (activeConversationId === conversationId) {
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "message error text-content";
+        errorDiv.textContent = `Error: ${err.message}`;
+        responseDiv.appendChild(errorDiv);
+        responseDiv.scrollTop = responseDiv.scrollHeight;
+      }
     }
   }
+  if (pending.isConnected) pending.remove();
+  setExportButtonsEnabled(!!lastBriefHumano, !!lastBriefIA);
 }
 
 async function exportConversation(button, summarize) {
@@ -737,7 +751,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   briefDrop = document.getElementById("briefDrop");
   contextDrop = document.getElementById("contextDrop");
   responseDiv = document.getElementById("messages");
-textarea = document.getElementById("userInputArea");
+  textarea = document.getElementById("userInputArea");
   if (
     !searchBtn ||
     !searchModal ||
@@ -773,11 +787,11 @@ textarea = document.getElementById("userInputArea");
     titleText.text = value;
     document.title = modeValue;
   });
-wireDropzone(briefDrop, "brief");
-wireDropzone(contextDrop, "context");
+  wireDropzone(briefDrop, "brief");
+  wireDropzone(contextDrop, "context");
   sendBtn.addEventListener("click", async () => {
-  await userSendMessage();
-});
+    await userSendMessage();
+  });
 
   searchBtn.addEventListener("click", openSearchModal);
 
@@ -785,15 +799,15 @@ wireDropzone(contextDrop, "context");
     if (e.target === searchModal) closeSearchModal();
   });
 
-briefFileInput.addEventListener("change", async (e) => {
-  await handleFiles(e.target.files, "brief");
-  e.target.value = "";
-});
+  briefFileInput.addEventListener("change", async (e) => {
+    await handleFiles(e.target.files, "brief");
+    e.target.value = "";
+  });
 
-contextFileInput.addEventListener("change", async (e) => {
-  await handleFiles(e.target.files, "context");
-  e.target.value = "";
-});
+  contextFileInput.addEventListener("change", async (e) => {
+    await handleFiles(e.target.files, "context");
+    e.target.value = "";
+  });
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeSearchModal();
@@ -871,12 +885,12 @@ contextFileInput.addEventListener("change", async (e) => {
   });
 
   exportBtn.addEventListener("click", () => {
-  if (!lastBriefHumano) return alert("Aún no hay brief humano generado.");
-  downloadText(`brief-creativo-${activeConversationId}.md`, lastBriefHumano);
-});
+    if (!lastBriefHumano) return alert("Aún no hay brief humano generado.");
+    downloadText(`brief-creativo-${activeConversationId}.md`, lastBriefHumano);
+  });
 
-briefButton.addEventListener("click", () => {
-   sendMessageToBrieferButton(briefButton);
-});
+  briefButton.addEventListener("click", () => {
+    sendMessageToBrieferButton(briefButton);
+  });
   cachedConversations = await refreshCachedConversations();
 });

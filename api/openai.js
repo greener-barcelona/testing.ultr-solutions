@@ -25,15 +25,12 @@ export default async function handler(req, res) {
   if (perfil && perfil.content && perfil.content.trim() !== "") {
     perfilContent = perfil.content.trim();
 
-    // Si el primer mensaje es system, fusionar
     if (finalMessages.length > 0 && finalMessages[0]?.role === "system") {
       finalMessages[0] = {
         role: "system",
         content: `${perfilContent}\n---\n${finalMessages[0].content.trim()}`,
       };
-    }
-    // Si no hay system al inicio, añadir perfil
-    else {
+    } else {
       finalMessages.unshift({
         role: "system",
         content: perfilContent,
