@@ -573,7 +573,7 @@ async function sendMessageToBriefer(conversationId) {
     responseDiv.appendChild(pending);
     responseDiv.scrollTop = responseDiv.scrollHeight;
   }
-  for (const i = 0; i < 2; i++) {
+  for (let i = 0; i < 2; i++) {
     try {
       const res = await fetch("/api/claude", {
         method: "POST",
