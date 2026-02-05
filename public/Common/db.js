@@ -22,6 +22,19 @@ export function getLocalSession() {
   }
 }
 
+export function saveLocalSession(user) {
+  if (!user) return;
+  localStorage.setItem(
+    "ultraUser",
+    JSON.stringify({
+      id: user.id,
+      email: user.email,
+      name: user.user_metadata?.full_name || user.email,
+      profilePicture: user.user_metadata?.avatar_url || null,
+    })
+  );
+}
+
 export async function ensureAppUser() {
   const { data: { session }, error } = await sb.auth.getSession();
   const user = session?.user;

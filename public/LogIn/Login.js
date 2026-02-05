@@ -8,7 +8,19 @@ function isAllowedDomain(email) {
   return allowedDomains.includes(domain);
 }
 
-function saveLocalSession(user) {
+
+async function checkUser() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    saveLocalSession(session.user);
+    window.location.href = "../Chat/";
+  }
+}
+
+// Ejecutar al cargar la página de Login
+checkUser();
+
+/*function saveLocalSession(user) {
   localStorage.setItem(
     "ultraUser",
     JSON.stringify({
@@ -18,7 +30,7 @@ function saveLocalSession(user) {
       profilePicture: user.user_metadata?.avatar_url || null,
     })
   );
-}
+}*/
 
 async function ensureUserInDB(user) {
   const { data: existing } = await sb

@@ -9,6 +9,7 @@ import {
   getConversationMessages,
   renameConversation,
   deleteConversation,
+  saveLocalSession,
 } from "../Common/db.js";
 import {
   user,
@@ -754,6 +755,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.location.href = "../LogIn/";
     return;
   }
+  saveLocalSession(session.user);
 
   await ensureAppUser();
   await loadSidebarConversations();
