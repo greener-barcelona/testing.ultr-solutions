@@ -12,7 +12,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 //Sesión
 
-/*export const user = getLocalSession();*/
+export const user = getLocalSession();
 
 export async function getSupabaseUser() {
   const { data: { session } } = await sb.auth.getSession();
