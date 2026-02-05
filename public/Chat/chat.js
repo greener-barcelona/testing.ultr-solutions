@@ -514,7 +514,10 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
       body: JSON.stringify({
         perfil: perfil,
         messages: [recordatorio, ...conversationHistory],
-        temperature: 1.35,
+        temperature:
+          modeValue === "Brainstorming" || modeValue === "Socialstorming"
+            ? 1.4
+            : 1,
       }),
     });
 
@@ -660,12 +663,6 @@ function applyMode(mode) {
       window.location.href = "../Chat/";
       return;
   }
-  /*if (mode === "Briefer") {
-    window.location.href = "../Briefer/";
-    return;
-  }
-
-  window.location.href = "../Chat/";*/
 }
 function initModeSelector(selector) {
   const saved = localStorage.getItem(MODE_KEY);
@@ -704,15 +701,18 @@ function getPerfilContent(perfilKey) {
 
 //Ayahuasca
 
-async function startTrip() {
+async function startTrip(button) {
+  toggleElement(button);
+
   const agent = new Agent({
-    id: "test-01",
+    id: "test",
     modelProvider: "openai",
     debug: true,
     //perfil: nemesisAya,
   });
+
   const trip = new AyahuascaTrip(agent, {
-    intensity: "surreal",
+    intensity: "deep",
     scriptIntensity: "extreme",
   });
 
@@ -732,9 +732,15 @@ async function startTrip() {
 
   const results = await trip.withTrip(task, { variants: 2 });
 
-  for (const result of results) {
-    console.log("Variante del viaje:", result.reply);
+  if (results && results.length !== 0) {
+    for (const result of results) {
+      console.log(result.reply);
+    }
   }
+  else{
+    console.warn("No se obtuvieron resultados del viaje.");
+  }
+  toggleElement(button);
 }
 
 //Inicialización
@@ -800,7 +806,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   initModeSelector(modeSelector);
 
   ayahuasca.addEventListener("click", async () => {
-    await startTrip();
+    await startTrip(ayahuasca);
   });
 
   multiplier3.addEventListener("click", () => runProfilesChain(3, multiplier3));

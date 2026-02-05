@@ -65,7 +65,7 @@ export default class AyahuascaTrip {
         },
         api: {
           temperature: 1.25,
-          top_p: 0.9,
+          top_p: 0.94,
           max_tokens: 5000,
           presence_penalty: 0.5,
           frequency_penalty: 0.4,
