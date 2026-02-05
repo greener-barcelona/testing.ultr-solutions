@@ -66,7 +66,8 @@ export async function ensureAppUser() {
 }
 
 export async function createConversation(title = "Nueva conversación", mode) {
-  const { data: { user } } = await sb.auth.getUser();
+   const { data: { session } } = await sb.auth.getSession();
+   const user = session?.user;
   if (!user) return null;
 
   const safeMode = mode || localStorage.getItem("mode") || "Brainstorming";
@@ -154,6 +155,23 @@ export async function getConversationMessages(conversationId) {
   }
 
   return data;
+}
+
+let authState = {
+  ready: false,
+  session: null,
+};
+
+export async function initAuth(onChange) {
+  const { data: { session } } = await sb.auth.getSession();
+
+  authState = { ready: true, session };
+  onChange(authState);
+
+  sb.auth.onAuthStateChange((_event, session2) => {
+    authState = { ready: true, session: session2 };
+    onChange(authState);
+  });
 }
 export async function renameConversation(conversationId, newTitle) {
   const { data, error } = await sb
