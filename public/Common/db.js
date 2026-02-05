@@ -23,15 +23,15 @@ export function getLocalSession() {
 }
 
 export async function ensureAppUser() {
-  const {
-    data: { user },
-    error: authError,
-  } = await sb.auth.getUser();
+  const { data: { session }, error } = await sb.auth.getSession();
+  const user = session?.user;
+   if (error || !user) return null;
 
-  if (authError || !user) {
+
+ /* if (authError || !user) {
     console.warn("No hay usuario autenticado");
     return null;
-  }
+  }*/
   const { data: existing, error: selectError } = await sb
     .from("app_users")
     .select("*")
