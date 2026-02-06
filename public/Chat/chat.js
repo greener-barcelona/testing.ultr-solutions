@@ -700,6 +700,7 @@ function initModeSelector(selector) {
     : selector.value || "Brainstorming";
 
   applyMode(initial);
+  selector.value = initial;
 }
 
 //Inicialización
@@ -870,7 +871,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const value = e.target.value;
     applyMode(value);
     titleText.text = value;
-    document.title = modeValue;
+    document.title = value;
   });
 
   document.addEventListener("click", (e) => {
