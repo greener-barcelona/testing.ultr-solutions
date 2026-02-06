@@ -689,15 +689,15 @@ function closeSearchModal() {
 
 function applyMode(mode) {
   const currentMode = localStorage.getItem(MODE_KEY);
-  
+
   if (mode !== currentMode) {
     localStorage.setItem(MODE_KEY, mode);
-    
+
     activeConversationId = null;
     title = "";
     conversationHistory.length = 0;
     responseDiv.innerHTML = "";
-    
+
     switch (mode) {
       case "Briefer":
         window.location.href = "../Briefer/";
@@ -710,7 +710,7 @@ function applyMode(mode) {
         return;
     }
   }
-  
+
   modeValue = mode;
 }
 
@@ -723,6 +723,8 @@ function initModeSelector(selector) {
 
   applyMode(initial);
   selector.value = initial;
+  titleText.text = initial;
+  document.title = initial;
 }
 
 //Init
@@ -786,7 +788,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Inicializa botones de exportar como deshabilitados hasta que la IA responda
   setExportButtonsEnabled(false, false);
 
-  initModeSelector(modeSelector);
+  initModeSelector(modeSelector, titleText);
 
   modeSelector.addEventListener("change", (e) => {
     const value = e.target.value;

@@ -667,15 +667,15 @@ function getPerfilContent(perfilKey) {
 }
 function applyMode(mode) {
   const currentMode = localStorage.getItem(MODE_KEY);
-  
+
   if (mode !== currentMode) {
     localStorage.setItem(MODE_KEY, mode);
-    
+
     activeConversationId = null;
     title = "";
     conversationHistory.length = 0;
     responseDiv.innerHTML = "";
-    
+
     switch (mode) {
       case "Briefer":
         window.location.href = "../Briefer/";
@@ -688,11 +688,11 @@ function applyMode(mode) {
         return;
     }
   }
-  
+
   modeValue = mode;
 }
 
-function initModeSelector(selector) {
+function initModeSelector(selector, titleText) {
   const saved = localStorage.getItem(MODE_KEY);
   const valid = ["Brainstorming", "Naming", "Socialstorming", "Briefer", "Aya"];
   const initial = valid.includes(saved)
@@ -701,6 +701,8 @@ function initModeSelector(selector) {
 
   applyMode(initial);
   selector.value = initial;
+  titleText.text = initial;
+  document.title = initial;
 }
 
 //Inicialización
@@ -763,7 +765,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  initModeSelector(modeSelector);
+  initModeSelector(modeSelector, titleText);
 
   multiplier3.addEventListener("click", () => runProfilesChain(3, multiplier3));
 
