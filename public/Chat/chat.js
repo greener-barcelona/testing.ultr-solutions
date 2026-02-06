@@ -32,7 +32,6 @@ import {
   nemesisAya,
 } from "../Common/perfiles.js";
 
-
 let isChainRunning = false;
 let activeToast = null;
 let toastOutsideHandler = null;
@@ -709,17 +708,16 @@ async function startTrip(button) {
   const agent = new Agent({
     id: "test",
     modelProvider: "openai",
-    debug: true,
+    //debug: true,
     //perfil: nemesisAya,
   });
 
   const trip = new AyahuascaTrip(agent, {
-    intensity: "deep",
+    intensity: "surreal",
     scriptIntensity: "extreme",
   });
 
   const task = {
-    taskType: "creative",
     brief: [
       {
         role: "user",
@@ -732,16 +730,11 @@ async function startTrip(button) {
     anchors: ["nostalgia", "construcción", "industria"],
   };
 
-  const results = await trip.withTrip(task, { variants: 2 });
+  const result = await trip.withTrip(task);
 
-  if (results && results.length !== 0) {
-    for (const result of results) {
-      console.log(result.reply);
-    }
-  }
-  else{
-    console.warn("No se obtuvieron resultados del viaje.");
-  }
+  if (result && result.reply) console.log(result.reply);
+  else console.warn("No se obtuvo resultado del viaje.");
+
   toggleElement(button);
 }
 

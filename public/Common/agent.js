@@ -29,7 +29,6 @@ class Agent {
     this.metrics = {
       totalCalls: 0,
       totalTokens: 0,
-      callsByPhase: {},
     };
 
     this.events = [];
@@ -94,7 +93,7 @@ class Agent {
     }
   }
 
-  modifyParameters(params) {
+  updateTripState(params) {
     this.tripState = {
       ...this.tripState,
       ...params,
@@ -120,12 +119,11 @@ class Agent {
     }
   }
 
-  async generate({
+  async generateCompletion({
     prompt,
     temperature,
     top_p,
     max_tokens,
-    phase = "unknown",
   }) {
     if (!Array.isArray(prompt)) {
       throw new Error("prompt debe ser un array de mensajes");
@@ -150,7 +148,6 @@ class Agent {
       max_tokens: finalMaxTokens,
       presence_penalty: this.llmConfig.presence_penalty,
       frequency_penalty: this.llmConfig.frequency_penalty,
-      phase,
       promptMessagesCount: prompt.length,
       systemPromptLength: this.systemPrompt?.length || 0,
       hasSystemPrompt: !!this.systemPrompt,
@@ -158,22 +155,40 @@ class Agent {
     };
 
     if (this.debug) {
-      console.log(`[Agent ${this.id}] 🚀 API Call:`, apiCall);
+      console.log(`[Agent ${this.id}] API Call:`, apiCall);
     }
 
     this.metrics.totalCalls++;
-    this.metrics.callsByPhase[phase] =
-      (this.metrics.callsByPhase[phase] || 0) + 1;
 
     try {
       let response;
       switch (this.provider) {
         case "openai":
-          response = await this.generateOpenAI(
+          response = await this.callOpenAI(
             prompt,
-            finalTemp,
-            finalTopP,
-            finalMaxTokens,
+            apiCall.temperature,
+            apiCall.top_p,
+            apiCall.max_tokens,
+            apiCall.presence_penalty,
+            apiCall.frequency_penalty,
+          );
+          break;
+        case "claude":
+          response = await this.callClaude(
+            prompt,
+            apiCall.temperature,
+            apiCall.top_p,
+            apiCall.max_tokens,
+          );
+          break;
+        case "grok":
+          response = await this.callGrok(
+            prompt,
+            apiCall.temperature,
+            apiCall.top_p,
+            apiCall.max_tokens,
+            apiCall.presence_penalty,
+            apiCall.frequency_penalty,
           );
           break;
         default:
@@ -182,29 +197,35 @@ class Agent {
 
       if (this.debug) {
         console.log(
-          `[Agent ${this.id}] ✅ Response length:`,
+          `[Agent ${this.id}] Response length:`,
           response.reply.length,
         );
       }
 
       return response;
     } catch (error) {
-      console.error(`[Agent ${this.id}] ❌ Error:`, error.message);
+      console.error(`[Agent ${this.id}] Error:`, error.message);
       return `[ERROR ${this.provider}] ${error.message}`;
     }
   }
 
-  async complete(prompt, phase = "unknown") {
-    return await this.generate({
+  async generateWithDefaults(prompt) {
+    return await this.generateCompletion({
       prompt,
       temperature: this.llmConfig.temperature,
       top_p: this.llmConfig.top_p,
       max_tokens: this.llmConfig.max_tokens,
-      phase,
     });
   }
 
-  async generateOpenAI(prompt, temperature, top_p, max_tokens) {
+  async callOpenAI( 
+    prompt,
+    temperature,
+    top_p,
+    max_tokens,
+    presence_penalty,
+    frequency_penalty,
+  ) {
     const messages = [...prompt];
 
     if (this.systemPrompt) {
@@ -220,14 +241,9 @@ class Agent {
       temperature,
       top_p,
       max_tokens,
+      presence_penalty,
+      frequency_penalty,
     };
-
-    if (this.llmConfig.presence_penalty !== 0) {
-      body.presence_penalty = this.llmConfig.presence_penalty;
-    }
-    if (this.llmConfig.frequency_penalty !== 0) {
-      body.frequency_penalty = this.llmConfig.frequency_penalty;
-    }
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 180000);
@@ -260,7 +276,126 @@ class Agent {
       clearTimeout(timeout);
 
       if (error.name === "AbortError") {
-        throw new Error("Request timeout después de 30s");
+        throw new Error("Request timeout después de 180s");
+      }
+      throw error;
+    }
+  }
+
+  async callClaude(prompt, temperature, top_p, max_tokens) {
+    const messages = [...prompt];
+
+    if (this.systemPrompt) {
+      messages.unshift({
+        role: "system",
+        content: this.systemPrompt,
+      });
+    }
+
+    const body = {
+      perfil: this.perfil ?? "",
+      messages: messages,
+      temperature,
+      top_p,
+      max_tokens,
+    };
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 180000);
+
+    try {
+      const response = await fetch("/api/claude", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          `Claude ${response.status}: ${errorData.error?.message || "Unknown"}`,
+        );
+      }
+
+      const data = await response.json();
+
+      if (data.usage) {
+        this.metrics.totalTokens += data.usage.total_tokens;
+      }
+
+      return data;
+    } catch (error) {
+      clearTimeout(timeout);
+
+      if (error.name === "AbortError") {
+        throw new Error("Request timeout después de 180s");
+      }
+      throw error;
+    }
+  }
+
+  async callGrok(
+    prompt,
+    temperature,
+    top_p,
+    max_tokens,
+    presence_penalty,
+    frequency_penalty,
+  ) {
+    const messages = [...prompt];
+
+    if (this.systemPrompt) {
+      messages.unshift({
+        role: "system",
+        content: this.systemPrompt,
+      });
+    }
+
+    const body = {
+      perfil: this.perfil ?? "",
+      messages: messages,
+      temperature,
+      top_p,
+      max_tokens,
+      presence_penalty,
+      frequency_penalty,
+    };
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 180000);
+
+    try {
+      const response = await fetch("/api/grok", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          `Grok ${response.status}: ${errorData.error?.message || "Unknown"}`,
+        );
+      }
+
+      const data = await response.json();
+
+      if (data.usage) {
+        this.metrics.totalTokens += data.usage.total_tokens;
+      }
+
+      return data;
+    } catch (error) {
+      clearTimeout(timeout);
+
+      if (error.name === "AbortError") {
+        throw new Error("Request timeout después de 180s");
       }
       throw error;
     }
@@ -289,8 +424,8 @@ class Agent {
 
   reset() {
     this.llmConfig = {
-      temperature: 0.7,
-      top_p: 0.9,
+      temperature: 1,
+      top_p: 1,
       presence_penalty: 0.0,
       frequency_penalty: 0.0,
       max_tokens: 5000,
@@ -306,7 +441,7 @@ class Agent {
     this.events = [];
 
     if (this.debug) {
-      console.log(`[Agent ${this.id}] 🔄 Reset completo`);
+      console.log(`[Agent ${this.id}] Reset completo`);
     }
   }
 

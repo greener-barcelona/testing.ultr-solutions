@@ -3,40 +3,6 @@ export default class AyahuascaTrip {
     this.agent = agent;
 
     this.PRESETS = {
-      light: {
-        label: "light",
-        effects: {
-          creativityBoost: 1.2,
-          cognitionFlexibility: 1.15,
-          memoryBlend: 1.1,
-          hallucinationFactor: 0.0,
-          egoDissolution: false,
-        },
-        api: {
-          temperature: 0.75,
-          top_p: 0.9,
-          max_tokens: 5000,
-          presence_penalty: 0.1,
-          frequency_penalty: 0.1,
-        },
-      },
-      moderate: {
-        label: "moderate",
-        effects: {
-          creativityBoost: 1.5,
-          cognitionFlexibility: 1.35,
-          memoryBlend: 1.2,
-          hallucinationFactor: 0.2,
-          egoDissolution: true,
-        },
-        api: {
-          temperature: 0.95,
-          top_p: 0.92,
-          max_tokens: 5000,
-          presence_penalty: 0.25,
-          frequency_penalty: 0.2,
-        },
-      },
       deep: {
         label: "deep",
         effects: {
@@ -47,7 +13,7 @@ export default class AyahuascaTrip {
           egoDissolution: true,
         },
         api: {
-          temperature: 1.1,
+          temperature: 1.15,
           top_p: 0.93,
           max_tokens: 5000,
           presence_penalty: 0.4,
@@ -64,7 +30,7 @@ export default class AyahuascaTrip {
           egoDissolution: true,
         },
         api: {
-          temperature: 1.25,
+          temperature: 1.3,
           top_p: 0.94,
           max_tokens: 5000,
           presence_penalty: 0.5,
@@ -81,7 +47,7 @@ export default class AyahuascaTrip {
           egoDissolution: true,
         },
         api: {
-          temperature: 1.35,
+          temperature: 1.45,
           top_p: 0.95,
           max_tokens: 5000,
           presence_penalty: 0.65,
@@ -145,28 +111,14 @@ export default class AyahuascaTrip {
   getApiSettings(provider) {
     const preset = this.PRESETS[this.intensity].api;
 
-    let temperature = Math.min(
-      2.0,
-      preset.temperature, //+ (this.effects.creativityBoost - 1.0) * 0.25,
-    );
-
-    let top_p = Math.min(
-      1.0,
-      preset.top_p, //+ (this.effects.creativityBoost - 1.0) * 0.1,
-    );
-
     const settings = {
       temperature: preset.temperature,
       top_p: preset.top_p,
       max_tokens: preset.max_tokens || this.agent.llmConfig.max_tokens || 5000,
-      //presence_penalty: preset.presence_penalty,
-      //frequency_penalty: preset.frequency_penalty,
     };
 
     if (provider === "openai" || provider === "grok") {
-      settings.presence_penalty = this.effects.egoDissolution
-        ? preset.presence_penalty - 0.25
-        : preset.presence_penalty;
+      settings.presence_penalty = preset.presence_penalty;
       settings.frequency_penalty = preset.frequency_penalty;
     }
 
@@ -370,7 +322,9 @@ export default class AyahuascaTrip {
     return parts.join("\n");
   }
 
-  start(provider = "openai") {
+  start() {
+    const provider = this.agent.provider;
+
     this.agent.logEvent({
       type: "trip_start",
       provider,
@@ -386,17 +340,19 @@ export default class AyahuascaTrip {
       this.agent.setSystemPrompt(script);
     }
 
-    this.agent.modifyParameters({
+    this.agent.updateTripState({
       ...this.effects,
       intensity: this.intensity,
       semanticDrift: this.semanticDrift,
     });
   }
 
-  end(provider = "openai") {
+  end() {
+    const provider = this.agent.provider;
+
     const baselineSettings = {
-      temperature: 0.7,
-      top_p: 0.9,
+      temperature: 1,
+      top_p: 1,
       presence_penalty: 0.0,
       frequency_penalty: 0.0,
     };
@@ -404,7 +360,7 @@ export default class AyahuascaTrip {
     this.agent.clearSystemPrompt();
     this.agent.clearPerfil();
 
-    this.agent.modifyParameters({
+    this.agent.updateTripState({
       intensity: null,
       active: false,
     });
@@ -417,18 +373,16 @@ export default class AyahuascaTrip {
     });
   }
 
-  async withTrip(task, options = {}) {
-    const provider = options.provider || "openai";
-    this.start(provider);
+  async withTrip(task) {
+    this.start();
     try {
-      const outputs = await this.pipeline.run({
+      const output = await this.pipeline.run({
         task,
-        variants: options.variants ?? 3,
         intensity: this.intensity,
       });
-      return outputs;
+      return output;
     } finally {
-      this.end(provider);
+      this.end();
     }
   }
 }
@@ -448,70 +402,28 @@ class CreativePipeline {
     this.memoryBlend = memoryBlend;
   }
 
-  async run({ task, variants = 3, intensity = "surreal" }) {
+  async run({ task, intensity = "surreal" }) {
     if (!task || typeof task !== "object") {
       throw new Error("task debe ser un objeto válido");
     }
 
-    const VALID_TASK_TYPES = ["creative", "factual"];
-    const taskType = task.taskType || "creative";
+    const presetConfig = this.agent.getState().llmConfig;
 
-    const presetConfig = this.agent.llmConfig;
-
-    if (!VALID_TASK_TYPES.includes(taskType)) {
-      throw new Error(
-        `taskType inválido: ${taskType}. Debe ser: ${VALID_TASK_TYPES.join(", ")}`,
-      );
-    }
-
-    const allowed = taskType === "creative";
-    const drift = allowed
-      ? this.semanticDrift
-      : Math.min(0.15, this.semanticDrift);
-
-    console.log(`\n🌀 Iniciando pipeline creativo:`);
+    console.log(`\n🌀 Generando respuesta psicodélica:`);
     console.log(`   Intensidad: ${intensity}`);
-    console.log(`   Temperatura base: ${presetConfig.temperature.toFixed(2)}`);
-    console.log(`   Tipo de tarea: ${taskType}`);
+    console.log(`   Temperatura: ${presetConfig.temperature.toFixed(2)}`);
+    console.log(`   Top-P: ${presetConfig.top_p.toFixed(2)}`);
     console.log(`   Memory blend: ${this.memoryBlend.toFixed(2)}`);
 
-    console.log(`\n📡 FASE 1 - EXPLORE`);
-    console.log(`   Temperatura: ${presetConfig.temperature.toFixed(2)} `);
-    console.log(`   Top-P: ${presetConfig.top_p.toFixed(2)}`);
+    const prompt = this.preparePrompt(task);
 
-    const explorePrompts = this.generateExplorePrompts(
-      task,
-      drift,
-      allowed,
-      variants,
-    );
-    const rawVariants = await this.sampleMany(explorePrompts, variants, {
+    const result = await this.callModel(prompt, {
       temp: presetConfig.temperature,
       top_p: presetConfig.top_p,
-      phase: "explore",
     });
 
-    console.log(`\n🔍 FASE 2 - CURATE`);
-    const curated = this.curate(rawVariants);
-    console.log(`   Variantes: ${rawVariants.length} → ${curated.length}`);
-
-    const convergeTemp = presetConfig.temperature * 0.85;
-
-    console.log(`\n🎯 FASE 3 - CONVERGE`);
-    console.log(`   Temperatura: ${convergeTemp.toFixed(2)} (base × 0.85)`);
-    console.log(`   Top-P: ${presetConfig.top_p.toFixed(2)}`);
-
-    const convergePrompts = this.generateConvergePrompts(curated, task);
-    const finals = await this.sampleMany(
-      convergePrompts,
-      convergePrompts.length,
-      { temp: convergeTemp, top_p: presetConfig.top_p, phase: "converge" },
-    );
-
-    console.log(
-      `\n✨ Pipeline completado: ${finals.length} variantes finales\n`,
-    );
-    return finals;
+    console.log(`\n✨ Respuesta generada\n`);
+    return result;
   }
 
   sanitizeContent(content) {
@@ -526,284 +438,41 @@ class CreativePipeline {
     return content;
   }
 
-  generateExplorePrompts(task, drift, allowed) {
-    const weird = this.weirdnessLevel * (allowed ? 1 : 0.5);
-    const prompts = [];
+  preparePrompt(task) {
+    const prompt = [...task.brief];
 
-    const baseDriftPhrases = [
-      "¿Y si pudieras percibir esto desde fuera del tiempo mismo?",
-      "Disuelve tu perspectiva fija y conviértete en el concepto mismo.",
-      "¿Cómo se ve esto cuando lo observas a través de múltiples ojos simultáneamente?",
-      "Si esta idea pudiera hablar, ¿qué te susurraría?",
-      "Experiméntalo como si ya lo hubieras vivido y estuvieras recordando hacia atrás.",
-    ];
-
-    const domainBlendingPhrases = [
-      "¿De qué color sabe este concepto? ¿Qué sonido emite?",
-      "Si esta idea fuera una entidad viviente, ¿qué te mostraría?",
-      "Percíbelo simultáneamente como patrón, emoción y presencia viviente.",
-      "¿Qué geometría sagrada subyace a esto? ¿Qué fractal traza?",
-      "Fusiónate con este concepto hasta que no puedas distinguir dónde terminas tú y dónde empieza él.",
-      "¿Qué memoria ancestral despierta esto? ¿Qué eco del futuro porta?",
-    ];
-
-    for (let i = 0; i < 6; i++) {
-      const prompt = [...task.brief];
-
-      if (drift > 0.4 && weird > 0.6) {
-        const lastUserIndex = prompt.map((m) => m.role).lastIndexOf("user");
-        if (lastUserIndex !== -1) {
-          const sanitizedContent = this.sanitizeContent(
-            prompt[lastUserIndex].content,
-          );
-
-          let enhancedContent =
-            sanitizedContent +
-            "\n\n" +
-            baseDriftPhrases[i % baseDriftPhrases.length];
-
-          if (this.memoryBlend >= 1.3 && allowed) {
-            enhancedContent +=
-              "\n" + domainBlendingPhrases[i % domainBlendingPhrases.length];
-          }
-
-          prompt[lastUserIndex] = {
-            ...prompt[lastUserIndex],
-            content: enhancedContent,
-          };
-        }
-      } else if (weird > 0.4) {
-        const subtleHints = [
-          "¿Cuál es el lado oscuro de esto que no estás viendo?",
-          "Acércate a esto como si lo estuvieras recordando desde un sueño.",
-          "¿Cuál es la verdad viviente bajo el concepto?",
-        ];
-
-        const lastUserIndex = prompt.map((m) => m.role).lastIndexOf("user");
-        if (lastUserIndex !== -1) {
-          const sanitizedContent = this.sanitizeContent(
-            prompt[lastUserIndex].content,
-          );
-
-          let enhancedContent =
-            sanitizedContent + "\n\n" + subtleHints[i % subtleHints.length];
-
-          if (this.memoryBlend >= 1.5 && allowed) {
-            enhancedContent += "\nBlend concepts from different domains.";
-          }
-
-          prompt[lastUserIndex] = {
-            ...prompt[lastUserIndex],
-            content: enhancedContent,
-          };
-        }
+    return prompt.map((msg) => {
+      if (msg.role === "user") {
+        return {
+          ...msg,
+          content: this.sanitizeContent(msg.content),
+        };
       }
-
-      prompts.push(prompt);
-    }
-
-    return prompts;
-  }
-
-  curate(variants) {
-    const unique = [...new Set(variants)];
-
-    const valid = unique.filter(
-      (v) =>
-        v.length > 50 && !v.startsWith("[ERROR") && !v.startsWith("// SAMPLE"),
-    );
-
-    if (valid.length === 0) return unique.slice(0, 4);
-
-    const deduplicated = [];
-    for (const variant of valid) {
-      const isDuplicate = deduplicated.some(
-        (existing) => this.semanticSimilarity(variant, existing) > 0.85,
-      );
-      if (!isDuplicate) {
-        deduplicated.push(variant);
-      }
-    }
-
-    let selected = deduplicated;
-    if (deduplicated.length > 10) {
-      selected = this.selectDiverse(deduplicated, 10);
-    }
-
-    const targetCount = Math.max(4, Math.min(10, selected.length));
-    return selected.slice(0, targetCount);
-  }
-
-  selectDiverse(variants, n) {
-    if (variants.length <= n) return variants;
-
-    const selected = [variants[0]];
-
-    while (selected.length < n && selected.length < variants.length) {
-      let maxMinSim = -1;
-      let bestCandidate = null;
-
-      for (const candidate of variants) {
-        if (selected.includes(candidate)) continue;
-
-        const minSim = Math.min(
-          ...selected.map((s) => this.semanticSimilarity(candidate, s)),
-        );
-
-        if (minSim > maxMinSim) {
-          maxMinSim = minSim;
-          bestCandidate = candidate;
-        }
-      }
-
-      if (bestCandidate) {
-        selected.push(bestCandidate);
-      } else {
-        break;
-      }
-    }
-
-    return selected;
-  }
-
-  semanticSimilarity(text1, text2) {
-    const words1 = new Set(text1.toLowerCase().match(/\w+/g) || []);
-    const words2 = new Set(text2.toLowerCase().match(/\w+/g) || []);
-
-    const intersection = new Set([...words1].filter((w) => words2.has(w)));
-    const union = new Set([...words1, ...words2]);
-
-    return intersection.size / union.size;
-  }
-
-  generateConvergePrompts(curated, task) {
-    return curated.map((variant, index) => {
-      let messages = [];
-
-      if (Array.isArray(variant)) {
-        messages = [...variant];
-      } else if (typeof variant === "string") {
-        messages = [
-          {
-            role: "assistant",
-            content: variant,
-          },
-        ];
-      }
-
-      messages.push({
-        role: "user",
-        content: this.buildConvergeInstructions(
-          variant,
-          task,
-          index,
-          curated.length,
-        ),
-      });
-
-      return messages;
+      return msg;
     });
   }
 
-  buildConvergeInstructions(variant, task, index, totalVariants) {
-    const parts = [];
-
-    if (typeof variant === "string") {
-      parts.push("Refina y desarrolla este concepto más profundamente:");
-      parts.push("");
-      parts.push(variant);
-      parts.push("");
-    } else {
-      parts.push("Refina y desarrolla el concepto anterior más profundamente.");
-      parts.push("");
+  async callModel(prompt, { temp = 1.0, top_p = 1.0 }) {
+    if (!Array.isArray(prompt)) {
+      console.warn(`Prompt inválido en callModel:`, prompt);
+      return null;
     }
 
-    if (task.anchors && task.anchors.length > 0) {
-      parts.push(`Conceptos clave a mantener: ${task.anchors.join(", ")}`);
-    }
-
-    if (task.taskType === "creative") {
-      parts.push("");
-      parts.push(
-        "Desarrolla los aspectos más convincentes manteniendo la coherencia.",
-      );
-    } else if (task.taskType === "factual") {
-      parts.push("");
-      parts.push(
-        "Asegura la precisión y claridad preservando las revelaciones centrales.",
-      );
-    }
-
-    const variations = [
-      "Enfócate en las implicaciones inesperadas.",
-      "Enfatiza las aplicaciones prácticas.",
-      "Explora casos límite y limitaciones.",
-      "Considera múltiples perspectivas.",
-      "Desarrolla los principios subyacentes.",
-      "Conecta con contextos más amplios.",
-    ];
-
-    if (totalVariants > 1) {
-      parts.push("");
-      parts.push(variations[index % variations.length]);
-    }
-
-    return parts.join("\n");
-  }
-
-  async sampleMany(prompts, n, { temp = 1.0, top_p = 1.0, phase = "unknown" }) {
-    const BATCH_SIZE = 3;
-    const DELAY_MS = 500;
-
-    const out = [];
-    const batches = [];
-
-    // Asegurar que n esté entre 2 y 10
-    const targetVariants = Math.max(2, Math.min(10, n));
-    const validPrompts = prompts.slice(
-      0,
-      Math.min(prompts.length, targetVariants),
-    );
-
-    for (let i = 0; i < validPrompts.length; i += BATCH_SIZE) {
-      batches.push(validPrompts.slice(i, i + BATCH_SIZE));
-    }
-
-    for (const batch of batches) {
-      const batchPromises = batch.map(async (prompt) => {
-        if (!Array.isArray(prompt)) {
-          console.warn(`Prompt inválido en sampleMany:`, prompt);
-          return `// SAMPLE → invalid prompt`;
-        }
-
-        if (typeof this.agent.generate === "function") {
-          return await this.agent.generate({
-            prompt: prompt,
-            temperature: temp,
-            top_p,
-            phase,
-          });
-        } else if (
-          typeof this.agent.setLLMConfig === "function" &&
-          typeof this.agent.complete === "function"
-        ) {
-          this.agent.setLLMConfig({ temperature: temp, top_p });
-          return await this.agent.complete(prompt, phase);
-        } else {
-          const previewContent = prompt[prompt.length - 1]?.content || "";
-          return `// SAMPLE → ${previewContent.substring(0, 200)}...`;
-        }
+    if (typeof this.agent.generateCompletion === "function") {
+      return await this.agent.generateCompletion({
+        prompt: prompt,
+        temperature: temp,
+        top_p,
       });
-
-      const results = await Promise.all(batchPromises);
-      out.push(...results);
-
-      if (batches.indexOf(batch) < batches.length - 1) {
-        await new Promise((resolve) => setTimeout(resolve, DELAY_MS));
-      }
+    } else if (
+      typeof this.agent.setLLMConfig === "function" &&
+      typeof this.agent.generateWithDefaults === "function"
+    ) {
+      this.agent.setLLMConfig({ temperature: temp, top_p });
+      return await this.agent.generateWithDefaults(prompt);
+    } else {
+      return null;
     }
-
-    return out;
   }
 }
 
