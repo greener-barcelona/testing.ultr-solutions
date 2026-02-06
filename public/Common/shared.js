@@ -12,6 +12,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 //Sesión
 
+export const MODE_KEY = "mode";
+
 export const user = getLocalSession() || {};
 
 export function updateSharedUser(newData) {
@@ -25,7 +27,9 @@ export function updateSharedUser(newData) {
 }
 
 export async function getSupabaseUser() {
-  const { data: { session } } = await sb.auth.getSession();
+  const {
+    data: { session },
+  } = await sb.auth.getSession();
   return session?.user ?? null;
 }
 export function onAuthChange(cb) {
@@ -170,7 +174,7 @@ async function compressImage(file, maxWidth = 800, quality = 0.7) {
             resolve(new File([blob], file.name, { type: "image/jpeg" }));
           },
           "image/jpeg",
-          quality
+          quality,
         );
       };
       img.src = e.target.result;
@@ -208,6 +212,16 @@ export async function imageToBase64(file) {
 }
 
 //Auxiliares
+
+export function initModeSelector(selector) {
+  const saved = localStorage.getItem(MODE_KEY);
+  const valid = ["Brainstorming", "Naming", "Socialstorming", "Briefer", "Aya"];
+  const initial = valid.includes(saved)
+    ? saved
+    : selector.value || "Brainstorming";
+
+  applyMode(initial);
+}
 
 export function replaceWeirdChars(text) {
   const htmlFreeText = text.replace(/```html|```/g, "");

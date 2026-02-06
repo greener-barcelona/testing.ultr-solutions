@@ -10,17 +10,19 @@ import {
   saveLocalSession,
 } from "../Common/db.js";
 import {
+  MODE_KEY,
   user,
   logout,
   addMessageToConversationHistory,
   refreshCachedConversations,
   renderMessage,
   extractPDFText,
+  initModeSelector,
   replaceWeirdChars,
   extractBodyContent,
   toggleElement,
   autoResizeTextarea,
-  updateSharedUser
+  updateSharedUser,
 } from "../Common/shared.js";
 import {
   dialogoPerfiles,
@@ -36,7 +38,6 @@ let toastOutsideHandler = null;
 
 let cachedConversations = [];
 
-const MODE_KEY = "mode";
 let modeValue = "Brainstorming";
 let activeConversationId = null;
 let title = "";
@@ -642,37 +643,6 @@ async function summarizeConversation(conversationId, convTitle, history) {
 
 //Auxiliares
 
-function applyMode(mode) {
-  localStorage.setItem(MODE_KEY, mode);
-  modeValue = mode;
-
-  activeConversationId = null;
-  title = "";
-  conversationHistory.length = 0;
-  responseDiv.innerHTML = "";
-
-  switch (mode) {
-    case "Briefer":
-      window.location.href = "../Briefer/";
-      return;
-    case "Aya":
-      window.location.href = "../Aya/";
-      return;
-    default:
-      window.location.href = "../Chat/";
-      return;
-  }
-}
-function initModeSelector(selector) {
-  const saved = localStorage.getItem(MODE_KEY);
-  const valid = ["Brainstorming", "Naming", "Socialstorming", "Briefer", "Aya"];
-  const initial = valid.includes(saved)
-    ? saved
-    : selector.value || "Brainstorming";
-
-  applyMode(initial);
-}
-
 function getPerfilContent(perfilKey) {
   let activePerfiles = null;
   let activeInstrucciones = null;
@@ -695,6 +665,30 @@ function getPerfilContent(perfilKey) {
     role: "system",
     content: `${activePerfiles[perfilKey].content}\n\n${activeInstrucciones}`,
   };
+}
+
+function applyMode(mode) {
+  localStorage.setItem(MODE_KEY, mode);
+  if (modeValue !== localStorage.getItem(MODE_KEY)) {
+    modeValue = mode;
+
+    activeConversationId = null;
+    title = "";
+    conversationHistory.length = 0;
+    responseDiv.innerHTML = "";
+
+    switch (mode) {
+      case "Briefer":
+        window.location.href = "../Briefer/";
+        break;
+      case "Aya":
+        window.location.href = "../Aya/";
+        break;
+      default:
+        window.location.href = "../Chat/";
+        return;
+    }
+  }
 }
 
 //Inicialización

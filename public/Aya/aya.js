@@ -12,6 +12,7 @@ import {
   deleteConversation,
 } from "../Common/db.js";
 import {
+  MODE_KEY,
   user,
   logout,
   addMessageToConversationHistory,
@@ -19,6 +20,7 @@ import {
   renderMessage,
   extractPDFText,
   imageToBase64,
+  initModeSelector,
   replaceWeirdChars,
   extractBodyContent,
   toggleElement,
@@ -27,7 +29,6 @@ import {
 
 let cachedConversations = [];
 
-const MODE_KEY = "mode";
 let modeValue = "Aya";
 let activeConversationId = null;
 let title = "";
@@ -461,37 +462,6 @@ function closeSearchModal() {
   if (searchModal) searchModal.classList.remove("active");
 }
 
-//Auxiliares
-
-function applyMode(mode) {
-  localStorage.setItem(MODE_KEY, mode);
-  modeValue = mode;
-
-  activeConversationId = null;
-  title = "";
-  conversationHistory.length = 0;
-  responseDiv.innerHTML = "";
-
-  if (
-    mode === "Brainstorming" ||
-    mode === "Naming" ||
-    mode === "Socialstorming"
-  ) {
-    window.location.href = "../Chat/";
-    return;
-  }
-}
-
-function initModeSelector(selector) {
-  const saved = localStorage.getItem(MODE_KEY);
-  const valid = ["Brainstorming", "Naming", "Socialstorming", "Briefer", "Aya"];
-  const initial = valid.includes(saved)
-    ? saved
-    : selector.value || "Brainstorming";
-
-  applyMode(initial);
-}
-
 //Ayahuasca
 
 async function startTrip(button) {
@@ -519,6 +489,32 @@ async function startTrip(button) {
   else console.warn("No se obtuvo resultado del viaje.");
 
   toggleElement(button);
+}
+
+//Auxiliares
+
+function applyMode(mode) {
+  localStorage.setItem(MODE_KEY, mode);
+  if (modeValue !== localStorage.getItem(MODE_KEY)) {
+    modeValue = mode;
+
+    activeConversationId = null;
+    title = "";
+    conversationHistory.length = 0;
+    responseDiv.innerHTML = "";
+
+    switch (mode) {
+      case "Briefer":
+        window.location.href = "../Briefer/";
+        break;
+      case "Aya":
+        window.location.href = "../Aya/";
+        break;
+      default:
+        window.location.href = "../Chat/";
+        return;
+    }
+  }
 }
 
 //Init

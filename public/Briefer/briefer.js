@@ -9,6 +9,7 @@ import {
   deleteConversation,
 } from "../Common/db.js";
 import {
+  MODE_KEY,
   user,
   logout,
   addMessageToConversationHistory,
@@ -16,6 +17,7 @@ import {
   renderMessage,
   extractPDFText,
   imageToBase64,
+  initModeSelector,
   replaceWeirdChars,
   extractBodyContent,
   toggleElement,
@@ -29,7 +31,6 @@ import {
 
 let cachedConversations = [];
 
-const MODE_KEY = "mode";
 let modeValue = "Briefer";
 let activeConversationId = null;
 let title = "";
@@ -38,17 +39,14 @@ let briefButton = null;
 let sendBtn = null;
 let briefDrop = null;
 let contextDrop = null;
-let briefInputs = []; // textos extraídos del brief cliente
-let contextInputs = []; // textos extraídos del contexto adicional
+let briefInputs = [];
+let contextInputs = [];
 let lastBriefHumano = "";
 let lastBriefIA = "";
 
 const conversationHistory = [];
 let responseDiv = null;
 let textarea = null;
-
-//const responseDiv = document.getElementById("messages");
-//const textarea = document.getElementById("userInputArea");
 
 //Conversaciones
 
@@ -692,32 +690,26 @@ function closeSearchModal() {
 
 function applyMode(mode) {
   localStorage.setItem(MODE_KEY, mode);
-  modeValue = mode;
+  if (modeValue !== localStorage.getItem(MODE_KEY)) {
+    modeValue = mode;
 
-  activeConversationId = null;
-  title = "";
-  conversationHistory.length = 0;
-  responseDiv.innerHTML = "";
+    activeConversationId = null;
+    title = "";
+    conversationHistory.length = 0;
+    responseDiv.innerHTML = "";
 
-  if (
-    mode === "Brainstorming" ||
-    mode === "Naming" ||
-    mode === "Socialstorming"
-  ) {
-    window.location.href = "../Chat/";
-    return;
+    switch (mode) {
+      case "Briefer":
+        window.location.href = "../Briefer/";
+        break;
+      case "Aya":
+        window.location.href = "../Aya/";
+        break;
+      default:
+        window.location.href = "../Chat/";
+        return;
+    }
   }
-}
-
-function initModeSelector(selector) {
-  const saved = localStorage.getItem(MODE_KEY);
-  const valid = ["Brainstorming", "Naming", "Socialstorming", "Briefer", "Aya"];
-  const initial = valid.includes(saved)
-    ? saved
-    : selector.value || "Brainstorming";
-
-  selector.value = initial;
-  modeValue = initial;
 }
 
 //Init
