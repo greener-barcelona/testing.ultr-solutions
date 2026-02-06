@@ -1,4 +1,4 @@
-import { sb } from "../Common/db.js";
+import { sb, saveLocalSession} from "../Common/db.js";
 
 const allowedDomains = ["itsgreener.com", "ffforward.ai", "villamagia.com"];
 
