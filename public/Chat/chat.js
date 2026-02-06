@@ -37,7 +37,7 @@ let toastOutsideHandler = null;
 
 let cachedConversations = [];
 
-let modeValue = localStorage.getItem(MODE_KEY) === "Brainstorming" || localStorage.getItem(MODE_KEY) === "Socialstorming" ? localStorage.getItem(MODE_KEY) : "Brainstorming";
+let modeValue = localStorage.getItem(MODE_KEY) === "Socialstorming" ? "Socialstorming" : "Brainstorming";
 let activeConversationId = null;
 let title = "";
 
@@ -291,7 +291,7 @@ async function sendMessageToProfileButton(perfilKey, API, triggerBtn) {
 
   if (!activeConversationId || conversationHistory.length <= 0) {
     toggleElement(triggerBtn);
-    return alert("Primero inicia una conversación antes de resumir.");
+    return alert("Primero inicia una conversación antes de enviar.");
   }
 
   const conversationIdAtStart = activeConversationId;

@@ -7,6 +7,7 @@ import {
   getConversationMessages,
   renameConversation,
   deleteConversation,
+  saveLocalSession,
 } from "../Common/db.js";
 import {
   MODE_KEY,
@@ -21,6 +22,7 @@ import {
   extractBodyContent,
   toggleElement,
   autoResizeTextarea,
+  updateSharedUser,
 } from "../Common/shared.js";
 import {
   brieferCreativo,
@@ -272,7 +274,7 @@ async function sendMessageToBrieferButton(triggerBtn) {
 
   if (!activeConversationId || conversationHistory.length <= 0) {
     toggleElement(triggerBtn);
-    return alert("Primero inicia una conversación antes de resumir.");
+    return alert("Primero inicia una conversación antes de briefear.");
   }
 
   const conversationIdAtStart = activeConversationId;
@@ -738,6 +740,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.location.href = "../LogIn/";
     return;
   }
+  updateSharedUser(session.user);
+  saveLocalSession(session.user);
 
   await ensureAppUser();
   await loadSidebarConversations();
@@ -785,7 +789,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.warn("Buscador no inicializado (elementos faltantes)");
     return;
   }
-  // Inicializa botones de exportar como deshabilitados hasta que la IA responda
   setExportButtonsEnabled(false, false);
 
   initModeSelector(modeSelector, titleText);
@@ -857,8 +860,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     textarea.addEventListener("keydown", async (e) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        // Al presionar Enter enviamos el mensaje y solicitamos al briefer
-        // que genere el brief (misma acción que el botón `briefButton`).
         if (typeof sendMessageToBrieferButton === "function" && briefButton) {
           await sendMessageToBrieferButton(briefButton);
         } else {
@@ -902,5 +903,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   briefButton.addEventListener("click", () => {
     sendMessageToBrieferButton(briefButton);
   });
+
   cachedConversations = await refreshCachedConversations();
 });

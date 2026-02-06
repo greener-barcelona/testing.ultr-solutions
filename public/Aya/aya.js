@@ -10,6 +10,7 @@ import {
   getConversationMessages,
   renameConversation,
   deleteConversation,
+  saveLocalSession,
 } from "../Common/db.js";
 import {
   MODE_KEY,
@@ -19,11 +20,11 @@ import {
   refreshCachedConversations,
   renderMessage,
   extractPDFText,
-  imageToBase64,
   replaceWeirdChars,
   extractBodyContent,
   toggleElement,
   autoResizeTextarea,
+  updateSharedUser,
 } from "../Common/shared.js";
 
 let cachedConversations = [];
@@ -46,7 +47,7 @@ async function startNewConversation(newTitle) {
   const savedMode = localStorage.getItem("mode") || "Brainstorming";
   const newConv = await createConversation(
     title || "Nueva conversación",
-    "Aya",
+    savedMode,
   );
 
   if (newConv) {
@@ -253,24 +254,6 @@ async function userSendMessage() {
   await saveMessage(activeConversationId, { text: text });
 }
 
-//Botones
-
-async function sendMessageToAyaButton(triggerBtn) {
-  toggleElement(triggerBtn);
-  await userSendMessage();
-
-  if (!activeConversationId || conversationHistory.length <= 0) {
-    toggleElement(triggerBtn);
-    return alert("Primero inicia una conversación antes de resumir.");
-  }
-
-  const conversationIdAtStart = activeConversationId;
-
-  await sendMessageToAya(conversationIdAtStart);
-
-  toggleElement(triggerBtn);
-}
-
 //Archivos
 
 async function onFileLoaded(e, fileInput) {
@@ -278,40 +261,21 @@ async function onFileLoaded(e, fileInput) {
   for (const file of files) {
     if (!file) continue;
 
-    if (
-      file.type !== "application/pdf" &&
-      file.type !== "image/jpeg" &&
-      file.type !== "image/png" &&
-      file.type !== "image/jpg"
-    )
-      continue;
+    if (file.type !== "application/pdf") continue;
 
-    if (file.type === "application/pdf" && file.size > 30 * 1024 * 1024) {
-      alert("El archivo es demasiado grande. Máximo de 30MB para PDFs");
-      continue;
-    }
-    if (
-      (file.type === "image/jpeg" ||
-        file.type === "image/png" ||
-        file.type === "image/jpg") &&
-      file.size > 10 * 1024 * 1024
-    ) {
-      alert("El archivo es demasiado grande. Máximo de 10MB para imágenes");
+    const maxSize = 30 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert("El archivo es demasiado grande. Máximo 30MB");
       continue;
     }
 
     try {
-      let fileContent;
-      if (file.type === "application/pdf") {
-        fileContent = await extractPDFText(file);
-      } else {
-        fileContent = await imageToBase64(file);
-      }
+      const PDFcontent = await extractPDFText(file);
 
-      if (!fileContent) {
+      if (!PDFcontent) {
         const errorDiv = document.createElement("div");
         errorDiv.className = `message error text-content`;
-        errorDiv.textContent = `el PDF ${file.name} no tiene contenido.`;
+        errorDiv.textContent = `el PDF ${file.name} no tiene texto extraíble.`;
         responseDiv.appendChild(errorDiv);
         responseDiv.scrollTop = responseDiv.scrollHeight;
         continue;
@@ -322,7 +286,6 @@ async function onFileLoaded(e, fileInput) {
           file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
         await startNewConversation(title);
       }
-
       if (title === "Nueva conversación") {
         title =
           file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
@@ -348,7 +311,7 @@ async function onFileLoaded(e, fileInput) {
 
       conversationHistory.push({
         role: "user",
-        content: fileContent,
+        content: PDFcontent,
       });
 
       await saveMessage(activeConversationId, {
@@ -356,7 +319,7 @@ async function onFileLoaded(e, fileInput) {
       });
 
       await saveMessage(activeConversationId, {
-        text: fileContent,
+        text: PDFcontent,
         creativeAgent: "system",
       });
     } catch (error) {
@@ -368,38 +331,52 @@ async function onFileLoaded(e, fileInput) {
   }
 }
 
-//Endpoints
+//Ayahuasca
 
-async function sendMessageToAya(conversationId) {
+async function sendMessageToTrip(triggerBtn) {
+  toggleElement(triggerBtn);
+  await userSendMessage();
+
+  if (!activeConversationId || conversationHistory.length <= 0) {
+    toggleElement(triggerBtn);
+    return alert("Primero inicia una conversación antes de tomar Aya.");
+  }
+
+  const conversationIdAtStart = activeConversationId;
+
+  await startTrip(conversationIdAtStart);
+
+  toggleElement(triggerBtn);
+}
+
+async function startTrip(conversationId) {
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
-  pending.textContent = `Tripping…`;
+  pending.textContent = `Tripping...`;
 
   if (activeConversationId === conversationId) {
     responseDiv.appendChild(pending);
     responseDiv.scrollTop = responseDiv.scrollHeight;
   }
-
   try {
-    const res = await fetch("/api/claude", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        perfil: {
-          role: "system",
-          content: `${AyaPerfil.content}\n\n${AyaInstrucciones}`,
-        },
-        messages: conversationHistory,
-      }),
+    const agent = new Agent({
+      id: "test",
+      modelProvider: "openai",
+      //debug: true,
+      //perfil: nemesisAya,
     });
 
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.error || "Error al enviar.");
-    }
+    const trip = new AyahuascaTrip(agent, {
+      intensity: "surreal",
+      scriptIntensity: "extreme",
+    });
 
-    const data = await res.json();
-    const text = replaceWeirdChars(data.reply);
+    const task = {
+      brief: conversationHistory,
+    };
+
+    const result = await trip.withTrip(task);
+    const text = replaceWeirdChars(result.reply);
     const cleanhtml = extractBodyContent(text);
     if (!cleanhtml || !cleanhtml.trim()) {
       throw new Error("La IA no generó respuesta");
@@ -407,7 +384,7 @@ async function sendMessageToAya(conversationId) {
 
     await saveMessage(conversationId, {
       text: cleanhtml,
-      creativeAgent: "Aya-claude",
+      creativeAgent: `ayahuasca-openai`,
     });
 
     pending.remove();
@@ -420,7 +397,7 @@ async function sendMessageToAya(conversationId) {
 
     if (activeConversationId === conversationId) {
       const replyDiv = renderMessage({
-        author: "Aya-claude",
+        author: `ayahuasca-openai`,
         text: cleanhtml,
       });
       addMessageToConversationHistory(replyDiv, conversationHistory);
@@ -430,13 +407,14 @@ async function sendMessageToAya(conversationId) {
     } else {
       pending.remove();
     }
-  } catch (err) {
-    console.error(err);
-    pending.textContent = `Error: ${err.message}`;
-    pending.classList.remove("pending");
-    pending.classList.add("error");
+
+  } catch (error) {
+    console.error("Error durante el viaje:", error);
+    alert("Ocurrió un error durante el viaje.");
   }
 }
+
+//Exportar (desactivado en testing)
 
 async function exportConversation(button, summarize) {
   return alert("Función de exportar deshabilitada en el entorno de pruebas");
@@ -459,35 +437,6 @@ function openSearchModal() {
 function closeSearchModal() {
   const searchModal = document.getElementById("searchModal");
   if (searchModal) searchModal.classList.remove("active");
-}
-
-//Ayahuasca
-
-async function startTrip(button) {
-  toggleElement(button);
-
-  const agent = new Agent({
-    id: "test",
-    modelProvider: "openai",
-    //debug: true,
-    //perfil: nemesisAya,
-  });
-
-  const trip = new AyahuascaTrip(agent, {
-    intensity: "surreal",
-    scriptIntensity: "extreme",
-  });
-
-  const task = {
-    brief: conversationHistory,
-  };
-
-  const result = await trip.withTrip(task);
-
-  if (result && result.reply) console.log(result.reply);
-  else console.warn("No se obtuvo resultado del viaje.");
-
-  toggleElement(button);
 }
 
 //Auxiliares
@@ -543,6 +492,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.location.href = "../LogIn/";
     return;
   }
+  updateSharedUser(session.user);
+  saveLocalSession(session.user);
 
   await ensureAppUser();
   await loadSidebarConversations();
@@ -606,7 +557,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   fileInput.addEventListener("change", async (e) => onFileLoaded(e, fileInput));
 
   ayaTrip.addEventListener("click", () => {
-    startTrip(ayaTrip);
+    sendMessageToTrip(ayaTrip);
   });
 
   document.addEventListener("keydown", (e) => {
