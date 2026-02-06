@@ -670,7 +670,7 @@ function applyMode(mode) {
 
   if (currentMode === "Socialstorming") {
     localStorage.setItem(MODE_KEY, currentMode);
-    window.location.href = "../Chat/";
+    if (mode !== "Socialstorming") window.location.href = "../Chat/";
   } else if (modeValue !== currentMode) {
     localStorage.setItem(MODE_KEY, mode);
 
