@@ -687,7 +687,7 @@ function applyMode(mode) {
         window.location.href = "../Chat/";
         return;
     }
-  }
+  } else modeValue = mode;
 }
 
 function initModeSelector(selector) {
