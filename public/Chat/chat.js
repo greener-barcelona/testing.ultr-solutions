@@ -718,7 +718,7 @@ async function startTrip(button) {
   });
 
   const task = {
-    brief: [
+    brief: conversationHistory,/*[
       {
         role: "user",
         content: `La nostalgia se vende como conexión con el pasado, 
@@ -726,8 +726,7 @@ async function startTrip(button) {
       no desde su marketing emocional. ¿Qué arquitectura oculta sostiene 
       la industria de "lo retro"?`,
       },
-    ],
-    anchors: ["nostalgia", "construcción", "industria"],
+    ]*/
   };
 
   const result = await trip.withTrip(task);
