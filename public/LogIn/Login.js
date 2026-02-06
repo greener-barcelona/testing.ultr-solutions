@@ -22,20 +22,12 @@ checkUser();
 
 async function handleAuthRedirect(session) {
   if (session && session.user) {
-    const user = session.user;
-    if (!isAllowedDomain(user.email)) {
-      await sb.auth.signOut();
-      localStorage.removeItem("ultraUser");
-      return;
-    }
-    // Guardamos los datos para que el Chat los tenga listos
-    saveLocalSession(user);
+    saveLocalSession(session.user);
     window.location.href = "../Chat/";
   }
 }
-sb.auth.getSession().then(({ data: { session } }) => {
-  handleAuthRedirect(session);
-});
+
+// Detecta la sesión al cargar la página automáticamente
 sb.auth.onAuthStateChange((event, session) => {
   if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
     handleAuthRedirect(session);

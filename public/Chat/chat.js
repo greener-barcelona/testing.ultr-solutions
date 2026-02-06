@@ -22,6 +22,7 @@ import {
   extractBodyContent,
   toggleElement,
   autoResizeTextarea,
+  updateSharedUser
 } from "../Common/shared.js";
 import {
   dialogoPerfiles,
@@ -748,6 +749,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.location.href = "../LogIn/";
     return;
   }
+  updateSharedUser(session.user);
   saveLocalSession(session.user);
 
   await ensureAppUser();
