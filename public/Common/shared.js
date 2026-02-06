@@ -12,7 +12,17 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 //Sesión
 
-export const user = getLocalSession();
+export const user = getLocalSession() || {};
+
+export function updateSharedUser(newData) {
+  if (!newData) return;
+  Object.assign(user, {
+    id: newData.id,
+    email: newData.email,
+    name: newData.user_metadata?.full_name || newData.email,
+    profilePicture: newData.user_metadata?.avatar_url || null,
+  });
+}
 
 export async function getSupabaseUser() {
   const { data: { session } } = await sb.auth.getSession();
@@ -29,6 +39,9 @@ export async function logout(MODE_KEY) {
   localStorage.removeItem("ultraUser");
   await sb.auth.signOut();
   window.location.href = "../LogIn/";
+}
+export function getActiveUser() {
+  return getLocalSession();
 }
 
 //Conversaciones
