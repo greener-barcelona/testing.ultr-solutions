@@ -519,7 +519,7 @@ function applyMode(mode) {
   modeValue = mode;
 }
 
-function initModeSelector(selector) {
+function initModeSelector(selector, titleText) {
   const saved = localStorage.getItem(MODE_KEY);
   const valid = ["Brainstorming", "Naming", "Socialstorming", "Briefer", "Aya"];
   const initial = valid.includes(saved)
