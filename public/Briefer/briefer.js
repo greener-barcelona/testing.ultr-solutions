@@ -792,9 +792,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   modeSelector.addEventListener("change", (e) => {
     const value = e.target.value;
-    applyMode(value);
     titleText.text = value;
-    document.title = modeValue;
+    document.title = value;
+    modeValue = value;
+    applyMode(value);
   });
   wireDropzone(briefDrop, "brief");
   wireDropzone(contextDrop, "context");
