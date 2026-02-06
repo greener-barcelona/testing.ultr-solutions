@@ -688,15 +688,16 @@ function closeSearchModal() {
 //Auxiliares
 
 function applyMode(mode) {
-  localStorage.setItem(MODE_KEY, mode);
-  if (modeValue !== localStorage.getItem(MODE_KEY)) {
-    modeValue = mode;
-
+  const currentMode = localStorage.getItem(MODE_KEY);
+  
+  if (mode !== currentMode) {
+    localStorage.setItem(MODE_KEY, mode);
+    
     activeConversationId = null;
     title = "";
     conversationHistory.length = 0;
     responseDiv.innerHTML = "";
-
+    
     switch (mode) {
       case "Briefer":
         window.location.href = "../Briefer/";
@@ -708,7 +709,9 @@ function applyMode(mode) {
         window.location.href = "../Chat/";
         return;
     }
-  } else modeValue = mode; 
+  }
+  
+  modeValue = mode;
 }
 
 function initModeSelector(selector) {
