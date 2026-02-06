@@ -1,3 +1,6 @@
+import Agent from "../Common/agent.js";
+import AyahuascaTrip from "../Common/ayahuasca.js";
+import { nemesisAya } from "../Common/perfiles.js";
 import {
   sb,
   ensureAppUser,
@@ -21,7 +24,6 @@ import {
   toggleElement,
   autoResizeTextarea,
 } from "../Common/shared.js";
-import { AyaPerfil, AyaInstrucciones } from "../Common/agent.js";
 
 let cachedConversations = [];
 
@@ -113,7 +115,7 @@ function addConversationToSidebar(conv) {
     cachedConversations = cachedConversations.map((conversation) =>
       conversation.id === conv.id
         ? { ...conversation, title: newTitle.trim() }
-        : conversation
+        : conversation,
     );
 
     if (activeConversationId === conv.id) {
@@ -135,7 +137,7 @@ function addConversationToSidebar(conv) {
     }
 
     cachedConversations = cachedConversations.filter(
-      (conversation) => conversation.id !== conv.id
+      (conversation) => conversation.id !== conv.id,
     );
 
     if (activeConversationId === conv.id) {
@@ -161,7 +163,7 @@ async function loadSidebarConversations() {
   const all = await getAllConversations();
 
   const ordered = [...all].sort(
-    (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
+    (a, b) => new Date(b.updated_at) - new Date(a.updated_at),
   );
 
   ordered.forEach(addConversationToSidebar);
@@ -223,7 +225,7 @@ async function userSendMessage() {
     cachedConversations = cachedConversations.map((conversation) =>
       conversation.id === activeConversationId
         ? { ...conversation, title: title }
-        : conversation
+        : conversation,
     );
     await loadSidebarConversations();
   }
@@ -246,7 +248,7 @@ async function userSendMessage() {
           ...conversation,
           _messages: [...conversation._messages, uiMessage.textContent.trim()],
         }
-      : conversation
+      : conversation,
   );
   await saveMessage(activeConversationId, { text: text });
 }
@@ -328,7 +330,7 @@ async function onFileLoaded(e, fileInput) {
         cachedConversations = cachedConversations.map((conversation) =>
           conversation.id === activeConversationId
             ? { ...conversation, title: title }
-            : conversation
+            : conversation,
         );
         await loadSidebarConversations();
       }
@@ -413,7 +415,7 @@ async function sendMessageToAya(conversationId) {
     cachedConversations = cachedConversations.map((conversation) =>
       conversation.id === conversationId
         ? { ...conversation, _messages: [...conversation._messages, cleanhtml] }
-        : conversation
+        : conversation,
     );
 
     if (activeConversationId === conversationId) {
@@ -487,8 +489,36 @@ function initModeSelector(selector) {
     ? saved
     : selector.value || "Brainstorming";
 
-  selector.value = initial;
-  modeValue = initial;
+  applyMode(initial);
+}
+
+//Ayahuasca
+
+async function startTrip(button) {
+  toggleElement(button);
+
+  const agent = new Agent({
+    id: "test",
+    modelProvider: "openai",
+    //debug: true,
+    //perfil: nemesisAya,
+  });
+
+  const trip = new AyahuascaTrip(agent, {
+    intensity: "surreal",
+    scriptIntensity: "extreme",
+  });
+
+  const task = {
+    brief: conversationHistory,
+  };
+
+  const result = await trip.withTrip(task);
+
+  if (result && result.reply) console.log(result.reply);
+  else console.warn("No se obtuvo resultado del viaje.");
+
+  toggleElement(button);
 }
 
 //Init
@@ -518,7 +548,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const fileInput = document.getElementById("fileInput");
   const modeSelector = document.getElementById("selector");
   const titleText = document.getElementById("title");
-  const briefButton = document.getElementById("briefButton");
+  const ayaTrip = document.getElementById("ayaTrip");
 
   if (
     !searchBtn ||
@@ -536,7 +566,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     !textarea ||
     !responseDiv ||
     !titleText ||
-    !briefButton
+    !ayaTrip
   ) {
     console.warn("Buscador no inicializado (elementos faltantes)");
     return;
@@ -563,8 +593,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   fileInput.addEventListener("change", async (e) => onFileLoaded(e, fileInput));
 
-  briefButton.addEventListener("click", () => {
-    sendMessageToAyaButton(briefButton);
+  ayaTrip.addEventListener("click", () => {
+    startTrip(ayaTrip);
   });
 
   document.addEventListener("keydown", (e) => {
@@ -613,7 +643,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   newChatBtn.addEventListener(
     "click",
-    async () => await startNewConversation()
+    async () => await startNewConversation(),
   );
 
   logoutBtn.addEventListener("click", () => logout(MODE_KEY));

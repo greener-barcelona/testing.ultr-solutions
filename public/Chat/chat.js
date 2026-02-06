@@ -1,5 +1,3 @@
-import Agent from "../Common/agent.js";
-import AyahuascaTrip from "../Common/ayahuasca.js";
 import {
   sb,
   ensureAppUser,
@@ -29,7 +27,6 @@ import {
   socialPerfiles,
   socialInstrucciones,
   recordatorio,
-  nemesisAya,
 } from "../Common/perfiles.js";
 
 let isChainRunning = false;
@@ -672,8 +669,7 @@ function initModeSelector(selector) {
     ? saved
     : selector.value || "Brainstorming";
 
-  selector.value = initial;
-  modeValue = initial;
+  applyMode(initial);
 }
 
 function getPerfilContent(perfilKey) {
@@ -698,43 +694,6 @@ function getPerfilContent(perfilKey) {
     role: "system",
     content: `${activePerfiles[perfilKey].content}\n\n${activeInstrucciones}`,
   };
-}
-
-//Ayahuasca
-
-async function startTrip(button) {
-  toggleElement(button);
-
-  const agent = new Agent({
-    id: "test",
-    modelProvider: "openai",
-    //debug: true,
-    //perfil: nemesisAya,
-  });
-
-  const trip = new AyahuascaTrip(agent, {
-    intensity: "surreal",
-    scriptIntensity: "extreme",
-  });
-
-  const task = {
-    brief: conversationHistory,/*[
-      {
-        role: "user",
-        content: `La nostalgia se vende como conexión con el pasado, 
-      pero ¿qué es realmente? Explora este concepto desde sus fracturas internas, 
-      no desde su marketing emocional. ¿Qué arquitectura oculta sostiene 
-      la industria de "lo retro"?`,
-      },
-    ]*/
-  };
-
-  const result = await trip.withTrip(task);
-
-  if (result && result.reply) console.log(result.reply);
-  else console.warn("No se obtuvo resultado del viaje.");
-
-  toggleElement(button);
 }
 
 //Inicialización
@@ -770,7 +729,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const multiplier3 = document.getElementById("multiplier3");
   const multiplier6 = document.getElementById("multiplier6");
   const multiplier12 = document.getElementById("multiplier12");
-  const ayahuasca = document.getElementById("ayahuasca");
 
   if (
     !searchBtn ||
@@ -791,18 +749,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     !multiplier6 ||
     !multiplier12 ||
     !textarea ||
-    !responseDiv ||
-    !ayahuasca
+    !responseDiv
   ) {
     console.warn("Buscador no inicializado (elementos faltantes)");
     return;
   }
 
   initModeSelector(modeSelector);
-
-  ayahuasca.addEventListener("click", async () => {
-    await startTrip(ayahuasca);
-  });
 
   multiplier3.addEventListener("click", () => runProfilesChain(3, multiplier3));
 
