@@ -668,7 +668,7 @@ function getPerfilContent(perfilKey) {
 function applyMode(mode) {
   const currentMode = localStorage.getItem(MODE_KEY);
 
-  if (currentMode === "Socialstorming" && mode === "Brainstorming") {
+  if (currentMode === "Socialstorming") {
     localStorage.setItem(MODE_KEY, currentMode);
     window.location.href = "../Chat/";
   } else if (modeValue !== currentMode) {
