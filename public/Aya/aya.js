@@ -495,7 +495,7 @@ async function startTrip(button) {
 function applyMode(mode) {
   const currentMode = localStorage.getItem(MODE_KEY);
 
-  if (mode !== currentMode) {
+  if (modeValue !== currentMode) {
     localStorage.setItem(MODE_KEY, mode);
 
     activeConversationId = null;

@@ -668,7 +668,10 @@ function getPerfilContent(perfilKey) {
 function applyMode(mode) {
   const currentMode = localStorage.getItem(MODE_KEY);
 
-  if (mode !== currentMode) {
+  if (currentMode === "Socialstorming" && mode === "Brainstorming") {
+    localStorage.setItem(MODE_KEY, currentMode);
+    window.location.href = "../Chat/";
+  } else if (modeValue !== currentMode) {
     localStorage.setItem(MODE_KEY, mode);
 
     activeConversationId = null;
@@ -688,7 +691,6 @@ function applyMode(mode) {
         return;
     }
   }
-
   modeValue = mode;
 }
 
