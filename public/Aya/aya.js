@@ -527,6 +527,7 @@ function initModeSelector(selector) {
     : selector.value || "Brainstorming";
 
   applyMode(initial);
+  selector.value = initial;
 }
 
 //Init
