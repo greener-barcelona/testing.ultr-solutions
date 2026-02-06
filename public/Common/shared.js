@@ -213,16 +213,6 @@ export async function imageToBase64(file) {
 
 //Auxiliares
 
-export function initModeSelector(selector) {
-  const saved = localStorage.getItem(MODE_KEY);
-  const valid = ["Brainstorming", "Naming", "Socialstorming", "Briefer", "Aya"];
-  const initial = valid.includes(saved)
-    ? saved
-    : selector.value || "Brainstorming";
-
-  applyMode(initial);
-}
-
 export function replaceWeirdChars(text) {
   const htmlFreeText = text.replace(/```html|```/g, "");
 

@@ -20,7 +20,6 @@ import {
   renderMessage,
   extractPDFText,
   imageToBase64,
-  initModeSelector,
   replaceWeirdChars,
   extractBodyContent,
   toggleElement,
@@ -514,7 +513,17 @@ function applyMode(mode) {
         window.location.href = "../Chat/";
         return;
     }
-  }
+  } 
+}
+
+function initModeSelector(selector) {
+  const saved = localStorage.getItem(MODE_KEY);
+  const valid = ["Brainstorming", "Naming", "Socialstorming", "Briefer", "Aya"];
+  const initial = valid.includes(saved)
+    ? saved
+    : selector.value || "Brainstorming";
+
+  applyMode(initial);
 }
 
 //Init
