@@ -20,17 +20,28 @@ async function checkUser() {
 // Ejecutar al cargar la página de Login
 checkUser();
 
-/*function saveLocalSession(user) {
-  localStorage.setItem(
-    "ultraUser",
-    JSON.stringify({
-      id: user.id,
-      email: user.email,
-      name: user.user_metadata?.full_name || user.email,
-      profilePicture: user.user_metadata?.avatar_url || null,
-    })
-  );
-}*/
+async function handleAuthRedirect(session) {
+  if (session && session.user) {
+    const user = session.user;
+    if (!isAllowedDomain(user.email)) {
+      await sb.auth.signOut();
+      localStorage.removeItem("ultraUser");
+      return;
+    }
+    // Guardamos los datos para que el Chat los tenga listos
+    saveLocalSession(user);
+    window.location.href = "../Chat/";
+  }
+}
+sb.auth.getSession().then(({ data: { session } }) => {
+  handleAuthRedirect(session);
+});
+sb.auth.onAuthStateChange((event, session) => {
+  if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
+    handleAuthRedirect(session);
+  }
+});
+
 
 async function ensureUserInDB(user) {
   const { data: existing } = await sb
