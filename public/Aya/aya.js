@@ -1,6 +1,6 @@
 import Agent from "../Common/agent.js";
 import AyahuascaTrip from "../Common/ayahuasca.js";
-import { nemesisAya } from "../Common/perfiles.js";
+import { ayaInstrucciones } from "../Common/perfiles.js";
 import {
   sb,
   ensureAppUser,
@@ -363,7 +363,7 @@ async function startTrip(conversationId) {
       id: "test",
       modelProvider: "openai",
       //debug: true,
-      //perfil: nemesisAya,
+      perfil: ayaInstrucciones,
     });
 
     const trip = new AyahuascaTrip(agent, {
