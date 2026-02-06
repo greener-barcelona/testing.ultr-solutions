@@ -37,7 +37,7 @@ let toastOutsideHandler = null;
 
 let cachedConversations = [];
 
-let modeValue = "Brainstorming";
+let modeValue = localStorage.getItem(MODE_KEY) === "Brainstorming" || localStorage.getItem(MODE_KEY) === "Socialstorming" ? localStorage.getItem(MODE_KEY) : "Brainstorming";
 let activeConversationId = null;
 let title = "";
 
