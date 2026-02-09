@@ -539,8 +539,9 @@ function wireDropzone(zoneEl, kind) {
   });
 }
 
-function downloadText(filename, content, mime = "text/plain;charset=utf-8") {
-  const blob = new Blob([content], { type: mime });
+function downloadDoc(filename, html) {
+  const full = `<!doctype html><html><head><meta charset="utf-8"></head><body>${html}</body></html>`;
+  const blob = new Blob([full], { type: "application/msword;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -594,7 +595,7 @@ async function sendMessageToBriefer(conversationId) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           perfil: { role: "system", content: job.system },
-          messages: convHistoryAtStart,
+          messages: convHistoryAtStart, // CLAVE: siempre el mismo historial base
         }),
       });
 
@@ -610,19 +611,18 @@ async function sendMessageToBriefer(conversationId) {
       const data = await res.json();
       const raw = replaceWeirdChars(data.reply);
       const extracted = extractBodyContent(raw);
-      const html = (extracted && extracted.trim()) ? extracted : raw;
+      const html = extracted && extracted.trim() ? extracted : raw;
 
       if (job.kind === "humano") lastBriefHumano = html;
       if (job.kind === "ia") lastBriefIA = html;
 
       await saveMessage(conversationId, {
         text: html,
-        creativeAgent: "briefer-claude",
+        creativeAgent: `briefer-claude-${job.kind}`, // opcional: distinguir
       });
 
       if (activeConversationId === conversationId) {
         const replyDiv = renderMessage({ author: "briefer-claude", text: html });
-        addMessageToConversationHistory(replyDiv, conversationHistory);
         responseDiv.appendChild(replyDiv);
         responseDiv.scrollTop = responseDiv.scrollHeight;
       }
@@ -873,20 +873,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 exportBtn.addEventListener("click", () => {
   if (!lastBriefHumano) return alert("Aún no hay brief creativo generado.");
-  downloadText(
-    `brief-creativo-${activeConversationId}.html`,
-    lastBriefHumano,
-    "text/html;charset=utf-8"
-  );
+  downloadDoc(`brief-creativo-${activeConversationId}.doc`, lastBriefHumano);
 });
 
- briefButton.addEventListener("click", () => {
+briefButton.addEventListener("click", () => {
   if (!lastBriefIA) return alert("Aún no hay brief técnico generado.");
-  downloadText(
-    `brief-tecnico-${activeConversationId}.html`,
-    lastBriefIA,
-    "text/html;charset=utf-8"
-  );
+  downloadDoc(`brief-tecnico-${activeConversationId}.doc`, lastBriefIA);
 });
 
   cachedConversations = await refreshCachedConversations();
