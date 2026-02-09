@@ -636,10 +636,10 @@ async function sendMessageToBriefer(conversationId) {
           author: "briefer-claude",
           text: html,
         });
-        if (pending.isConnected) responseDiv.appendChild(pending);
-        else responseDiv.appendChild(replyDiv);
+         if (pending.isConnected) responseDiv.insertBefore(replyDiv, pending);
+  else responseDiv.appendChild(replyDiv);
 
-        responseDiv.scrollTop = responseDiv.scrollHeight;
+  responseDiv.scrollTop = responseDiv.scrollHeight;
       }
     } catch (err) {
       console.error(err);
