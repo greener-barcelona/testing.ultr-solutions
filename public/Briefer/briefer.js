@@ -461,68 +461,91 @@ async function handleFiles(files, kind) {
       continue;
     }
 
+try {
+  let rawContent = "";
+
+  if (isPdf) rawContent = await extractPDFText(file);
+  else if (isImg) rawContent = await imageToBase64(file);
+  else if (isTxt) rawContent = await file.text();
+  else if (isDoc) {
     try {
-      let rawContent = "";
-
-      if (isPdf) rawContent = await extractPDFText(file);
-      else if (isImg) rawContent = await imageToBase64(file);
-      else if (isTxt) rawContent = await file.text();
-      else if (isDoc) {
-        try {
-          rawContent = await file.text();
-        } catch (e) {
-          try {
-            const ab = await file.arrayBuffer();
-            rawContent = new TextDecoder("utf-8").decode(ab);
-          } catch (e2) {
-            rawContent = "";
-          }
-        }
+      rawContent = await file.text();
+    } catch {
+      try {
+        const ab = await file.arrayBuffer();
+        rawContent = new TextDecoder("utf-8").decode(ab);
+      } catch {
+        rawContent = "";
       }
-
-      const fileContent = toStringContent(rawContent);
-      console.log("PDF extract type:", typeof fileContent, fileContent);
-
-      if (!fileContent || !fileContent.trim()) {
-        const errorDiv = document.createElement("div");
-        errorDiv.className = "message error text-content";
-        errorDiv.textContent = `El archivo ${file.name} no tiene contenido.`;
-        responseDiv.appendChild(errorDiv);
-        continue;
-      }
-      if (!activeConversationId) {
-        title =
-          file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
-        await startNewConversation(title);
-      }
-
-      // UI feedback
-      const replyDiv = renderMessage({
-        author: user.name.split(" ")[0] || "Usuario",
-        text: `${file.name} cargado (${kind === "brief" ? "brief" : "contexto"}).`,
-        userProfile: user.profilePicture,
-      });
-      responseDiv.appendChild(replyDiv);
-      responseDiv.scrollTop = responseDiv.scrollHeight;
-
-      if (kind === "brief")
-        briefInputs.push({ name: file.name, content: fileContent });
-      else contextInputs.push({ name: file.name, content: fileContent });
-
-      pushSystemDoc(kind, file.name, fileContent);
-
-      await saveMessage(activeConversationId, {
-        text: replyDiv.textContent.trim(),
-      });
-      await saveMessage(activeConversationId, {
-        text: fileContent,
-        creativeAgent: "system",
-      });
-    } catch (err) {
-      console.error(err);
-      alert(`Error procesando ${file.name}`);
     }
   }
+
+  // ✅ IMAGEN: no lo conviertas a string, empuja multimodal y SAL
+  if (isImg) {
+    if (!activeConversationId) {
+      title = file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
+      await startNewConversation(title);
+    }
+
+    const replyDivImg = renderMessage({
+      author: user.name.split(" ")[0] || "Usuario",
+      text: `${file.name} cargado (${kind === "brief" ? "brief" : "contexto"}).`,
+      userProfile: user.profilePicture,
+    });
+    responseDiv.appendChild(replyDivImg);
+    responseDiv.scrollTop = responseDiv.scrollHeight;
+
+    if (kind === "brief") briefInputs.push({ name: file.name, content: rawContent });
+    else contextInputs.push({ name: file.name, content: rawContent });
+
+    // 👇 aquí es donde va lo que preguntabas
+    conversationHistory.push({ role: "user", content: rawContent });
+
+    // DB: guarda placeholder (si tu DB no acepta arrays)
+    await saveMessage(activeConversationId, { text: replyDivImg.textContent.trim() });
+    await saveMessage(activeConversationId, {
+      text: `[${kind === "brief" ? "BRIEF_CLIENTE" : "CONTEXTO"}] ${file.name} (imagen)`,
+      creativeAgent: "system",
+    });
+
+    continue; // ⛔ importante
+  }
+
+  // ✅ NO IMAGEN: string normal
+  const fileContent = toStringContent(rawContent);
+
+  if (!fileContent || !fileContent.trim()) {
+    const errorDiv = document.createElement("div");
+    errorDiv.className = "message error text-content";
+    errorDiv.textContent = `El archivo ${file.name} no tiene contenido.`;
+    responseDiv.appendChild(errorDiv);
+    continue;
+  }
+
+  if (!activeConversationId) {
+    title = file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
+    await startNewConversation(title);
+  }
+
+  const replyDiv = renderMessage({
+    author: user.name.split(" ")[0] || "Usuario",
+    text: `${file.name} cargado (${kind === "brief" ? "brief" : "contexto"}).`,
+    userProfile: user.profilePicture,
+  });
+  responseDiv.appendChild(replyDiv);
+  responseDiv.scrollTop = responseDiv.scrollHeight;
+
+  if (kind === "brief") briefInputs.push({ name: file.name, content: fileContent });
+  else contextInputs.push({ name: file.name, content: fileContent });
+
+  pushSystemDoc(kind, file.name, fileContent);
+
+  await saveMessage(activeConversationId, { text: replyDiv.textContent.trim() });
+  await saveMessage(activeConversationId, { text: fileContent, creativeAgent: "system" });
+} catch (err) {
+  console.error(err);
+  alert(`Error procesando ${file.name}`);
+}
 
   setExportButtonsEnabled(false, false);
   responseDiv.scrollTop = responseDiv.scrollHeight;
