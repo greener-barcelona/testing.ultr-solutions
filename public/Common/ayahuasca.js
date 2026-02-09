@@ -420,6 +420,9 @@ class CreativePipeline {
     const result = await this.callModel(prompt, {
       temp: presetConfig.temperature,
       top_p: presetConfig.top_p,
+      max_tokens: presetConfig.max_tokens,
+      presence_penalty: presetConfig.presence_penalty,
+      frequency_penalty: presetConfig.frequency_penalty,
     });
 
     console.log(`\n✨ Respuesta generada\n`);
@@ -439,7 +442,7 @@ class CreativePipeline {
   }
 
   preparePrompt(task) {
-    const prompt = [...task.brief];
+    const prompt = [...task];
 
     return prompt.map((msg) => {
       if (msg.role === "user") {
@@ -452,7 +455,16 @@ class CreativePipeline {
     });
   }
 
-  async callModel(prompt, { temp = 1.0, top_p = 1.0 }) {
+  async callModel(
+    prompt,
+    {
+      temp = 1.0,
+      top_p = 1.0,
+      max_tokens = 5000,
+      presence_penalty = 0.0,
+      frequency_penalty = 0.0,
+    },
+  ) {
     if (!Array.isArray(prompt)) {
       console.warn(`Prompt inválido en callModel:`, prompt);
       return null;
@@ -462,13 +474,22 @@ class CreativePipeline {
       return await this.agent.generateCompletion({
         prompt: prompt,
         temperature: temp,
-        top_p,
+        top_p: top_p,
+        max_tokens: max_tokens,
+        presence_penalty: presence_penalty,
+        frequency_penalty: frequency_penalty,
       });
     } else if (
       typeof this.agent.setLLMConfig === "function" &&
       typeof this.agent.generateWithDefaults === "function"
     ) {
-      this.agent.setLLMConfig({ temperature: temp, top_p });
+      this.agent.setLLMConfig({
+        temperature: temp,
+        top_p: top_p,
+        max_tokens: max_tokens,
+        presence_penalty: presence_penalty,
+        frequency_penalty: frequency_penalty,
+      });
       return await this.agent.generateWithDefaults(prompt);
     } else {
       return null;

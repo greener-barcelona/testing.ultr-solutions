@@ -167,7 +167,7 @@ body {
 }
 
 .conversation-item {
-  position: relative; /* 👈 necesario para que el menú absoluto se ancle aquí */
+  position: relative; 
   display: flex;
   align-items: center;
   gap: 12px;
@@ -624,20 +624,11 @@ body {
   white-space: normal;
 }
 
-/*.search-close-btn {
-  position: absolute;
-  top: 12px;
-  right: 14px;
-  background: none;
-  border: none;
-  font-size: 22px;
-  cursor: pointer;
-  color: #666;
+.settings {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
-
-.search-close-btn:hover {
-  color: #000;
-}*/
 
 /* RESPONSIVE */
 @media (max-width: 1024px) {

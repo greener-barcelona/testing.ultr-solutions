@@ -124,6 +124,8 @@ class Agent {
     temperature,
     top_p,
     max_tokens,
+    presence_penalty, 
+    frequency_penalty
   }) {
     if (!Array.isArray(prompt)) {
       throw new Error("prompt debe ser un array de mensajes");
@@ -140,14 +142,16 @@ class Agent {
     const finalTemp = temperature ?? this.llmConfig.temperature;
     const finalTopP = top_p ?? this.llmConfig.top_p;
     const finalMaxTokens = max_tokens ?? this.llmConfig.max_tokens;
+    const finalPresencePenalty = presence_penalty ?? this.llmConfig.presence_penalty;
+    const finalFrequencyPenalty = frequency_penalty ?? this.llmConfig.frequency_penalty;
 
     const apiCall = {
       provider: this.provider,
       temperature: finalTemp,
       top_p: finalTopP,
       max_tokens: finalMaxTokens,
-      presence_penalty: this.llmConfig.presence_penalty,
-      frequency_penalty: this.llmConfig.frequency_penalty,
+      presence_penalty: finalPresencePenalty,
+      frequency_penalty: finalFrequencyPenalty,
       promptMessagesCount: prompt.length,
       systemPromptLength: this.systemPrompt?.length || 0,
       hasSystemPrompt: !!this.systemPrompt,
@@ -215,6 +219,8 @@ class Agent {
       temperature: this.llmConfig.temperature,
       top_p: this.llmConfig.top_p,
       max_tokens: this.llmConfig.max_tokens,
+      presence_penalty: this.llmConfig.presence_penalty,
+      frequency_penalty: this.llmConfig.frequency_penalty,
     });
   }
 

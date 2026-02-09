@@ -333,7 +333,7 @@ async function onFileLoaded(e, fileInput) {
 
 //Ayahuasca
 
-async function sendMessageToTrip(triggerBtn, intensity) {
+async function sendMessageToTrip(triggerBtn, intensity, model) {
   toggleElement(triggerBtn);
   await userSendMessage();
 
@@ -344,12 +344,12 @@ async function sendMessageToTrip(triggerBtn, intensity) {
 
   const conversationIdAtStart = activeConversationId;
 
-  await startTrip(conversationIdAtStart, intensity);
+  await startTrip(conversationIdAtStart, intensity, model);
 
   toggleElement(triggerBtn);
 }
 
-async function startTrip(conversationId, intensity) {
+async function startTrip(conversationId, intensity, model) {
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
   pending.textContent = `Tripping...`;
@@ -360,22 +360,28 @@ async function startTrip(conversationId, intensity) {
   }
   try {
     const agent = new Agent({
-      id: "test",
-      modelProvider: "openai",
+      id: "aya-enjoyer",
+      modelProvider: model,
       //debug: true,
       perfil: ayaInstrucciones,
     });
-    console.log("Iniciando viaje con perfil:", intensity === "light" ? "deep" : intensity === "mid" ? "beyond" : "surreal");
+
     const trip = new AyahuascaTrip(agent, {
-      intensity: intensity === "light" ? "deep" : intensity === "mid" ? "beyond" : "surreal",
-      scriptIntensity: intensity === "light" ? "subtle" : intensity === "mid" ? "balanced" : "extreme",
+      intensity:
+        intensity === "light"
+          ? "deep"
+          : intensity === "mid"
+            ? "beyond"
+            : "surreal",
+      scriptIntensity:
+        intensity === "light"
+          ? "subtle"
+          : intensity === "mid"
+            ? "balanced"
+            : "extreme",
     });
 
-    const task = {
-      brief: conversationHistory,
-    };
-
-    const result = await trip.withTrip(task);
+    const result = await trip.withTrip(conversationHistory);
     const text = replaceWeirdChars(result.reply);
     const cleanhtml = extractBodyContent(text);
     if (!cleanhtml || !cleanhtml.trim()) {
@@ -384,7 +390,7 @@ async function startTrip(conversationId, intensity) {
 
     await saveMessage(conversationId, {
       text: cleanhtml,
-      creativeAgent: `ayahuasca-openai`,
+      creativeAgent: `ayahuasca-${model}`,
     });
 
     pending.remove();
@@ -397,7 +403,7 @@ async function startTrip(conversationId, intensity) {
 
     if (activeConversationId === conversationId) {
       const replyDiv = renderMessage({
-        author: `ayahuasca-openai`,
+        author: `ayahuasca-${model}`,
         text: cleanhtml,
       });
       addMessageToConversationHistory(replyDiv, conversationHistory);
@@ -556,11 +562,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   fileInput.addEventListener("change", async (e) => onFileLoaded(e, fileInput));
 
   ayaTrip.addEventListener("click", () => {
-    const intensity = document.querySelector(
-      'input[name="intensity"]:checked',
-    );
+    const intensity = document.querySelector('input[name="intensity"]:checked');
+    const model = document.querySelector('input[name="model"]:checked');
 
-    sendMessageToTrip(ayaTrip, intensity.value);
+    sendMessageToTrip(ayaTrip, intensity.value, model.value);
   });
 
   document.addEventListener("keydown", (e) => {
