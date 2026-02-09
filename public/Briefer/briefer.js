@@ -470,53 +470,18 @@ async function handleFiles(files, kind) {
       else if (isDoc) {
         try {
           rawContent = await file.text();
-        } catch {
+        } catch (e) {
           try {
             const ab = await file.arrayBuffer();
             rawContent = new TextDecoder("utf-8").decode(ab);
-          } catch {
+          } catch (e2) {
             rawContent = "";
           }
         }
       }
 
-      // ✅ IMAGEN: no lo conviertas a string, empuja multimodal y SAL
-      if (isImg) {
-        if (!activeConversationId) {
-          title =
-            file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
-          await startNewConversation(title);
-        }
-
-        const replyDivImg = renderMessage({
-          author: user.name.split(" ")[0] || "Usuario",
-          text: `${file.name} cargado (${kind === "brief" ? "brief" : "contexto"}).`,
-          userProfile: user.profilePicture,
-        });
-        responseDiv.appendChild(replyDivImg);
-        responseDiv.scrollTop = responseDiv.scrollHeight;
-
-        if (kind === "brief")
-          briefInputs.push({ name: file.name, content: rawContent });
-        else contextInputs.push({ name: file.name, content: rawContent });
-
-        // 👇 aquí es donde va lo que preguntabas
-        conversationHistory.push({ role: "user", content: rawContent });
-
-        // DB: guarda placeholder (si tu DB no acepta arrays)
-        await saveMessage(activeConversationId, {
-          text: replyDivImg.textContent.trim(),
-        });
-        await saveMessage(activeConversationId, {
-          text: `[${kind === "brief" ? "BRIEF_CLIENTE" : "CONTEXTO"}] ${file.name} (imagen)`,
-          creativeAgent: "system",
-        });
-
-        continue; // ⛔ importante
-      }
-
-      // ✅ NO IMAGEN: string normal
       const fileContent = toStringContent(rawContent);
+      console.log("PDF extract type:", typeof fileContent, fileContent);
 
       if (!fileContent || !fileContent.trim()) {
         const errorDiv = document.createElement("div");
@@ -525,13 +490,13 @@ async function handleFiles(files, kind) {
         responseDiv.appendChild(errorDiv);
         continue;
       }
-
       if (!activeConversationId) {
         title =
           file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
         await startNewConversation(title);
       }
 
+      // UI feedback
       const replyDiv = renderMessage({
         author: user.name.split(" ")[0] || "Usuario",
         text: `${file.name} cargado (${kind === "brief" ? "brief" : "contexto"}).`,
@@ -557,401 +522,388 @@ async function handleFiles(files, kind) {
       console.error(err);
       alert(`Error procesando ${file.name}`);
     }
-
-    setExportButtonsEnabled(false, false);
-    responseDiv.scrollTop = responseDiv.scrollHeight;
   }
 
-  function wireDropzone(zoneEl, kind) {
-    const setActive = (on) => zoneEl.classList.toggle("is-dragover", on);
+  setExportButtonsEnabled(false, false);
+  responseDiv.scrollTop = responseDiv.scrollHeight;
+}
 
-    zoneEl.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      setActive(true);
-    });
-    zoneEl.addEventListener("dragleave", () => setActive(false));
-    zoneEl.addEventListener("drop", async (e) => {
-      e.preventDefault();
-      setActive(false);
-      const files = e.dataTransfer?.files;
-      if (files && files.length) await handleFiles(files, kind);
-    });
-  }
+function wireDropzone(zoneEl, kind) {
+  const setActive = (on) => zoneEl.classList.toggle("is-dragover", on);
 
-  function downloadDoc(filename, html) {
-    const full = `<!doctype html><html><head><meta charset="utf-8"></head><body>${html}</body></html>`;
-    const blob = new Blob([full], { type: "application/msword;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
+  zoneEl.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    setActive(true);
+  });
+  zoneEl.addEventListener("dragleave", () => setActive(false));
+  zoneEl.addEventListener("drop", async (e) => {
+    e.preventDefault();
+    setActive(false);
+    const files = e.dataTransfer?.files;
+    if (files && files.length) await handleFiles(files, kind);
+  });
+}
 
-  /*function buildInputHeader() {
+function downloadDoc(filename, html) {
+  const full = `<!doctype html><html><head><meta charset="utf-8"></head><body>${html}</body></html>`;
+  const blob = new Blob([full], { type: "application/msword;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/*function buildInputHeader() {
   const b = briefInputs.map((x) => `- ${x.name}`).join("\n") || "- (ninguno)";
   const c = contextInputs.map((x) => `- ${x.name}`).join("\n") || "- (ninguno)";
   return `DOCUMENTOS CARGADOS:\nBRIEF_CLIENTE:\n${b}\n\nCONTEXTO:\n${c}\n`;
 }*/
 
-  //Endpoints
+//Endpoints
 
-  async function sendMessageToBriefer(conversationId) {
-    const convHistoryAtStart = structuredClone(conversationHistory);
+async function sendMessageToBriefer(conversationId) {
+  const convHistoryAtStart = structuredClone(conversationHistory);
 
-    lastBriefHumano = "";
-    lastBriefIA = "";
-    setExportButtonsEnabled(false, false);
+  lastBriefHumano = "";
+  lastBriefIA = "";
+  setExportButtonsEnabled(false, false);
 
-    const pending = document.createElement("div");
-    pending.className = "message pending text-content";
+  const pending = document.createElement("div");
+  pending.className = "message pending text-content";
 
-    if (activeConversationId === conversationId) {
-      responseDiv.appendChild(pending);
-      responseDiv.scrollTop = responseDiv.scrollHeight;
-    }
+  if (activeConversationId === conversationId) {
+    responseDiv.appendChild(pending);
+    responseDiv.scrollTop = responseDiv.scrollHeight;
+  }
 
-    const jobs = [
-      {
-        kind: "humano",
-        label: "Creando brief creativo...",
-        system: `${brieferCreativo.content}\n\n${brieferInstruccionesCreativo.content}`,
-      },
-      {
-        kind: "ia",
-        label: "Creando brief técnico...",
-        system: `${brieferTecnico.content}\n\n${brieferInstruccionesTecnico.content}`,
-      },
-    ];
+  const jobs = [
+    {
+      kind: "humano",
+      label: "Creando brief creativo...",
+      system: `${brieferCreativo.content}\n\n${brieferInstruccionesCreativo.content}`,
+    },
+    {
+      kind: "ia",
+      label: "Creando brief técnico...",
+      system: `${brieferTecnico.content}\n\n${brieferInstruccionesTecnico.content}`,
+    },
+  ];
 
-    for (const job of jobs) {
-      try {
-        pending.textContent = job.label;
+  for (const job of jobs) {
+    try {
+      pending.textContent = job.label;
 
-        const res = await fetch("/api/claude", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            perfil: { role: "system", content: job.system },
-            messages: convHistoryAtStart, // CLAVE: siempre el mismo historial base
-          }),
-        });
+      const res = await fetch("/api/claude", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          perfil: { role: "system", content: job.system },
+          messages: convHistoryAtStart, // CLAVE: siempre el mismo historial base
+        }),
+      });
 
-        if (!res.ok) {
-          let msg = "Error al enviar.";
-          try {
-            const errorData = await res.json();
-            msg = errorData?.error || msg;
-          } catch {}
-          throw new Error(msg);
-        }
+      if (!res.ok) {
+        let msg = "Error al enviar.";
+        try {
+          const errorData = await res.json();
+          msg = errorData?.error || msg;
+        } catch {}
+        throw new Error(msg);
+      }
 
-        const data = await res.json();
-        console.log("reply keys:", Object.keys(data), "kind:", job.kind);
+      const data = await res.json();
+      console.log("reply keys:", Object.keys(data), "kind:", job.kind);
 
-        const reply =
-          data?.reply ??
-          data?.content ??
-          data?.completion ??
-          data?.message ??
-          "";
+      const reply =
+        data?.reply ?? data?.content ?? data?.completion ?? data?.message ?? "";
 
-        const raw = replaceWeirdChars(String(reply));
-        const extracted = extractBodyContent(raw);
-        const html = extracted && extracted.trim() ? extracted : raw;
+      const raw = replaceWeirdChars(String(reply));
+      const extracted = extractBodyContent(raw);
+      const html = extracted && extracted.trim() ? extracted : raw;
 
-        if (job.kind === "humano") lastBriefHumano = html;
-        if (job.kind === "ia") lastBriefIA = html;
+      if (job.kind === "humano") lastBriefHumano = html;
+      if (job.kind === "ia") lastBriefIA = html;
 
-        await saveMessage(conversationId, {
+      await saveMessage(conversationId, {
+        text: html,
+        creativeAgent: `briefer-claude-${job.kind}`, // opcional: distinguir
+      });
+
+      if (activeConversationId === conversationId) {
+        const replyDiv = renderMessage({
+          author: "briefer-claude",
           text: html,
-          creativeAgent: `briefer-claude-${job.kind}`, // opcional: distinguir
         });
+        if (pending.isConnected) responseDiv.insertBefore(replyDiv, pending);
+        else responseDiv.appendChild(replyDiv);
 
-        if (activeConversationId === conversationId) {
-          const replyDiv = renderMessage({
-            author: "briefer-claude",
-            text: html,
-          });
-          if (pending.isConnected) responseDiv.insertBefore(replyDiv, pending);
-          else responseDiv.appendChild(replyDiv);
-
-          responseDiv.scrollTop = responseDiv.scrollHeight;
-        }
-      } catch (err) {
-        console.error(err);
-        pending.classList.remove("pending");
-        pending.classList.add("error");
-        pending.textContent = `Error: ${err.message}`;
-        continue;
+        responseDiv.scrollTop = responseDiv.scrollHeight;
       }
+    } catch (err) {
+      console.error(err);
+      pending.classList.remove("pending");
+      pending.classList.add("error");
+      pending.textContent = `Error: ${err.message}`;
+      continue;
     }
-
-    if (pending.isConnected) pending.remove();
-
-    setExportButtonsEnabled(Boolean(lastBriefHumano), Boolean(lastBriefIA));
   }
 
-  async function exportConversation(button, summarize) {
-    return alert("Función de exportar deshabilitada en el entorno de pruebas");
-  }
+  if (pending.isConnected) pending.remove();
 
-  //Modal
-
-  function openSearchModal() {
-    const searchModal = document.getElementById("searchModal");
-    const searchInput = document.getElementById("searchInput");
-    const searchResults = document.getElementById("searchResults");
-    if (!searchModal || !searchInput || !searchResults) return;
-
-    searchModal.classList.add("active");
-    searchInput.value = "";
-    searchResults.innerHTML = "";
-    searchInput.focus();
-  }
-
-  function closeSearchModal() {
-    const searchModal = document.getElementById("searchModal");
-    if (searchModal) searchModal.classList.remove("active");
-  }
-
-  //Auxiliares
-
-  function applyMode(mode) {
-    const currentMode = localStorage.getItem(MODE_KEY);
-
-    if (modeValue !== currentMode) {
-      localStorage.setItem(MODE_KEY, mode);
-
-      activeConversationId = null;
-      title = "";
-      conversationHistory.length = 0;
-      responseDiv.innerHTML = "";
-
-      switch (mode) {
-        case "Briefer":
-          window.location.href = "../Briefer/";
-          break;
-        case "Aya":
-          window.location.href = "../Aya/";
-          break;
-        default:
-          window.location.href = "../Chat/";
-          return;
-      }
-    }
-
-    modeValue = mode;
-  }
-
-  function initModeSelector(selector, titleText) {
-    const saved = localStorage.getItem(MODE_KEY);
-    const valid = [
-      "Brainstorming",
-      "Naming",
-      "Socialstorming",
-      "Briefer",
-      "Aya",
-    ];
-    const initial = valid.includes(saved)
-      ? saved
-      : selector.value || "Brainstorming";
-
-    applyMode(initial);
-    selector.value = initial;
-    titleText.text = initial;
-    document.title = initial;
-  }
-
-  //Init
-
-  document.addEventListener("DOMContentLoaded", async () => {
-    const {
-      data: { session },
-    } = await sb.auth.getSession();
-
-    if (!session) {
-      window.location.href = "../LogIn/";
-      return;
-    }
-    updateSharedUser(session.user);
-    saveLocalSession(session.user);
-
-    await ensureAppUser();
-    await loadSidebarConversations();
-
-    const searchBtn = document.getElementById("searchChatBtn");
-    const searchModal = document.getElementById("searchModal");
-    const searchInput = document.getElementById("searchInput");
-    const searchResults = document.getElementById("searchResults");
-    const settingsBtn = document.getElementById("settingsBtn");
-    const settingsMenu = document.getElementById("settingsMenu");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const newChatBtn = document.getElementById("newChatBtn");
-    const briefFileInput = document.getElementById("briefFileInput");
-    const contextFileInput = document.getElementById("contextFileInput");
-    const modeSelector = document.getElementById("selector");
-    const titleText = document.getElementById("title");
-    exportBtn = document.getElementById("exportBtn");
-    briefButton = document.getElementById("briefButton");
-    sendBtn = document.getElementById("sendBtn");
-    briefDrop = document.getElementById("briefDrop");
-    contextDrop = document.getElementById("contextDrop");
-    responseDiv = document.getElementById("messages");
-    textarea = document.getElementById("userInputArea");
-    if (
-      !searchBtn ||
-      !searchModal ||
-      !searchInput ||
-      !searchResults ||
-      !settingsBtn ||
-      !settingsMenu ||
-      !logoutBtn ||
-      !newChatBtn ||
-      !exportBtn ||
-      !sendBtn ||
-      !briefDrop ||
-      !contextDrop ||
-      !briefFileInput ||
-      !contextFileInput ||
-      !modeSelector ||
-      !textarea ||
-      !responseDiv ||
-      !titleText ||
-      !briefButton
-    ) {
-      console.warn("Buscador no inicializado (elementos faltantes)");
-      return;
-    }
-    setExportButtonsEnabled(false, false);
-
-    initModeSelector(modeSelector, titleText);
-
-    modeSelector.addEventListener("change", (e) => {
-      const value = e.target.value;
-      titleText.text = value;
-      document.title = value;
-      modeValue = value;
-      applyMode(value);
-    });
-    wireDropzone(briefDrop, "brief");
-    wireDropzone(contextDrop, "context");
-    sendBtn.addEventListener("click", async () => {
-      await sendMessageToBrieferButton(sendBtn);
-    });
-
-    searchBtn.addEventListener("click", openSearchModal);
-
-    searchModal.addEventListener("click", (e) => {
-      if (e.target === searchModal) closeSearchModal();
-    });
-
-    briefFileInput.addEventListener("change", async (e) => {
-      await handleFiles(e.target.files, "brief");
-      e.target.value = "";
-    });
-
-    contextFileInput.addEventListener("change", async (e) => {
-      await handleFiles(e.target.files, "context");
-      e.target.value = "";
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeSearchModal();
-    });
-
-    if (searchInput && searchResults) {
-      searchInput.addEventListener("input", () => {
-        const query = searchInput.value.toLowerCase().trim();
-        searchResults.innerHTML = "";
-        if (!query || !Array.isArray(cachedConversations)) return;
-
-        cachedConversations.forEach((conv) => {
-          const titleMatch = (conv.title || "").toLowerCase().includes(query);
-          const msgs = conv._messages || [];
-          const contentMatch = msgs.some((m) => {
-            const text = typeof m === "string" ? m : m?.text || "";
-            return text.toLowerCase().includes(query);
-          });
-
-          if (!titleMatch && !contentMatch) return;
-
-          const div = document.createElement("div");
-          div.className = "search-result-item";
-          div.innerHTML = `<div class="search-result-title">${
-            conv.title || ""
-          }</div>`;
-          div.onclick = () => {
-            closeSearchModal();
-            loadConversation(conv.id);
-          };
-          searchResults.appendChild(div);
-        });
-      });
-    }
-
-    if (textarea) {
-      textarea.addEventListener("keydown", async (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-          e.preventDefault();
-          if (typeof sendMessageToBrieferButton === "function" && briefButton) {
-            await sendMessageToBrieferButton(sendBtn);
-          } else {
-            await userSendMessage();
-          }
-        }
-      });
-      textarea.addEventListener("input", autoResizeTextarea(textarea));
-    }
-
-    newChatBtn.addEventListener(
-      "click",
-      async () => await startNewConversation(),
-    );
-
-    logoutBtn.addEventListener("click", () => logout(MODE_KEY));
-
-    settingsBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      settingsMenu.classList.toggle("active");
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target)) {
-        settingsMenu.classList.remove("active");
-      }
-
-      document.querySelectorAll(".conv-menu").forEach((menu) => {
-        const btn = menu.previousElementSibling;
-        if (!menu.contains(e.target) && !btn?.contains(e.target)) {
-          menu.classList.remove("active");
-        }
-      });
-    });
-
-    exportBtn.addEventListener("click", () => {
-      if (!lastBriefHumano) return alert("Aún no hay brief creativo generado.");
-      downloadDoc(
-        `brief-creativo-${activeConversationId}.doc`,
-        lastBriefHumano,
-      );
-    });
-
-    briefButton.addEventListener("click", () => {
-      if (!lastBriefIA) return alert("Aún no hay brief técnico generado.");
-      downloadDoc(`brief-tecnico-${activeConversationId}.doc`, lastBriefIA);
-    });
-
-    cachedConversations = await refreshCachedConversations();
-    console.log(
-      "briefButton count",
-      document.querySelectorAll("#briefButton").length,
-    );
-    console.log(
-      "exportBtn count",
-      document.querySelectorAll("#exportBtn").length,
-    );
-    console.log("briefButton el", document.getElementById("briefButton"));
-  });
+  setExportButtonsEnabled(Boolean(lastBriefHumano), Boolean(lastBriefIA));
 }
+
+async function exportConversation(button, summarize) {
+  return alert("Función de exportar deshabilitada en el entorno de pruebas");
+}
+
+//Modal
+
+function openSearchModal() {
+  const searchModal = document.getElementById("searchModal");
+  const searchInput = document.getElementById("searchInput");
+  const searchResults = document.getElementById("searchResults");
+  if (!searchModal || !searchInput || !searchResults) return;
+
+  searchModal.classList.add("active");
+  searchInput.value = "";
+  searchResults.innerHTML = "";
+  searchInput.focus();
+}
+
+function closeSearchModal() {
+  const searchModal = document.getElementById("searchModal");
+  if (searchModal) searchModal.classList.remove("active");
+}
+
+//Auxiliares
+
+function applyMode(mode) {
+  const currentMode = localStorage.getItem(MODE_KEY);
+
+  if (modeValue !== currentMode) {
+    localStorage.setItem(MODE_KEY, mode);
+
+    activeConversationId = null;
+    title = "";
+    conversationHistory.length = 0;
+    responseDiv.innerHTML = "";
+
+    switch (mode) {
+      case "Briefer":
+        window.location.href = "../Briefer/";
+        break;
+      case "Aya":
+        window.location.href = "../Aya/";
+        break;
+      default:
+        window.location.href = "../Chat/";
+        return;
+    }
+  }
+
+  modeValue = mode;
+}
+
+function initModeSelector(selector, titleText) {
+  const saved = localStorage.getItem(MODE_KEY);
+  const valid = ["Brainstorming", "Naming", "Socialstorming", "Briefer", "Aya"];
+  const initial = valid.includes(saved)
+    ? saved
+    : selector.value || "Brainstorming";
+
+  applyMode(initial);
+  selector.value = initial;
+  titleText.text = initial;
+  document.title = initial;
+}
+
+//Init
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const {
+    data: { session },
+  } = await sb.auth.getSession();
+
+  if (!session) {
+    window.location.href = "../LogIn/";
+    return;
+  }
+  updateSharedUser(session.user);
+  saveLocalSession(session.user);
+
+  await ensureAppUser();
+  await loadSidebarConversations();
+
+  const searchBtn = document.getElementById("searchChatBtn");
+  const searchModal = document.getElementById("searchModal");
+  const searchInput = document.getElementById("searchInput");
+  const searchResults = document.getElementById("searchResults");
+  const settingsBtn = document.getElementById("settingsBtn");
+  const settingsMenu = document.getElementById("settingsMenu");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const newChatBtn = document.getElementById("newChatBtn");
+  const briefFileInput = document.getElementById("briefFileInput");
+  const contextFileInput = document.getElementById("contextFileInput");
+  const modeSelector = document.getElementById("selector");
+  const titleText = document.getElementById("title");
+  exportBtn = document.getElementById("exportBtn");
+  briefButton = document.getElementById("briefButton");
+  sendBtn = document.getElementById("sendBtn");
+  briefDrop = document.getElementById("briefDrop");
+  contextDrop = document.getElementById("contextDrop");
+  responseDiv = document.getElementById("messages");
+  textarea = document.getElementById("userInputArea");
+  if (
+    !searchBtn ||
+    !searchModal ||
+    !searchInput ||
+    !searchResults ||
+    !settingsBtn ||
+    !settingsMenu ||
+    !logoutBtn ||
+    !newChatBtn ||
+    !exportBtn ||
+    !sendBtn ||
+    !briefDrop ||
+    !contextDrop ||
+    !briefFileInput ||
+    !contextFileInput ||
+    !modeSelector ||
+    !textarea ||
+    !responseDiv ||
+    !titleText ||
+    !briefButton
+  ) {
+    console.warn("Buscador no inicializado (elementos faltantes)");
+    return;
+  }
+  setExportButtonsEnabled(false, false);
+
+  initModeSelector(modeSelector, titleText);
+
+  modeSelector.addEventListener("change", (e) => {
+    const value = e.target.value;
+    titleText.text = value;
+    document.title = value;
+    modeValue = value;
+    applyMode(value);
+  });
+  wireDropzone(briefDrop, "brief");
+  wireDropzone(contextDrop, "context");
+  sendBtn.addEventListener("click", async () => {
+    await sendMessageToBrieferButton(sendBtn);
+  });
+
+  searchBtn.addEventListener("click", openSearchModal);
+
+  searchModal.addEventListener("click", (e) => {
+    if (e.target === searchModal) closeSearchModal();
+  });
+
+  briefFileInput.addEventListener("change", async (e) => {
+    await handleFiles(e.target.files, "brief");
+    e.target.value = "";
+  });
+
+  contextFileInput.addEventListener("change", async (e) => {
+    await handleFiles(e.target.files, "context");
+    e.target.value = "";
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeSearchModal();
+  });
+
+  if (searchInput && searchResults) {
+    searchInput.addEventListener("input", () => {
+      const query = searchInput.value.toLowerCase().trim();
+      searchResults.innerHTML = "";
+      if (!query || !Array.isArray(cachedConversations)) return;
+
+      cachedConversations.forEach((conv) => {
+        const titleMatch = (conv.title || "").toLowerCase().includes(query);
+        const msgs = conv._messages || [];
+        const contentMatch = msgs.some((m) => {
+          const text = typeof m === "string" ? m : m?.text || "";
+          return text.toLowerCase().includes(query);
+        });
+
+        if (!titleMatch && !contentMatch) return;
+
+        const div = document.createElement("div");
+        div.className = "search-result-item";
+        div.innerHTML = `<div class="search-result-title">${
+          conv.title || ""
+        }</div>`;
+        div.onclick = () => {
+          closeSearchModal();
+          loadConversation(conv.id);
+        };
+        searchResults.appendChild(div);
+      });
+    });
+  }
+
+  if (textarea) {
+    textarea.addEventListener("keydown", async (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        if (typeof sendMessageToBrieferButton === "function" && briefButton) {
+          await sendMessageToBrieferButton(sendBtn);
+        } else {
+          await userSendMessage();
+        }
+      }
+    });
+    textarea.addEventListener("input", autoResizeTextarea(textarea));
+  }
+
+  newChatBtn.addEventListener(
+    "click",
+    async () => await startNewConversation(),
+  );
+
+  logoutBtn.addEventListener("click", () => logout(MODE_KEY));
+
+  settingsBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    settingsMenu.classList.toggle("active");
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target)) {
+      settingsMenu.classList.remove("active");
+    }
+
+    document.querySelectorAll(".conv-menu").forEach((menu) => {
+      const btn = menu.previousElementSibling;
+      if (!menu.contains(e.target) && !btn?.contains(e.target)) {
+        menu.classList.remove("active");
+      }
+    });
+  });
+
+  exportBtn.addEventListener("click", () => {
+    if (!lastBriefHumano) return alert("Aún no hay brief creativo generado.");
+    downloadDoc(`brief-creativo-${activeConversationId}.doc`, lastBriefHumano);
+  });
+
+  briefButton.addEventListener("click", () => {
+    if (!lastBriefIA) return alert("Aún no hay brief técnico generado.");
+    downloadDoc(`brief-tecnico-${activeConversationId}.doc`, lastBriefIA);
+  });
+
+  cachedConversations = await refreshCachedConversations();
+  console.log(
+    "briefButton count",
+    document.querySelectorAll("#briefButton").length,
+  );
+  console.log(
+    "exportBtn count",
+    document.querySelectorAll("#exportBtn").length,
+  );
+  console.log("briefButton el", document.getElementById("briefButton"));
+});
