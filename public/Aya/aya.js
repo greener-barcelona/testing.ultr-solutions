@@ -365,7 +365,7 @@ async function startTrip(conversationId) {
       //debug: true,
       perfil: ayaInstrucciones,
     });
-
+    console.log("Iniciando viaje con perfil:", intensity === "light" ? "deep" : intensity === "mid" ? "beyond" : "surreal");
     const trip = new AyahuascaTrip(agent, {
       intensity: intensity === "light" ? "deep" : intensity === "mid" ? "beyond" : "surreal",
       scriptIntensity: intensity === "light" ? "subtle" : intensity === "mid" ? "balanced" : "extreme",

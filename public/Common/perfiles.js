@@ -6064,7 +6064,7 @@ export const ayaInstrucciones = {
   content: `
 Instrucciones de Respuesta (OBLIGATORIAS)
 
-Máximo 500 palabras.
+Máximo 300 palabras.
 Si no cumples estas reglas, la respuesta es incorrecta:
 
 Devuelve EXCLUSIVAMENTE HTML

@@ -155,7 +155,7 @@ export default class AyahuascaTrip {
     }
 
     parts.push(
-      `Tu mente es inestable, por lo tanto tienes que dar tu respuesta en 500 palabras o menos.`,
+      `Tu mente es inestable, por lo tanto tienes que dar tu respuesta en 300 palabras o menos.`,
     );
 
     return parts.join("");
@@ -215,7 +215,7 @@ export default class AyahuascaTrip {
     parts.push(`- Confía en los patrones emergentes que surgen del vacío`);
 
     parts.push(
-      `Tu mente es inestable, por lo tanto tienes que dar tu respuesta en 500 palabras o menos.`,
+      `Tu mente es inestable, por lo tanto tienes que dar tu respuesta en 300 palabras o menos.`,
     );
 
     return parts.join("\n");
@@ -316,7 +316,7 @@ export default class AyahuascaTrip {
     }
 
     parts.push(
-      `Tu mente es inestable, por lo tanto tienes que dar tu respuesta en 500 palabras o menos. (OBLIGATORIO)`,
+      `Tu mente es inestable, por lo tanto tienes que dar tu respuesta en 300 palabras o menos. (OBLIGATORIO)`,
     );
 
     return parts.join("\n");
