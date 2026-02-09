@@ -289,9 +289,22 @@ function setBtnEnabled(btn, enabled) {
   if (!btn) return;
   btn.disabled = !enabled;
   btn.classList.toggle("disabled", !enabled);
-  console.log(btn.id, "enabled?", enabled, "disabled attr?", btn.disabled, "class:", btn.className);
+  console.log(
+    btn.id,
+    "enabled?",
+    enabled,
+    "disabled attr?",
+    btn.disabled,
+    "class:",
+    btn.className,
+  );
 }
-console.log("lastBriefIA len", lastBriefIA?.length, "disabled?", briefButton?.disabled);
+console.log(
+  "lastBriefIA len",
+  lastBriefIA?.length,
+  "disabled?",
+  briefButton?.disabled,
+);
 function setExportButtonsEnabled(humanoEnabled, iaEnabled) {
   setBtnEnabled(exportBtn, !!humanoEnabled);
   setBtnEnabled(briefButton, !!iaEnabled);
@@ -622,7 +635,9 @@ async function sendMessageToBriefer(conversationId) {
           author: "briefer-claude",
           text: html,
         });
-        responseDiv.appendChild(replyDiv);
+        if (pending.isConnected) responseDiv.insertBefore(replyDiv, pending);
+        else responseDiv.appendChild(replyDiv);
+
         responseDiv.scrollTop = responseDiv.scrollHeight;
       }
     } catch (err) {
@@ -881,7 +896,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   cachedConversations = await refreshCachedConversations();
-console.log("briefButton count", document.querySelectorAll("#briefButton").length);
-console.log("exportBtn count", document.querySelectorAll("#exportBtn").length);
-console.log("briefButton el", document.getElementById("briefButton"));
+  console.log(
+    "briefButton count",
+    document.querySelectorAll("#briefButton").length,
+  );
+  console.log(
+    "exportBtn count",
+    document.querySelectorAll("#exportBtn").length,
+  );
+  console.log("briefButton el", document.getElementById("briefButton"));
 });
