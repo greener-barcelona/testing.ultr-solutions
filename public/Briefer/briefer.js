@@ -287,18 +287,9 @@ async function sendMessageToBrieferButton(triggerBtn) {
 
 function setBtnEnabled(btn, enabled) {
   if (!btn) return;
-  try {
-    // atributo disabled para comportamiento nativo
-    btn.disabled = !enabled;
-    // clase para estilos
-    if (!enabled) {
-      btn.classList.add("disabled");
-    } else {
-      btn.classList.remove("disabled");
-    }
-  } catch (e) {
-    console.warn("setBtnEnabled error", e);
-  }
+  btn.disabled = !enabled;
+  btn.classList.toggle("disabled", !enabled);
+  console.log(btn.id, "enabled?", enabled, "disabled attr?", btn.disabled, "class:", btn.className);
 }
 console.log("lastBriefIA len", lastBriefIA?.length, "disabled?", briefButton?.disabled);
 function setExportButtonsEnabled(humanoEnabled, iaEnabled) {
@@ -498,7 +489,7 @@ async function handleFiles(files, kind) {
         text: `${file.name} cargado (${kind === "brief" ? "brief" : "contexto"}).`,
         userProfile: user.profilePicture,
       });
-      responseDiv.appendChild(replyDiv);
+      responseDiv.insertBefore(replyDiv, pending);
 
       if (kind === "brief")
         briefInputs.push({ name: file.name, content: fileContent });
@@ -890,4 +881,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   cachedConversations = await refreshCachedConversations();
+console.log("briefButton count", document.querySelectorAll("#briefButton").length);
+console.log("exportBtn count", document.querySelectorAll("#exportBtn").length);
+console.log("briefButton el", document.getElementById("briefButton"));
 });
