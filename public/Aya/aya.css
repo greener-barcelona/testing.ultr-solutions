@@ -153,14 +153,6 @@ body {
     inset -4px -4px 8px var(--shadow-light);
 }
 
-.action-icon {
-  width: 18px;
-  height: 18px;
-  stroke: var(--text-dark);
-  stroke-width: 2;
-  flex-shrink: 0;
-}
-
 .conversations {
   padding: 8px;
   overflow-y: auto;
@@ -395,7 +387,6 @@ body {
   padding: 8px 80px 0;
 }
 
-.chat-actions-left,
 .chat-actions-right {
   display: flex;
   gap: 14px;
@@ -421,18 +412,6 @@ body {
   width: 16px;
   height: 16px;
   stroke: currentColor;
-}
-
-.multiplier-icon {
-  width: 18px;
-  height: 18px;
-  font-size: 11px;
-  font-weight: 600;
-  border-radius: 50%;
-  color: var(--text-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .multiplier-icon:hover {
