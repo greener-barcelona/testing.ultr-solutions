@@ -503,6 +503,7 @@ async function handleFiles(files, kind) {
         userProfile: user.profilePicture,
       });
       responseDiv.appendChild(replyDiv);
+      responseDiv.scrollTop = responseDiv.scrollHeight;
 
       if (kind === "brief")
         briefInputs.push({ name: file.name, content: fileContent });
