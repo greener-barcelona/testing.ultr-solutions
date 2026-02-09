@@ -9,8 +9,6 @@ export default async function handler(req, res) {
     temperature,
     top_p,
     max_tokens,
-    presence_penalty,
-    frequency_penalty,
   } = req.body;
 
   if (!messages || !perfil)
@@ -24,13 +22,11 @@ export default async function handler(req, res) {
         Authorization: `Bearer ${process.env.GROK_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "grok-2-1212",
+        model: "grok-4-1-fast-reasoning",
         messages: [perfil, ...messages],
         temperature: temperature ?? 1, // 1 → normal; > 1 → mas aleatoriedad; < 1 → mas seriedad y predecible
         top_p: top_p ?? 1, // < 0.7 → errático y muy restrictivo; < 1 && > .7 → rango aceptable; 1 → no restringe nada
         max_tokens: max_tokens ?? 5000,
-        presence_penalty: presence_penalty ?? 0, // 0 → normal; > 0 → fuerza a introducir temas nuevos; < 0 → favorece repetir temas
-        frequency_penalty: frequency_penalty ?? 0, // 0 → normal; > 0 → penaliza repetir palabras; < 0 → potencia repetir palabras
       }),
     });
 

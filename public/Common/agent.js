@@ -342,8 +342,6 @@ class Agent {
     temperature,
     top_p,
     max_tokens,
-    presence_penalty,
-    frequency_penalty,
   ) {
     const body = {
       perfil: {
@@ -356,8 +354,6 @@ class Agent {
       temperature: temperature,
       top_p: top_p,
       max_tokens: max_tokens,
-      presence_penalty: presence_penalty,
-      frequency_penalty: frequency_penalty,
     };
 
     const controller = new AbortController();
