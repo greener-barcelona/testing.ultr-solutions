@@ -600,7 +600,7 @@ async function sendMessageToBriefer(conversationId) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           perfil: { role: "system", content: job.system },
-          messages: convHistoryAtStart, // CLAVE: siempre el mismo historial base
+          messages: convHistoryAtStart,
         }),
       });
 
