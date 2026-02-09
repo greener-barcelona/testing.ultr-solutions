@@ -25,7 +25,7 @@ import {
   updateSharedUser,
 } from "../Common/shared.js";
 import {
- brieferCreativo,
+  brieferCreativo,
   brieferTecnico,
   brieferInstruccionesCreativo,
   brieferInstruccionesTecnico,
@@ -299,6 +299,7 @@ function setBtnEnabled(btn, enabled) {
   } catch (e) {
     console.warn("setBtnEnabled error", e);
   }
+  console.log("lastBriefIA len", lastBriefIA?.length, "disabled?", briefButton?.disabled);
 }
 
 function setExportButtonsEnabled(humanoEnabled, iaEnabled) {
@@ -556,7 +557,7 @@ function downloadDoc(filename, html) {
   return `DOCUMENTOS CARGADOS:\nBRIEF_CLIENTE:\n${b}\n\nCONTEXTO:\n${c}\n`;
 }*/
 
-//Endpoints 
+//Endpoints
 
 async function sendMessageToBriefer(conversationId) {
   const convHistoryAtStart = structuredClone(conversationHistory);
@@ -609,7 +610,12 @@ async function sendMessageToBriefer(conversationId) {
       }
 
       const data = await res.json();
-      const raw = replaceWeirdChars(data.reply);
+      console.log("reply keys:", Object.keys(data), "kind:", job.kind);
+
+      const reply =
+        data?.reply ?? data?.content ?? data?.completion ?? data?.message ?? "";
+
+      const raw = replaceWeirdChars(String(reply));
       const extracted = extractBodyContent(raw);
       const html = extracted && extracted.trim() ? extracted : raw;
 
@@ -622,7 +628,10 @@ async function sendMessageToBriefer(conversationId) {
       });
 
       if (activeConversationId === conversationId) {
-        const replyDiv = renderMessage({ author: "briefer-claude", text: html });
+        const replyDiv = renderMessage({
+          author: "briefer-claude",
+          text: html,
+        });
         responseDiv.appendChild(replyDiv);
         responseDiv.scrollTop = responseDiv.scrollHeight;
       }
@@ -631,7 +640,7 @@ async function sendMessageToBriefer(conversationId) {
       pending.classList.remove("pending");
       pending.classList.add("error");
       pending.textContent = `Error: ${err.message}`;
-      break;
+      continue;
     }
   }
 
@@ -871,15 +880,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-exportBtn.addEventListener("click", () => {
-  if (!lastBriefHumano) return alert("Aún no hay brief creativo generado.");
-  downloadDoc(`brief-creativo-${activeConversationId}.doc`, lastBriefHumano);
-});
+  exportBtn.addEventListener("click", () => {
+    if (!lastBriefHumano) return alert("Aún no hay brief creativo generado.");
+    downloadDoc(`brief-creativo-${activeConversationId}.doc`, lastBriefHumano);
+  });
 
-briefButton.addEventListener("click", () => {
-  if (!lastBriefIA) return alert("Aún no hay brief técnico generado.");
-  downloadDoc(`brief-tecnico-${activeConversationId}.doc`, lastBriefIA);
-});
+  briefButton.addEventListener("click", () => {
+    if (!lastBriefIA) return alert("Aún no hay brief técnico generado.");
+    downloadDoc(`brief-tecnico-${activeConversationId}.doc`, lastBriefIA);
+  });
 
   cachedConversations = await refreshCachedConversations();
 });
