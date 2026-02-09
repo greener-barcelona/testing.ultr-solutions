@@ -37,7 +37,10 @@ let toastOutsideHandler = null;
 
 let cachedConversations = [];
 
-let modeValue = localStorage.getItem(MODE_KEY) === "Socialstorming" ? "Socialstorming" : "Brainstorming";
+let modeValue =
+  localStorage.getItem(MODE_KEY) === "Socialstorming"
+    ? "Socialstorming"
+    : "Brainstorming";
 let activeConversationId = null;
 let title = "";
 
@@ -514,9 +517,11 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
         perfil: perfil,
         messages: [recordatorio, ...conversationHistory],
         temperature:
-          modeValue === "Brainstorming" || modeValue === "Socialstorming"
-            ? 1.4
-            : 1,
+          API === "claude"
+            ? 1
+            : modeValue === "Brainstorming" || modeValue === "Socialstorming"
+              ? 1.4
+              : 1,
       }),
     });
 

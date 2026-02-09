@@ -15,7 +15,7 @@ export default async function handler(req, res) {
       model: "claude-sonnet-4-20250514",
       system: perfil.content,
       messages: messages,
-      temperature: temperature ?? 1, 
+      temperature: Math.min(temperature ?? 1, 1), 
       top_p: top_p ?? 1, 
       max_tokens: max_tokens ?? 5000,
     });

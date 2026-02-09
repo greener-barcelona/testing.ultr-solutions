@@ -24,7 +24,7 @@ export default async function handler(req, res) {
         Authorization: `Bearer ${process.env.GROK_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "grok-4-1-fast-reasoning",
+        model: "grok-2-1212",
         messages: [perfil, ...messages],
         temperature: temperature ?? 1, // 1 → normal; > 1 → mas aleatoriedad; < 1 → mas seriedad y predecible
         top_p: top_p ?? 1, // < 0.7 → errático y muy restrictivo; < 1 && > .7 → rango aceptable; 1 → no restringe nada

@@ -295,9 +295,9 @@ class Agent {
           : this.systemPrompt,
       },
       messages: [...prompt],
-      temperature,
-      top_p,
-      max_tokens,
+      temperature: Math.min(temperature, 1),
+      top_p: top_p,
+      max_tokens: max_tokens,
     };
 
     const controller = new AbortController();
@@ -353,11 +353,11 @@ class Agent {
           : this.systemPrompt,
       },
       messages: prompt,
-      temperature,
-      top_p,
-      max_tokens,
-      presence_penalty,
-      frequency_penalty,
+      temperature: temperature,
+      top_p: top_p,
+      max_tokens: max_tokens,
+      presence_penalty: presence_penalty,
+      frequency_penalty: frequency_penalty,
     };
 
     const controller = new AbortController();
