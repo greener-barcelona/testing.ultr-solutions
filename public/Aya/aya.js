@@ -413,9 +413,11 @@ async function startTrip(conversationId, intensity, model) {
     } else {
       pending.remove();
     }
-  } catch (error) {
-    console.error("Error durante el viaje:", error);
-    alert("Ocurrió un error durante el viaje.");
+  } catch (err) {
+    console.error(err);
+    pending.textContent = `Error: ${err.message}`;
+    pending.classList.remove("pending");
+    pending.classList.add("error");
   }
 }
 

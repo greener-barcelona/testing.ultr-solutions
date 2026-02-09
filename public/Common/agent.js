@@ -124,8 +124,8 @@ class Agent {
     temperature,
     top_p,
     max_tokens,
-    presence_penalty, 
-    frequency_penalty
+    presence_penalty,
+    frequency_penalty,
   }) {
     if (!Array.isArray(prompt)) {
       throw new Error("prompt debe ser un array de mensajes");
@@ -142,8 +142,10 @@ class Agent {
     const finalTemp = temperature ?? this.llmConfig.temperature;
     const finalTopP = top_p ?? this.llmConfig.top_p;
     const finalMaxTokens = max_tokens ?? this.llmConfig.max_tokens;
-    const finalPresencePenalty = presence_penalty ?? this.llmConfig.presence_penalty;
-    const finalFrequencyPenalty = frequency_penalty ?? this.llmConfig.frequency_penalty;
+    const finalPresencePenalty =
+      presence_penalty ?? this.llmConfig.presence_penalty;
+    const finalFrequencyPenalty =
+      frequency_penalty ?? this.llmConfig.frequency_penalty;
 
     const apiCall = {
       provider: this.provider,
@@ -224,7 +226,7 @@ class Agent {
     });
   }
 
-  async callOpenAI( 
+  async callOpenAI(
     prompt,
     temperature,
     top_p,
@@ -291,15 +293,13 @@ class Agent {
   async callClaude(prompt, temperature, top_p, max_tokens) {
     const messages = [...prompt];
 
-    if (this.systemPrompt) {
-      messages.unshift({
-        role: "system",
-        content: this.systemPrompt,
-      });
-    }
-
     const body = {
-      perfil: this.perfil ?? "",
+      perfil: {
+        role: "system",
+        content: this.perfil
+          ? this.perfil.content + "\n\n" + this.systemPrompt.content
+          : this.systemPrompt.content,
+      },
       messages: messages,
       temperature,
       top_p,
