@@ -333,22 +333,6 @@ async function onFileLoaded(e, fileInput) {
 
 //Ayahuasca
 
-async function sendMessageToTrip(triggerBtn, intensity, model) {
-  toggleElement(triggerBtn);
-  await userSendMessage();
-
-  if (!activeConversationId || conversationHistory.length <= 0) {
-    toggleElement(triggerBtn);
-    return alert("Primero inicia una conversación antes de tomar Aya.");
-  }
-
-  const conversationIdAtStart = activeConversationId;
-
-  await startTrip(conversationIdAtStart, intensity, model);
-
-  toggleElement(triggerBtn);
-}
-
 async function startTrip(conversationId, intensity, model) {
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
@@ -421,10 +405,120 @@ async function startTrip(conversationId, intensity, model) {
   }
 }
 
-//Exportar (desactivado en testing)
+//Botones
+
+async function sendMessageToTripButton(triggerBtn, intensity, model) {
+  toggleElement(triggerBtn);
+  await userSendMessage();
+
+  if (!activeConversationId || conversationHistory.length <= 0) {
+    toggleElement(triggerBtn);
+    return alert("Primero inicia una conversación antes de tomar Aya.");
+  }
+
+  const conversationIdAtStart = activeConversationId;
+
+  await startTrip(conversationIdAtStart, intensity, model);
+
+  toggleElement(triggerBtn);
+}
+
+async function summarizeConversationButton(button) {
+  toggleElement(button);
+  await userSendMessage();
+
+  if (!activeConversationId || conversationHistory.length <= 0) {
+    toggleElement(button);
+    return alert("Primero inicia una conversación antes de resumir.");
+  }
+
+  const conversationIdAtStart = activeConversationId;
+  const convTitleAtStart = title || "esta conversación";
+
+  await summarizeConversation(
+    conversationIdAtStart,
+    convTitleAtStart,
+    conversationHistory,
+  );
+
+  toggleElement(button);
+}
+
+//Exportar (desactivado en testing) y resumir
 
 async function exportConversation(button, summarize) {
   return alert("Función de exportar deshabilitada en el entorno de pruebas");
+}
+
+async function summarizeConversation(conversationId, convTitle, history) {
+  const pending = document.createElement("div");
+  pending.className = "message pending text-content";
+  pending.textContent = "Resumiendo...";
+  if (activeConversationId === conversationId) {
+    responseDiv.appendChild(pending);
+    responseDiv.scrollTop = responseDiv.scrollHeight;
+  }
+  try {
+    const res = await fetch(`/api/resumir`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        conversation: history,
+      }),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || "Error al enviar.");
+    }
+
+    const data = await res.json();
+
+    pending.remove();
+
+    if (data.reply && data.reply.trim() !== "") {
+      const text = replaceWeirdChars(data.reply);
+      const cleanhtml = extractBodyContent(text);
+
+      cachedConversations = cachedConversations.map((conversation) =>
+        conversation.id === conversationId
+          ? {
+              ...conversation,
+              _messages: [...conversation._messages, cleanhtml],
+            }
+          : conversation,
+      );
+
+      if (activeConversationId === conversationId) {
+        const replyDiv = renderMessage({
+          author: "summary-openai",
+          text: `<strong>Resumen de la ronda ${convTitle}:</strong><br>${cleanhtml}`,
+        });
+        addMessageToConversationHistory(replyDiv, conversationHistory);
+
+        responseDiv.appendChild(replyDiv);
+        responseDiv.scrollTop = responseDiv.scrollHeight;
+      }
+
+      await saveMessage(conversationId, {
+        text: cleanhtml,
+        creativeAgent: `summary-openai`,
+      });
+    } else {
+      if (activeConversationId === conversationId) {
+        pending.textContent = "La IA no generó respuesta";
+        pending.classList.remove("pending");
+        pending.classList.add("error");
+      }
+    }
+  } catch (error) {
+    console.error("Error completo:", error);
+    if (activeConversationId === conversationId) {
+      pending.textContent = `Error: ${error.message}`;
+      pending.classList.remove("pending");
+      pending.classList.add("error");
+    }
+  }
 }
 
 //Modal
@@ -513,6 +607,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const settingsMenu = document.getElementById("settingsMenu");
   const logoutBtn = document.getElementById("logoutBtn");
   const newChatBtn = document.getElementById("newChatBtn");
+  const summaryPdfBtn = document.getElementById("summaryPdfBtn");
+  const summaryBtn = document.getElementById("summaryBtn");
   const exportBtn = document.getElementById("exportBtn");
   const fileInput = document.getElementById("fileInput");
   const modeSelector = document.getElementById("selector");
@@ -529,6 +625,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     !logoutBtn ||
     !newChatBtn ||
     !textarea ||
+    !summaryBtn ||
+    !summaryPdfBtn ||
     !exportBtn ||
     !fileInput ||
     !modeSelector ||
@@ -561,13 +659,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     exportConversation(exportBtn, false);
   });
 
+  summaryPdfBtn.addEventListener("click", () => {
+    exportConversation(summaryPdfBtn, true);
+  });
+
+  summaryBtn.addEventListener("click", () => {
+    summarizeConversationButton(summaryBtn);
+  });
+
   fileInput.addEventListener("change", async (e) => onFileLoaded(e, fileInput));
 
   ayaTrip.addEventListener("click", () => {
     const intensity = document.querySelector('input[name="intensity"]:checked');
     const model = document.querySelector('input[name="model"]:checked');
 
-    sendMessageToTrip(ayaTrip, intensity.value, model.value);
+    sendMessageToTripButton(ayaTrip, intensity.value, model.value);
   });
 
   document.addEventListener("keydown", (e) => {
