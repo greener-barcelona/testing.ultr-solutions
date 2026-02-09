@@ -502,7 +502,7 @@ async function handleFiles(files, kind) {
         text: `${file.name} cargado (${kind === "brief" ? "brief" : "contexto"}).`,
         userProfile: user.profilePicture,
       });
-      responseDiv.insertBefore(replyDiv, pending);
+      responseDiv.appendChild(replyDiv);
 
       if (kind === "brief")
         briefInputs.push({ name: file.name, content: fileContent });
@@ -635,7 +635,7 @@ async function sendMessageToBriefer(conversationId) {
           author: "briefer-claude",
           text: html,
         });
-        if (pending.isConnected) responseDiv.insertBefore(replyDiv, pending);
+        if (pending.isConnected) responseDiv.appendChild(pending);
         else responseDiv.appendChild(replyDiv);
 
         responseDiv.scrollTop = responseDiv.scrollHeight;
