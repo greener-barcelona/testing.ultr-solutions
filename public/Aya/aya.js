@@ -344,12 +344,12 @@ async function sendMessageToTrip(triggerBtn, intensity) {
 
   const conversationIdAtStart = activeConversationId;
 
-  await startTrip(conversationIdAtStart);
+  await startTrip(conversationIdAtStart, intensity);
 
   toggleElement(triggerBtn);
 }
 
-async function startTrip(conversationId) {
+async function startTrip(conversationId, intensity) {
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
   pending.textContent = `Tripping...`;
