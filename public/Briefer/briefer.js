@@ -299,9 +299,8 @@ function setBtnEnabled(btn, enabled) {
   } catch (e) {
     console.warn("setBtnEnabled error", e);
   }
-  console.log("lastBriefIA len", lastBriefIA?.length, "disabled?", briefButton?.disabled);
 }
-
+console.log("lastBriefIA len", lastBriefIA?.length, "disabled?", briefButton?.disabled);
 function setExportButtonsEnabled(humanoEnabled, iaEnabled) {
   setBtnEnabled(exportBtn, !!humanoEnabled);
   setBtnEnabled(briefButton, !!iaEnabled);
@@ -788,7 +787,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   wireDropzone(briefDrop, "brief");
   wireDropzone(contextDrop, "context");
   sendBtn.addEventListener("click", async () => {
-    await userSendMessage();
+    await sendMessageToBrieferButton(sendBtn);
   });
 
   searchBtn.addEventListener("click", openSearchModal);
@@ -846,7 +845,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         if (typeof sendMessageToBrieferButton === "function" && briefButton) {
-          await sendMessageToBrieferButton(briefButton);
+          await sendMessageToBrieferButton(sendBtn);
         } else {
           await userSendMessage();
         }
