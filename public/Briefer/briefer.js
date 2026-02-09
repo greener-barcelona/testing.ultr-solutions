@@ -25,9 +25,10 @@ import {
   updateSharedUser,
 } from "../Common/shared.js";
 import {
-  brieferCreativo,
+ brieferCreativo,
   brieferTecnico,
-  brieferInstrucciones,
+  brieferInstruccionesCreativo,
+  brieferInstruccionesTecnico,
 } from "../Common/perfiles.js";
 
 let cachedConversations = [];
@@ -554,36 +555,45 @@ function downloadText(filename, content, mime = "text/plain;charset=utf-8") {
   return `DOCUMENTOS CARGADOS:\nBRIEF_CLIENTE:\n${b}\n\nCONTEXTO:\n${c}\n`;
 }*/
 
-//Endpoints
+//Endpoints 
 
 async function sendMessageToBriefer(conversationId) {
   const convHistoryAtStart = structuredClone(conversationHistory);
 
+  lastBriefHumano = "";
+  lastBriefIA = "";
+  setExportButtonsEnabled(false, false);
+
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
-  pending.textContent = "Creando brief creativo...";
-
-  /*const extractBlock = (text, start, end) => {
-    const a = text.indexOf(start);
-    const b = text.indexOf(end);
-    if (a === -1 || b === -1 || b <= a) return "";
-    return text.slice(a + start.length, b).trim();
-  };*/
 
   if (activeConversationId === conversationId) {
     responseDiv.appendChild(pending);
     responseDiv.scrollTop = responseDiv.scrollHeight;
   }
-  for (let i = 0; i < 2; i++) {
+
+  const jobs = [
+    {
+      kind: "humano",
+      label: "Creando brief creativo...",
+      system: `${brieferCreativo.content}\n\n${brieferInstruccionesCreativo.content}`,
+    },
+    {
+      kind: "ia",
+      label: "Creando brief técnico...",
+      system: `${brieferTecnico.content}\n\n${brieferInstruccionesTecnico.content}`,
+    },
+  ];
+
+  for (const job of jobs) {
     try {
+      pending.textContent = job.label;
+
       const res = await fetch("/api/claude", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          perfil: {
-            role: "system",
-            content: `${i === 0 ? brieferCreativo.content : brieferTecnico.content}\n\n${brieferInstrucciones.content}`,
-          },
+          perfil: { role: "system", content: job.system },
           messages: convHistoryAtStart,
         }),
       });
@@ -598,70 +608,36 @@ async function sendMessageToBriefer(conversationId) {
       }
 
       const data = await res.json();
-
       const raw = replaceWeirdChars(data.reply);
-      const body = extractBodyContent(raw);
+      const extracted = extractBodyContent(raw);
+      const html = (extracted && extracted.trim()) ? extracted : raw;
 
-      if (!body || !body.trim()) {
-        throw new Error("La IA no generó respuesta");
-      }
+      if (job.kind === "humano") lastBriefHumano = html;
+      if (job.kind === "ia") lastBriefIA = html;
 
       await saveMessage(conversationId, {
-        text: body,
+        text: html,
         creativeAgent: "briefer-claude",
       });
 
-      /*lastBriefHumano = extractBlock(
-      raw,
-      "<!--BRIEF_CREATIVO-->",
-      "<!--END_BRIEF_CREATIVO-->"
-    );
-    lastBriefIA = extractBlock(
-      raw,
-      "<!--BRIEF_TECNICO-->",
-      "<!--END_BRIEF_TECNICO-->"
-    );*/
-
-      //const toShow = lastBriefHumano || body || raw;
-
-      cachedConversations = cachedConversations.map((c) =>
-        c.id === conversationId
-          ? { ...c, _messages: [...(c._messages || []), body] }
-          : c,
-      );
-
-      if (pending.isConnected) pending.remove();
-
       if (activeConversationId === conversationId) {
-        const replyDiv = renderMessage({
-          author: "briefer-claude",
-          text: body,
-        });
-
+        const replyDiv = renderMessage({ author: "briefer-claude", text: html });
         addMessageToConversationHistory(replyDiv, conversationHistory);
         responseDiv.appendChild(replyDiv);
         responseDiv.scrollTop = responseDiv.scrollHeight;
-
-        pending.textContent = "Creando brief técnico...";
-        responseDiv.appendChild(pending);
       }
     } catch (err) {
       console.error(err);
-      if (pending.isConnected) {
-        pending.textContent = `Error: ${err.message}`;
-        pending.classList.remove("pending");
-        pending.classList.add("error");
-      } else if (activeConversationId === conversationId) {
-        const errorDiv = document.createElement("div");
-        errorDiv.className = "message error text-content";
-        errorDiv.textContent = `Error: ${err.message}`;
-        responseDiv.appendChild(errorDiv);
-        responseDiv.scrollTop = responseDiv.scrollHeight;
-      }
+      pending.classList.remove("pending");
+      pending.classList.add("error");
+      pending.textContent = `Error: ${err.message}`;
+      break;
     }
   }
+
   if (pending.isConnected) pending.remove();
-  setExportButtonsEnabled(!!lastBriefHumano, !!lastBriefIA);
+
+  setExportButtonsEnabled(Boolean(lastBriefHumano), Boolean(lastBriefIA));
 }
 
 async function exportConversation(button, summarize) {
@@ -895,14 +871,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  exportBtn.addEventListener("click", () => {
-    if (!lastBriefHumano) return alert("Aún no hay brief humano generado.");
-    downloadText(`brief-creativo-${activeConversationId}.md`, lastBriefHumano);
-  });
+exportBtn.addEventListener("click", () => {
+  if (!lastBriefHumano) return alert("Aún no hay brief creativo generado.");
+  downloadText(
+    `brief-creativo-${activeConversationId}.html`,
+    lastBriefHumano,
+    "text/html;charset=utf-8"
+  );
+});
 
-  briefButton.addEventListener("click", () => {
-    sendMessageToBrieferButton(briefButton);
-  });
+ briefButton.addEventListener("click", () => {
+  if (!lastBriefIA) return alert("Aún no hay brief técnico generado.");
+  downloadText(
+    `brief-tecnico-${activeConversationId}.html`,
+    lastBriefIA,
+    "text/html;charset=utf-8"
+  );
+});
 
   cachedConversations = await refreshCachedConversations();
 });
