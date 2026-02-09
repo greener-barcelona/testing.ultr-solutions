@@ -237,9 +237,11 @@ class Agent {
     const body = {
       perfil: {
         role: "system",
-        content: this.systemPrompt,
+        content: this.perfil
+          ? this.systemPrompt + "\n\n" + this.perfil.content
+          : this.systemPrompt,
       },
-      messages: [...prompt],
+      messages: prompt,
       temperature,
       top_p,
       max_tokens,
@@ -288,7 +290,9 @@ class Agent {
     const body = {
       perfil: {
         role: "system",
-        content: this.systemPrompt,
+        content: this.perfil
+          ? this.systemPrompt + "\n\n" + this.perfil.content
+          : this.systemPrompt,
       },
       messages: [...prompt],
       temperature,
@@ -344,9 +348,11 @@ class Agent {
     const body = {
       perfil: {
         role: "system",
-        content: this.systemPrompt,
+        content: this.perfil
+          ? this.systemPrompt + "\n\n" + this.perfil.content
+          : this.systemPrompt,
       },
-      messages: [...prompt],
+      messages: prompt,
       temperature,
       top_p,
       max_tokens,
