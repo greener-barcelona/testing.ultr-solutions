@@ -234,18 +234,12 @@ class Agent {
     presence_penalty,
     frequency_penalty,
   ) {
-    const messages = [...prompt];
-
-    if (this.systemPrompt) {
-      messages.unshift({
+    const body = {
+      perfil: {
         role: "system",
         content: this.systemPrompt,
-      });
-    }
-
-    const body = {
-      perfil: this.perfil ?? "",
-      messages: messages,
+      },
+      messages: [...prompt],
       temperature,
       top_p,
       max_tokens,
@@ -291,16 +285,12 @@ class Agent {
   }
 
   async callClaude(prompt, temperature, top_p, max_tokens) {
-    const messages = [...prompt];
-
     const body = {
       perfil: {
         role: "system",
-        content: this.perfil
-          ? this.perfil.content + "\n\n" + this.systemPrompt.content
-          : this.systemPrompt.content,
+        content: this.systemPrompt,
       },
-      messages: messages,
+      messages: [...prompt],
       temperature,
       top_p,
       max_tokens,
@@ -351,18 +341,12 @@ class Agent {
     presence_penalty,
     frequency_penalty,
   ) {
-    const messages = [...prompt];
-
-    if (this.systemPrompt) {
-      messages.unshift({
+    const body = {
+      perfil: {
         role: "system",
         content: this.systemPrompt,
-      });
-    }
-
-    const body = {
-      perfil: this.perfil ?? "",
-      messages: messages,
+      },
+      messages: [...prompt],
       temperature,
       top_p,
       max_tokens,

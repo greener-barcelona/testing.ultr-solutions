@@ -15,7 +15,7 @@ export default async function handler(req, res) {
 
   if (!messages || !perfil)
     return res.status(400).json({ error: "Falta mensaje o perfil" });
-
+  
   try {
     const response = await fetch("https://api.x.ai/v1/chat/completions", {
       method: "POST",

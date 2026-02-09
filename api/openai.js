@@ -19,31 +19,10 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "No hay mensajes" });
   }
 
-  let finalMessages = [...messages];
-  let perfilContent = "";
-
-  if (perfil && perfil.content && perfil.content.trim() !== "") {
-    perfilContent = perfil.content.trim();
-
-    if (finalMessages.length > 0 && finalMessages[0]?.role === "system") {
-      finalMessages[0] = {
-        role: "system",
-        content: `${perfilContent}\n---\n${finalMessages[0].content.trim()}`,
-      };
-    } else {
-      finalMessages.unshift({
-        role: "system",
-        content: perfilContent,
-      });
-    }
-  }
-
-  console.log(finalMessages);
-
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-4.1",
-      messages: finalMessages,
+      messages: [perfil, ...messages],
       temperature: temperature ?? 1, // 1 → normal; > 1 → mas aleatoriedad; < 1 → mas seriedad y predecible
       top_p: top_p ?? 1, // < 0.7 → errático y muy restrictivo; < 1 && > .7 → rango aceptable; 1 → no restringe nada
       max_tokens: max_tokens ?? 5000,
