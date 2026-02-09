@@ -333,7 +333,7 @@ async function onFileLoaded(e, fileInput) {
 
 //Ayahuasca
 
-async function sendMessageToTrip(triggerBtn) {
+async function sendMessageToTrip(triggerBtn, intensity) {
   toggleElement(triggerBtn);
   await userSendMessage();
 
@@ -367,8 +367,8 @@ async function startTrip(conversationId) {
     });
 
     const trip = new AyahuascaTrip(agent, {
-      intensity: "surreal",
-      scriptIntensity: "extreme",
+      intensity: intensity === "light" ? "deep" : intensity === "mid" ? "beyond" : "surreal",
+      scriptIntensity: intensity === "light" ? "subtle" : intensity === "mid" ? "balanced" : "extreme",
     });
 
     const task = {
@@ -407,7 +407,6 @@ async function startTrip(conversationId) {
     } else {
       pending.remove();
     }
-
   } catch (error) {
     console.error("Error durante el viaje:", error);
     alert("Ocurrió un error durante el viaje.");
@@ -557,7 +556,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   fileInput.addEventListener("change", async (e) => onFileLoaded(e, fileInput));
 
   ayaTrip.addEventListener("click", () => {
-    sendMessageToTrip(ayaTrip);
+    const intensity = document.querySelector(
+      'input[name="intensity"]:checked',
+    );
+
+    sendMessageToTrip(ayaTrip, intensity.value);
   });
 
   document.addEventListener("keydown", (e) => {
