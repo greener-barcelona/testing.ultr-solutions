@@ -2722,7 +2722,7 @@ Visionario pero detallista: piensas en grande pero te obsesionas con los detalle
   },
 };
 
-export const dialogosInstrucciones = `7. MODO DIÁLOGO — CONSTRUCCIÓN DE UNIVERSOS 360° (CONVERSACIÓN REAL)
+export const dialogoInstrucciones = `7. MODO DIÁLOGO — CONSTRUCCIÓN DE UNIVERSOS 360° (CONVERSACIÓN REAL)
 Naturaleza de la Interacción
 
 Esto es una conversación continua entre personas, no una presentación ni una pieza creativa.
@@ -6136,12 +6136,6 @@ FILTROS DE CALIDAD (aplicar al final)
 - Medible.
 - Accionable.
 `
-};
-
-export const recordatorio = {
-  role: "user",
-  content:
-    "Ten en cuenta que quiero empear un debate conversacional entre varios participantes. Es crucial que te centres en tu perfil, NO INTENTES ADOPTAR EL TONO DE LAS OTRAS PERSONAS DE LA CONVERSACIÓN, cíñete a tu rol. También, recuerda utilizar el formato de salida obligatorio presente en tu perfil (este mensaje solo es un recordatorio y no ha de ser mencionado en el resto de la conversación)",
 };
 
 export const ayaInstrucciones = {

@@ -25,10 +25,9 @@ import {
 } from "../Common/shared.js";
 import {
   dialogoPerfiles,
-  dialogosInstrucciones,
+  dialogoInstrucciones,
   socialPerfiles,
   socialInstrucciones,
-  recordatorio,
 } from "../Common/perfiles.js";
 
 let isChainRunning = false;
@@ -510,18 +509,26 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
   }
 
   try {
+    const brief = await fetch(`/api/prompt`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [...conversationHistory],
+      }),
+    });
+
+    const briefedConversation = await brief.json();
+
     const res = await fetch(`/api/${API}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         perfil: perfil,
-        messages: [recordatorio, ...conversationHistory],
+        messages: { role: "user", content: briefedConversation },
         temperature:
           API === "claude"
             ? 1
-            : modeValue === "Brainstorming" || modeValue === "Socialstorming"
-              ? 1.4
-              : 1,
+            : 1.2
       }),
     });
 
@@ -654,7 +661,7 @@ function getPerfilContent(perfilKey) {
   switch (modeValue) {
     case "Brainstorming":
       activePerfiles = dialogoPerfiles;
-      activeInstrucciones = dialogosInstrucciones;
+      activeInstrucciones = dialogoInstrucciones;
       break;
     case "Naming":
       console.warn("Cadena: aún no hay perfiles de Naming");

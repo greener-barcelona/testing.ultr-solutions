@@ -86,6 +86,7 @@ body {
 .conversations {
   padding: 8px;
   overflow-y: auto;
+  height: 100%;
 }
 
 .conversation-item {
