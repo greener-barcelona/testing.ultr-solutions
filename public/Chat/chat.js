@@ -530,7 +530,7 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
       body: JSON.stringify({
         perfil: perfil,
         messages: longConversation
-          ? { role: "user", content: briefedConversation.reply }
+          ? [{ role: "user", content: briefedConversation.reply }]
           : conversationHistory,
         temperature: API === "claude" ? 1 : 1.2,
       }),
