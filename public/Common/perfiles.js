@@ -6092,7 +6092,7 @@ FILTROS DE CALIDAD (aplicar al final)
 - Inspirador sin ser prescriptivo.
 - Memorable.
 - Libre de jerga corporativa.
-`
+`,
 };
 
 export const brieferInstruccionesTecnico = {
@@ -6135,7 +6135,7 @@ FILTROS DE CALIDAD (aplicar al final)
 - Exhaustivo (con ejemplos/contraejemplos según template).
 - Medible.
 - Accionable.
-`
+`,
 };
 
 export const ayaInstrucciones = {
@@ -6181,4 +6181,10 @@ Texto fuera del HTML
 HTML incompleto o incorrecto
 
 Respuestas genéricas o sin estructura`,
+};
+
+export const recordatorio = {
+  role: "user",
+  content:
+    "¡No olvides darle un formato al texto, de acuerdo con las instrucciones de tu perfil, para que se pueda leer fácilmente!",
 };

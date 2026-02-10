@@ -28,6 +28,7 @@ import {
   dialogoInstrucciones,
   socialPerfiles,
   socialInstrucciones,
+  recordatorio,
 } from "../Common/perfiles.js";
 
 let isChainRunning = false;
@@ -530,8 +531,8 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
       body: JSON.stringify({
         perfil: perfil,
         messages: longConversation
-          ? [{ role: "user", content: briefedConversation.reply }]
-          : conversationHistory,
+          ? [recordatorio, { role: "user", content: briefedConversation.reply }]
+          : [recordatorio, ...conversationHistory],
         temperature: API === "claude" ? 1 : 1.2,
       }),
     });
