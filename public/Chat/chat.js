@@ -509,26 +509,30 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
   }
 
   try {
-    const brief = await fetch(`/api/prompt`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messages: [...conversationHistory],
-      }),
-    });
+    const longConversation = conversationHistory.length > 5;
+    let briefedConversation = null;
+    
+    if (longConversation) {
+      const brief = await fetch(`/api/prompt`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [...conversationHistory],
+        }),
+      });
 
-    const briefedConversation = await brief.json();
+      briefedConversation = await brief.json();
+    }
 
     const res = await fetch(`/api/${API}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         perfil: perfil,
-        messages: { role: "user", content: briefedConversation },
-        temperature:
-          API === "claude"
-            ? 1
-            : 1.2
+        messages: longConversation
+          ? { role: "user", content: briefedConversation }
+          : conversationHistory,
+        temperature: API === "claude" ? 1 : 1.2,
       }),
     });
 
