@@ -510,7 +510,7 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
   }
 
   try {
-    const longConversation = conversationHistory.length > 5;
+    const longConversation = conversationHistory.length > 4;
     let briefedConversation = null;
 
     if (longConversation) {

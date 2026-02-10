@@ -40,7 +40,12 @@ DIRECCIÓN ACTUAL:
 [copia lo más literal posible de lo que el usuario pidió en sus últimos mensajes. NO interpretes, NO extrapoles ángulos, enfoques o temáticas que el usuario no haya dicho con esas palabras]
 
 RESTRICCIONES:
-- [todo lo que el usuario ha dicho explícitamente que NO quiere]
+- Para ideas descartadas, agrupa siempre las que el usuario 
+  rechazó con el mismo comentario en una sola entrada. 
+  No las listes individualmente si compartieron el mismo rechazo.
+- Las restricciones deben venir SOLO de lo que el usuario dijo 
+  explícitamente. No extraigas restricciones de lo que los agentes 
+  analizaron o concluyeron, aunque parezcan razonables.
 - Incluye restricciones operativas derivadas del último mensaje del usuario. Ejemplos: si dice "volver a generar ideas", implica no seguir profundizando en ideas previas. Si dice "profundiza en X", implica no generar ideas nuevas diferentes a X.
 
 TONO DE RESPUESTAS QUE FUNCIONARON:
