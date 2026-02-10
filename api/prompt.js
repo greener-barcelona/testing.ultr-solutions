@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   try {
     const response = await anthropic.messages.create({
       model: "claude-haiku-4-5-20251001",
-system: `Instrucciones
+      system: `Instrucciones
 
 Eres un asistente que resume de forma objetiva el estado actual de un brainstorming creativo.
 
@@ -69,7 +69,7 @@ Reglas:
 - Si una sección no tiene información clara, escribe: No especificado
 - El brief completo no debe exceder 500 palabras. Prioriza información accionable sobre descripción.`,
       messages: messages,
-      max_tokens: 5000,
+      max_tokens: 1000,
     });
 
     res.json({

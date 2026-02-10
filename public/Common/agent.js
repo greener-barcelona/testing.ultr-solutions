@@ -14,7 +14,7 @@ class Agent {
       top_p: 0.9,
       presence_penalty: 0.0,
       frequency_penalty: 0.0,
-      max_tokens: 5000,
+      max_tokens: 2000,
     };
 
     this.systemPrompt = null;
@@ -418,7 +418,7 @@ class Agent {
       top_p: 1,
       presence_penalty: 0.0,
       frequency_penalty: 0.0,
-      max_tokens: 5000,
+      max_tokens: 2000,
     };
     this.systemPrompt = null;
     this.perfil = null;

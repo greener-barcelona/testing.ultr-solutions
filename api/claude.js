@@ -16,7 +16,7 @@ export default async function handler(req, res) {
       system: perfil.content,
       messages: messages,
       temperature: Math.min(temperature ?? 1, 1), 
-      max_tokens: max_tokens ?? 5000,
+      max_tokens: max_tokens ?? 2000,
     });
 
     res.json({

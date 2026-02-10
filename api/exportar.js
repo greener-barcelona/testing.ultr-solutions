@@ -15,6 +15,7 @@ async function resumirContenido(contenido) {
           content: `${contenido}/n/nQuiero que analices este diálogo y definas:  1. En un párrafo breve, el objeto de la conversación  2. Los 20 mejores insights que se descubren en la conversación 3. Las 20 mejores ideas que se proponen para ajustar, afinar, modificar el planteo inicial. 3. En que afectan a la temática inicial propuesta estos insights e ideas.`,
         },
       ],
+      max_tokens: 1500
     });
 
     return response.choices[0].message.content;

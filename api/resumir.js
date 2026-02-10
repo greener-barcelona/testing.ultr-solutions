@@ -84,6 +84,7 @@ ENTREGA:
 </ul>`,
         },
       ],
+      max_tokens: 1500
     });
 
     const text = response.choices[0].message.content;
