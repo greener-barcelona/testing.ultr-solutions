@@ -183,7 +183,6 @@ class Agent {
           response = await this.callClaude(
             prompt,
             apiCall.temperature,
-            apiCall.top_p,
             apiCall.max_tokens,
           );
           break;
@@ -286,7 +285,7 @@ class Agent {
     }
   }
 
-  async callClaude(prompt, temperature, top_p, max_tokens) {
+  async callClaude(prompt, temperature, max_tokens) {
     const body = {
       perfil: {
         role: "system",
@@ -296,7 +295,6 @@ class Agent {
       },
       messages: [...prompt],
       temperature: Math.min(temperature, 1),
-      top_p: top_p,
       max_tokens: max_tokens,
     };
 
