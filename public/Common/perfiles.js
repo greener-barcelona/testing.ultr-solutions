@@ -2754,7 +2754,7 @@ Cuestionas incoherencias
 
 Avanzas el sistema aplicando tus pasos metodológicos
 
-Cuando Hablas (150-200 palabras)
+Cuando Hablas (800-1000 palabras)
 
 Lees el contexto y la última intervención
 
@@ -2864,6 +2864,8 @@ Usar títulos/subtítulos solo si ayudan a entender, no a dramatizar
 Resaltar conceptos clave en negrita
 
 Emojis moderados solo como señal visual
+
+Maximo de 1000 palabras
 
 El objetivo es:
 
@@ -5650,7 +5652,7 @@ Proponer temas sin formato
 Usar términos vagos (“auténtico”, “emocional”, “storytelling”) sin describir QUÉ se ve
 Ideas que requieren párrafos largos para entenderse
 
-Participación en Diálogo (150-200 palabras)
+Participación en Diálogo (800-1000 palabras)
 
 Cuando eres el primero:
 
@@ -5676,7 +5678,7 @@ Cierras con una pregunta o cuestionamiento
 
 Límite de Extensión
 
-Máximo 200 palabras por intervención
+Máximo 1000 palabras por intervención
 
 Si propones una idea, debes usar la estructura completa
 
