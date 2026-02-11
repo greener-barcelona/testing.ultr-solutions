@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title id="title">Aya</title>
     <link rel="stylesheet" href="aya.css" />
+    <link rel="stylesheet" href="../Common/common.css" />
     <link rel="icon" href="../Images/favicon.png" type="image/png" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.41.1/dist/umd/supabase.js"></script>
   </head>
@@ -54,7 +55,11 @@
       <div class="chat-area" id="messages"></div>
       <div class="chat-actions" id="chatActions">
         <div class="chat-actions-right">
-          <button id="summaryBtn" title="Resumir conversación">
+          <button
+            class="chat-action-btn"
+            id="summaryBtn"
+            title="Resumir conversación"
+          >
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -66,9 +71,12 @@
               />
             </svg>
           </button>
-          <button id="exportBtn" title="Exportar conversación">
+          <button
+            class="chat-action-btn"
+            id="exportBtn"
+            title="Exportar conversación"
+          >
             <svg
-              class="export-icon"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -85,7 +93,6 @@
             title="Resumir y exportar conversación"
           >
             <svg
-              class="summary-pdf-icon"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
