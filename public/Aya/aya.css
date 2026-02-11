@@ -4,3 +4,25 @@
   justify-content: space-between;
   margin: 2% 0;
 }
+
+.chat-btn {
+  width: 50%;
+  height: 37px;
+  background-color: var(--primary-black);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.chat-btn:hover {
+  background-color: #1a1a1a;
+  transform: translateY(-1px);
+}
+
+.chat-btn:active {
+  transform: scale(0.98);
+}
