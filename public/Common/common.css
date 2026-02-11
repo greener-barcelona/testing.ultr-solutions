@@ -552,7 +552,6 @@ body.page-leave {
 
 .button-group {
   display: flex;
-  justify-content: center;
   flex-wrap: wrap;
   margin-bottom: 10px;
   margin-top: 10px;

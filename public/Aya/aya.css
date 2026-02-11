@@ -26,3 +26,7 @@
 .chat-btn:active {
   transform: scale(0.98);
 }
+
+.button-group {
+  justify-content: center;
+}
