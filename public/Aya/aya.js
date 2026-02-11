@@ -597,7 +597,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   saveLocalSession(session.user);
 
   await ensureAppUser();
-  await loadSidebarConversations();
 
   const searchBtn = document.getElementById("searchChatBtn");
   const searchModal = document.getElementById("searchModal");
@@ -744,6 +743,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
   });
-
+  
+  await loadSidebarConversations();
   cachedConversations = await refreshCachedConversations();
 });
