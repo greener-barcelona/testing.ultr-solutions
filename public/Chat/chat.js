@@ -834,7 +834,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   textarea.addEventListener("keydown", async (e) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       setTimeout(() => {
         textarea.style.height = "auto";

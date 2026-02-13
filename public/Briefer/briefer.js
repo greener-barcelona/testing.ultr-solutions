@@ -846,19 +846,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  if (textarea) {
-    textarea.addEventListener("keydown", async (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        if (typeof sendMessageToBrieferButton === "function" && briefButton) {
-          await sendMessageToBrieferButton(sendBtn);
-        } else {
-          await userSendMessage();
-        }
+  textarea.addEventListener("keydown", async (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (typeof sendMessageToBrieferButton === "function" && briefButton) {
+        await sendMessageToBrieferButton(sendBtn);
+      } else {
+        await userSendMessage();
       }
-    });
-    textarea.addEventListener("input", autoResizeTextarea(textarea));
-  }
+    }
+  });
+  textarea.addEventListener("input", autoResizeTextarea(textarea));
 
   newChatBtn.addEventListener(
     "click",

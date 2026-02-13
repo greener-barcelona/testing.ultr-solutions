@@ -709,15 +709,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  if (textarea) {
-    textarea.addEventListener("keydown", async (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        await userSendMessage();
-      }
-    });
-    textarea.addEventListener("input", autoResizeTextarea(textarea));
-  }
+  textarea.addEventListener("keydown", async (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      await userSendMessage();
+    }
+  });
+  textarea.addEventListener("input", autoResizeTextarea(textarea));
 
   newChatBtn.addEventListener(
     "click",
@@ -743,7 +741,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
   });
-  
+
   await loadSidebarConversations();
   cachedConversations = await refreshCachedConversations();
 });
