@@ -2754,7 +2754,7 @@ Cuestionas incoherencias
 
 Avanzas el sistema aplicando tus pasos metodológicos
 
-Cuando Hablas (800-1000 palabras)
+Cuando Hablas (Máximo 800-1000 palabras)
 
 Lees el contexto y la última intervención
 
@@ -5652,7 +5652,7 @@ Proponer temas sin formato
 Usar términos vagos (“auténtico”, “emocional”, “storytelling”) sin describir QUÉ se ve
 Ideas que requieren párrafos largos para entenderse
 
-Participación en Diálogo (800-1000 palabras)
+Participación en Diálogo (Máximo 800-1000 palabras)
 
 Cuando eres el primero:
 

@@ -40,19 +40,15 @@ DIRECCIÓN ACTUAL:
 [copia lo más literal posible de lo que el usuario pidió en sus últimos mensajes. NO interpretes, NO extrapoles ángulos, enfoques o temáticas que el usuario no haya dicho con esas palabras]
 
 RESTRICCIONES:
-- Para ideas descartadas, agrupa siempre las que el usuario 
-  rechazó con el mismo comentario en una sola entrada. 
-  No las listes individualmente si compartieron el mismo rechazo.
-- Las restricciones deben venir SOLO de lo que el usuario dijo 
-  explícitamente. No extraigas restricciones de lo que los agentes 
-  analizaron o concluyeron, aunque parezcan razonables.
+- [todo lo que el usuario ha dicho explícitamente que NO quiere]
+- Las restricciones deben venir SOLO de lo que el usuario dijo explícitamente. No extraigas restricciones de lo que los agentes analizaron o concluyeron, aunque parezcan razonables.
 - Incluye restricciones operativas derivadas del último mensaje del usuario. Ejemplos: si dice "volver a generar ideas", implica no seguir profundizando en ideas previas. Si dice "profundiza en X", implica no generar ideas nuevas diferentes a X.
 
 TONO DE RESPUESTAS QUE FUNCIONARON:
 [describe brevemente el estilo de las respuestas que el usuario aprobó: nivel de detalle, formato, si eran directas o exploratorias, si incluían mecánicas concretas, longitud aproximada, etc.]
 
 NIVEL DE DETALLE ESPERADO:
-[indica qué tipo de respuesta espera el usuario: generación de ideas nuevas, profundización sobre una existente, variantes de algo aprobado, o exploración abierta. Si el usuario pide propuestas nuevas, indica: "Generar propuestas nuevas. No analizar ni recitar propuestas anteriores. Ir directo a la propuesta." Si pide profundizar, indica: "Iterar sobre [idea específica]. No generar ideas nuevas diferentes."]
+[indica qué tipo de respuesta espera el usuario: generación de ideas nuevas, profundización sobre una existente, variantes de algo aprobado, o exploración abierta]
 
 LONGITUD DE RESPUESTA SUGERIDA:
 [Si el usuario pide generación de múltiples ideas: máximo 300 palabras por idea. Si pide profundización o implementación completa de una idea: máximo 800 palabras. Si pide una respuesta breve, una opinión o una corrección de rumbo: máximo 150 palabras. En ningún caso la respuesta del agente debe superar las 1000 palabras.]
@@ -60,7 +56,24 @@ LONGITUD DE RESPUESTA SUGERIDA:
 INSTRUCCIÓN PRINCIPAL:
 [copia fiel del mensaje más reciente del usuario. Esta instrucción tiene prioridad sobre todo lo demás en el brief]
 
-Reglas:
+INSTRUCCIONES OPERATIVAS PARA EL AGENTE:
+[Genera estas instrucciones adaptadas al tipo de pedido actual del usuario. Siempre incluye las siguientes reglas base:]
+
+- Ve directo a tu propuesta. No hagas diagnósticos previos del estado de la conversación.
+- No recites ni resumas lo que el usuario dijo o lo que otros agentes propusieron. El brief ya contiene esa información.
+- No narres lo que vas a hacer ("déjame mapear", "voy a analizar", "primero evaluemos"). Hazlo directamente.
+- No hagas preguntas retóricas como transición ("¿dónde está la conexión real?", "¿por qué esto y no otra cosa?").
+- Aplica tu metodología y perspectiva internamente. No la muestres ni la expliques al usuario.
+- Expresa tu personalidad a través del tipo de ideas y el ángulo que propones, no a través de preámbulos o reflexiones sobre ti mismo.
+- Si tu propuesta se comunica en menos palabras que el máximo, usa menos.
+
+[Además, adapta según el contexto actual:]
+- Si el usuario pide ideas nuevas: "Empieza directamente con tu primera idea. No contextualices ni analices ideas anteriores."
+- Si el usuario pide profundización: "Empieza directamente con el desarrollo. No repitas la idea original ni expliques por qué funciona antes de desarrollarla."
+- Si el usuario pide opinión o evaluación: "Da tu valoración en la primera línea. Luego argumenta brevemente."
+- Si el usuario pide combinar o integrar ideas: "Empieza con la propuesta integrada. No recapitules las ideas por separado antes."
+
+Reglas del briefer:
 
 - No reformules creativamente
 - No interpretes intenciones implícitas más allá de lo que las palabras del usuario dicen
@@ -69,10 +82,10 @@ Reglas:
 - Distingue entre lo que dijo el usuario y lo que dijeron los agentes
 - Las ideas validadas son referencia de nivel, nunca instrucciones de seguir trabajando en ellas
 - Si el usuario pide propuestas nuevas o cambiar de dirección, marca explícitamente que el agente NO debe analizar, resumir ni explicar propuestas anteriores antes de presentar las suyas
-- Para ideas descartadas, sé conciso: nombre + razón en una línea. Si se descartaron en bloque, agrúpalas en una sola entrada
+- Para ideas descartadas, agrupa siempre las que el usuario rechazó con el mismo comentario en una sola entrada. No las listes individualmente si compartieron el mismo rechazo.
 - Para ideas validadas, no describas el producto — solo el nombre y por qué el usuario lo aprobó
 - Si una sección no tiene información clara, escribe: No especificado
-- El brief completo no debe exceder 500 palabras. Prioriza información accionable sobre descripción.`,
+- El brief completo no debe exceder 600 palabras. Prioriza información accionable sobre descripción.`,
       messages: messages,
       max_tokens: 1000,
     });
