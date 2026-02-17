@@ -614,9 +614,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const fileInput = document.getElementById("fileInput");
   const modeSelector = document.getElementById("selector");
   const titleText = document.getElementById("title");
-  const multiplier3 = document.getElementById("multiplier3");
-  const multiplier6 = document.getElementById("multiplier6");
-  const multiplier12 = document.getElementById("multiplier12");
 
   if (
     !searchBtn ||
@@ -633,9 +630,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     !summaryBtn ||
     !fileInput ||
     !modeSelector ||
-    !multiplier3 ||
-    !multiplier6 ||
-    !multiplier12 ||
     !textarea ||
     !responseDiv
   ) {
@@ -644,14 +638,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   initModeSelector(modeSelector, titleText);
-
-  multiplier3.addEventListener("click", () => runProfilesChain(3, multiplier3));
-
-  multiplier6.addEventListener("click", () => runProfilesChain(6, multiplier6));
-
-  multiplier12.addEventListener("click", () =>
-    runProfilesChain(12, multiplier12),
-  );
 
   searchBtn.addEventListener("click", () => {
     searchModal.classList.add("active");
@@ -714,13 +700,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   newChatBtn.addEventListener(
     "click",
     async () => await startNewConversation(),
-  );
-
-  const profileButtons = document.querySelectorAll("button[data-api]");
-  profileButtons.forEach((btn) =>
-    btn.addEventListener("click", () =>
-      sendMessageToProfileButton(btn.dataset.perfil, btn.dataset.api, btn),
-    ),
   );
 
   exportBtn.addEventListener("click", () => {
