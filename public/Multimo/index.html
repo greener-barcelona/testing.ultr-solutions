@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title id="title">Aya</title>
-    <link rel="stylesheet" href="aya.css" />
+    <title id="title">Multimo</title>
+    <link rel="stylesheet" href="multimo.css" />
     <link rel="stylesheet" href="../Common/common.css" />
     <link rel="icon" href="../Images/favicon.png" type="image/png" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.41.1/dist/umd/supabase.js"></script>
@@ -36,22 +36,44 @@
         </div>
       </div>
       <div class="sidebar-actions">
-        <button class="action-button" id="newChatBtn">Nuevo chat</button>
-        <button class="action-button" id="searchChatBtn">Buscar chats</button>
+        <button class="action-button" id="newChatBtn">
+          <svg
+            class="action-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          Nuevo chat
+        </button>
+        <button class="action-button" id="searchChatBtn">
+          <svg
+            class="action-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="M21 21l-4.35-4.35" />
+          </svg>
+          Buscar chats
+        </button>
       </div>
       <div class="conversations" id="conversationsList"></div>
     </div>
     <div class="main-content">
       <div class="header">
-        <select class="model-selector" id="selector">
+        <select id="selector" class="model-selector">
           <option>Brainstorming</option>
-          <option>Multimo</option>
           <option>Socialstorming</option>
+          <option>Multimo</option>
           <option>Briefer</option>
           <option>Aya</option>
         </select>
       </div>
-
       <div class="chat-area" id="messages"></div>
       <div class="chat-actions" id="chatActions">
         <div class="chat-actions-right">
@@ -61,6 +83,7 @@
             title="Resumir conversación"
           >
             <svg
+              class="summary-icon"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -77,6 +100,7 @@
             title="Exportar conversación"
           >
             <svg
+              class="export-icon"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -93,6 +117,7 @@
             title="Resumir y exportar conversación"
           >
             <svg
+              class="summary-pdf-icon"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -117,59 +142,24 @@
               />
             </button>
             <textarea
-              id="userInputArea"
               class="chat-input"
-              placeholder="Agrega tu comentario..."
+              id="userInputArea"
+              placeholder="Agrega tu comentario y elige con quién continuar la conversación..."
             ></textarea>
           </div>
         </div>
-        <div class="settings">
-          <div class="intensity-picker">
-            <h3>Intensidad</h3>
-            <label>
-              <input type="radio" name="intensity" value="light" />
-              Ligero
-            </label>
-            <label>
-              <input type="radio" name="intensity" value="mid" />
-              Intermedio
-            </label>
-            <label>
-              <input type="radio" name="intensity" value="extreme" checked />
-              Extremo
-            </label>
-          </div>
-          <div class="model-picker">
-            <h3>Modelo</h3>
-            <label>
-              <input type="radio" name="model" value="openai" checked />
-              Openai
-            </label>
-            <label>
-              <input type="radio" name="model" value="grok" />
-              Grok
-            </label>
-            <label>
-              <input type="radio" name="model" value="claude" />
-              Claude
-            </label>
-          </div>
-        </div>
-        <div class="button-group">
-          <button id="ayaTrip" class="chat-btn">Modo trip</button>
-        </div>
       </div>
     </div>
-    <div class="search-modal" id="searchModal">
+    <div id="searchModal" class="search-modal">
       <div class="search-box">
         <input
           type="text"
           id="searchInput"
           placeholder="Buscar conversaciones..."
         />
-        <div class="search-results" id="searchResults"></div>
+        <div id="searchResults" class="search-results"></div>
       </div>
     </div>
-    <script type="module" src="./aya.js"></script>
+    <script type="module" defer src="./multimo.js"></script>
   </body>
 </html>
