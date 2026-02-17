@@ -45,6 +45,8 @@ let briefInputs = [];
 let contextInputs = [];
 let lastBriefHumano = "";
 let lastBriefIA = "";
+let pendingAttachments = { brief: [], context: [] };
+
 
 const conversationHistory = [];
 let responseDiv = null;
@@ -312,101 +314,6 @@ function setExportButtonsEnabled(humanoEnabled, iaEnabled) {
 
 //Archivos
 
-/*async function onFileLoaded(e, fileInput) {
-  const files = Array.from(e.target.files);
-  for (const file of files) {
-    if (!file) continue;
-
-    if (
-      file.type !== "application/pdf" &&
-      file.type !== "image/jpeg" &&
-      file.type !== "image/png" &&
-      file.type !== "image/jpg"
-    )
-      continue;
-
-    if (file.type === "application/pdf" && file.size > 30 * 1024 * 1024) {
-      alert("El archivo es demasiado grande. Máximo de 30MB para PDFs");
-      continue;
-    }
-    if (
-      (file.type === "image/jpeg" ||
-        file.type === "image/png" ||
-        file.type === "image/jpg") &&
-      file.size > 10 * 1024 * 1024
-    ) {
-      alert("El archivo es demasiado grande. Máximo de 10MB para imágenes");
-      continue;
-    }
-
-    try {
-      let fileContent;
-      if (file.type === "application/pdf") {
-        fileContent = await extractPDFText(file);
-      } else {
-        fileContent = await imageToBase64(file);
-      }
-
-      if (!fileContent) {
-        const errorDiv = document.createElement("div");
-        errorDiv.className = `message error text-content`;
-        errorDiv.textContent = `el PDF ${file.name} no tiene contenido.`;
-        responseDiv.appendChild(errorDiv);
-        responseDiv.scrollTop = responseDiv.scrollHeight;
-        continue;
-      }
-
-      if (!activeConversationId) {
-        title =
-          file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
-        await startNewConversation(title);
-      }
-
-      if (title === "Nueva conversación") {
-        title =
-          file.name.length > 40 ? file.name.slice(0, 40) + "..." : file.name;
-        await renameConversation(activeConversationId, title);
-        cachedConversations = cachedConversations.map((conversation) =>
-          conversation.id === activeConversationId
-            ? { ...conversation, title: title }
-            : conversation,
-        );
-        await loadSidebarConversations();
-      }
-
-      const replyDiv = renderMessage({
-        author: user.name.split(" ")[0] || "Usuario",
-        text: `${file.name} cargado correctamente.`,
-        userProfile: user.profilePicture,
-      });
-
-      addMessageToConversationHistory(replyDiv, conversationHistory);
-
-      responseDiv.appendChild(replyDiv);
-      responseDiv.scrollTop = responseDiv.scrollHeight;
-
-      conversationHistory.push({
-        role: "user",
-        content: fileContent,
-      });
-
-      await saveMessage(activeConversationId, {
-        text: replyDiv.textContent.trim(),
-      });
-
-      await saveMessage(activeConversationId, {
-        text: fileContent,
-        creativeAgent: "system",
-      });
-    } catch (error) {
-      console.error("Error al procesar el PDF:", error);
-      alert(`Error al procesar el archivo ${file.name}`);
-    }
-
-    fileInput.value = "";
-  }
-}*/
-
 function pushSystemDoc(kind, filename, content) {
   const tag = kind === "brief" ? "BRIEF_CLIENTE" : "CONTEXTO";
   conversationHistory.push({
@@ -554,12 +461,6 @@ function downloadDoc(filename, html) {
   a.click();
   URL.revokeObjectURL(url);
 }
-
-/*function buildInputHeader() {
-  const b = briefInputs.map((x) => `- ${x.name}`).join("\n") || "- (ninguno)";
-  const c = contextInputs.map((x) => `- ${x.name}`).join("\n") || "- (ninguno)";
-  return `DOCUMENTOS CARGADOS:\nBRIEF_CLIENTE:\n${b}\n\nCONTEXTO:\n${c}\n`;
-}*/
 
 //Endpoints
 
