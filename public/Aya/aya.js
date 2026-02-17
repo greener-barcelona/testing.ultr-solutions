@@ -560,6 +560,9 @@ function applyMode(mode) {
       case "Aya":
         window.location.href = "../Aya/";
         break;
+      case "Multimo":
+        window.location.href = "../Multimo/";
+        break;
       default:
         window.location.href = "../Chat/";
         return;

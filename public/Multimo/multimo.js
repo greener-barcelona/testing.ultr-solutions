@@ -37,10 +37,7 @@ let toastOutsideHandler = null;
 
 let cachedConversations = [];
 
-let modeValue =
-  localStorage.getItem(MODE_KEY) === "Socialstorming"
-    ? "Socialstorming"
-    : "Brainstorming";
+let modeValue = "Multimo";
 let activeConversationId = null;
 let title = "";
 
@@ -381,120 +378,6 @@ async function onFileLoaded(e, fileInput) {
   }
 }
 
-//x3 x6 x12
-
-function getRandomProfileButtons(count) {
-  const all = Array.from(
-    document.querySelectorAll("button[data-perfil][data-api]"),
-  );
-
-  if (all.length === 0) {
-    alert("No hay perfiles configurados.");
-    return [];
-  }
-
-  const shuffled = [...all];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-
-  return shuffled.slice(0, Math.min(count, shuffled.length));
-}
-
-async function runProfilesChain(count, multiplierBtn) {
-  toggleElement(multiplierBtn);
-  await userSendMessage();
-
-  if (!activeConversationId || conversationHistory.length <= 0) {
-    toggleElement(multiplierBtn);
-    return alert("Primero inicia una conversación antes de resumir.");
-  }
-
-  if (!textarea) return;
-
-  if (isChainRunning) {
-    alert("Ya hay una ronda de perfiles en marcha. Espera a que termine.");
-    return;
-  }
-
-  if (conversationHistory.length === 0) {
-    alert("Primero envía un mensaje (Enter) y luego usa x3 / x6 / x12.");
-    return;
-  }
-
-  const selectedButtons = getRandomProfileButtons(count);
-  if (selectedButtons.length === 0) return;
-
-  const conversationIdAtStart = activeConversationId;
-  const convTitleAtStart = title || "esta conversación";
-  const historyAtStart = conversationHistory;
-  isChainRunning = true;
-
-  try {
-    for (const btn of selectedButtons) {
-      const perfilKey = btn.dataset.perfil;
-      const api = btn.dataset.api;
-
-      await sendMessageToProfile(perfilKey, api, conversationIdAtStart);
-    }
-
-    await summarizeConversation(
-      conversationIdAtStart,
-      convTitleAtStart,
-      historyAtStart,
-    );
-  } finally {
-    if (multiplierBtn) toggleElement(multiplierBtn);
-    const text = `Han respondido ${count} perfiles en "${convTitleAtStart}". Fin de la ronda.`;
-    showToastSticky(text);
-    isChainRunning = false;
-  }
-}
-
-function showToastSticky(message) {
-  if (activeToast) {
-    activeToast.remove();
-    activeToast = null;
-  }
-  if (toastOutsideHandler) {
-    document.removeEventListener("click", toastOutsideHandler, true);
-    toastOutsideHandler = null;
-  }
-
-  const toast = document.createElement("div");
-  toast.className = "toast";
-  toast.innerHTML = `
-    <span class="toast-text">${message}</span>
-    <button class="toast-close" aria-label="Cerrar">✕</button>
-  `;
-  document.body.appendChild(toast);
-
-  void toast.offsetHeight;
-  toast.classList.add("show");
-
-  const close = () => {
-    toast.classList.remove("show");
-    setTimeout(() => toast.remove(), 200);
-    activeToast = null;
-    if (toastOutsideHandler) {
-      document.removeEventListener("click", toastOutsideHandler, true);
-      toastOutsideHandler = null;
-    }
-  };
-
-  toast.querySelector(".toast-close").addEventListener("click", (e) => {
-    e.stopPropagation();
-    close();
-  });
-  toastOutsideHandler = (e) => {
-    if (!toast.contains(e.target)) close();
-  };
-  document.addEventListener("click", toastOutsideHandler, true);
-
-  activeToast = toast;
-}
-
 //Endpoints
 
 async function sendMessageToProfile(perfilKey, API, conversationId) {
@@ -659,29 +542,6 @@ async function summarizeConversation(conversationId, convTitle, history) {
 
 //Auxiliares
 
-function getPerfilContent(perfilKey) {
-  let activePerfiles = null;
-  let activeInstrucciones = null;
-
-  switch (modeValue) {
-    case "Brainstorming":
-      activePerfiles = dialogoPerfiles;
-      activeInstrucciones = dialogoInstrucciones;
-      break;
-    case "Naming":
-      console.warn("Cadena: aún no hay perfiles de Naming");
-      return;
-    case "Socialstorming":
-      activePerfiles = socialPerfiles;
-      activeInstrucciones = socialInstrucciones;
-      break;
-  }
-
-  return {
-    role: "system",
-    content: `${activePerfiles[perfilKey].content}\n\n${activeInstrucciones}`,
-  };
-}
 function applyMode(mode) {
   const currentMode = localStorage.getItem(MODE_KEY);
 
@@ -699,6 +559,9 @@ function applyMode(mode) {
         break;
       case "Aya":
         window.location.href = "../Aya/";
+        break;
+      case "Multimo":
+        window.location.href = "../Multimo/";
         break;
       default:
         window.location.href = "../Chat/";

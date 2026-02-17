@@ -47,7 +47,6 @@ let lastBriefHumano = "";
 let lastBriefIA = "";
 let pendingAttachments = { brief: [], context: [] };
 
-
 const conversationHistory = [];
 let responseDiv = null;
 let textarea = null;
@@ -598,6 +597,9 @@ function applyMode(mode) {
         break;
       case "Aya":
         window.location.href = "../Aya/";
+        break;
+      case "Multimo":
+        window.location.href = "../Multimo/";
         break;
       default:
         window.location.href = "../Chat/";
