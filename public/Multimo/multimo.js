@@ -23,13 +23,6 @@ import {
   autoResizeTextarea,
   updateSharedUser,
 } from "../Common/shared.js";
-import {
-  dialogoPerfiles,
-  dialogoInstrucciones,
-  socialPerfiles,
-  socialInstrucciones,
-  recordatorio,
-} from "../Common/perfiles.js";
 
 let isChainRunning = false;
 let activeToast = null;
@@ -285,7 +278,7 @@ async function summarizeConversationButton(button) {
   toggleElement(button);
 }
 
-async function sendMessageToProfileButton(perfilKey, API, triggerBtn) {
+async function sendMessageToChain(profileButtons, API, triggerBtn) {
   toggleElement(triggerBtn);
   await userSendMessage();
 
@@ -295,8 +288,8 @@ async function sendMessageToProfileButton(perfilKey, API, triggerBtn) {
   }
 
   const conversationIdAtStart = activeConversationId;
-
-  await sendMessageToProfile(perfilKey, API, conversationIdAtStart);
+  //hacer un array con cada value de los botones activos y mandar a la api que toca
+  await sendMessageToProfile(API, conversationIdAtStart);
 
   toggleElement(triggerBtn);
 }
@@ -380,12 +373,10 @@ async function onFileLoaded(e, fileInput) {
 
 //Endpoints
 
-async function sendMessageToProfile(perfilKey, API, conversationId) {
-  const perfil = getPerfilContent(perfilKey);
-
+async function sendMessageToProfile(API, conversationId) {
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
-  pending.textContent = `Enviando (${perfilKey})...`;
+  pending.textContent = `Enviando (${API})...`;
 
   if (activeConversationId === conversationId) {
     responseDiv.appendChild(pending);
@@ -393,30 +384,12 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
   }
 
   try {
-    const longConversation = conversationHistory.length > 4;
-    let briefedConversation = null;
-
-    if (longConversation) {
-      const brief = await fetch(`/api/prompt`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: conversationHistory,
-        }),
-      });
-
-      briefedConversation = await brief.json();
-    }
-
     const res = await fetch(`/api/${API}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         perfil: perfil,
-        messages: longConversation
-          ? [recordatorio, { role: "user", content: briefedConversation.reply }]
-          : [recordatorio, ...conversationHistory],
-        temperature: API === "claude" ? 1 : 1.2,
+        messages: conversationHistory,
       }),
     });
 
@@ -434,7 +407,7 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
 
     await saveMessage(conversationId, {
       text: cleanhtml,
-      creativeAgent: `${perfilKey}-${API}`,
+      creativeAgent: `chain-${API}`,
     });
 
     pending.remove();
@@ -447,7 +420,7 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
 
     if (activeConversationId === conversationId) {
       const replyDiv = renderMessage({
-        author: `${perfilKey}-${API}`,
+        author: `chain-${API}`,
         text: cleanhtml,
       });
       addMessageToConversationHistory(replyDiv, conversationHistory);
@@ -573,7 +546,14 @@ function applyMode(mode) {
 
 function initModeSelector(selector, titleText) {
   const saved = localStorage.getItem(MODE_KEY);
-  const valid = ["Brainstorming", "Naming", "Socialstorming", "Briefer", "Aya", "Multimo"];
+  const valid = [
+    "Brainstorming",
+    "Naming",
+    "Socialstorming",
+    "Briefer",
+    "Aya",
+    "Multimo",
+  ];
   const initial = valid.includes(saved)
     ? saved
     : selector.value || "Brainstorming";
@@ -614,6 +594,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const fileInput = document.getElementById("fileInput");
   const modeSelector = document.getElementById("selector");
   const titleText = document.getElementById("title");
+  const profileButtons = document.querySelectorAll("button[data-api]");
 
   if (
     !searchBtn ||
