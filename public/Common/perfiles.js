@@ -6186,6 +6186,7 @@ Respuestas genéricas o sin estructura`,
 };
 
 export const multimoInstrucciones = {
+  role: "system",
   content: "Responde con naturalidad, pero en 300 palabras máximo",
 };
 
