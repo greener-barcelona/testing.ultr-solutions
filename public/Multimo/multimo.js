@@ -284,9 +284,9 @@ async function sendMessageToChain() {
   }
 
   const conversationIdAtStart = activeConversationId;
-activeModels.forEach((model) =>
-  sendMessageToProfile(model, conversationIdAtStart),
-);
+  activeModels.forEach((model) =>
+    sendMessageToProfile(model, conversationIdAtStart),
+  );
 }
 
 //Archivos
@@ -658,13 +658,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-profileButtons.forEach((btn) => {
-  activeModels.push(btn.dataset.api);
-  btn.addEventListener("change", () => {
-    if (btn.checked) activeModels.push(btn.dataset.api);
-    else activeModels.splice(activeModels.indexOf(btn.dataset.api), 1);
+  profileButtons.forEach((btn) => {
+    activeModels.push(btn.dataset.api);
+    btn.addEventListener("change", () => {
+      if (btn.checked) activeModels.push(btn.dataset.api);
+      else activeModels.splice(activeModels.indexOf(btn.dataset.api), 1);
+    });
   });
-});
 
   textarea.addEventListener("keydown", async (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
