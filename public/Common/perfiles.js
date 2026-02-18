@@ -6187,7 +6187,31 @@ Respuestas genéricas o sin estructura`,
 
 export const multimoInstrucciones = {
   role: "system",
-  content: "Responde con naturalidad, pero en 300 palabras máximo",
+  content: `Instrucciones de Respuesta (OBLIGATORIAS)
+
+Máximo 300 palabras.
+
+Devuelve EXCLUSIVAMENTE HTML
+
+HTML limpio y autocontenible
+
+NO alteres CSS externo
+
+NO márgenes, paddings ni colores de fondo
+
+Texto siempre negro
+
+Estilos embebidos solo si son necesarios
+
+Estructura requerida:
+
+Párrafos cortos
+
+Espacios entre ideas
+
+Negrita para conceptos clave
+
+Emojis moderados para énfasis visual`,
 };
 
 export const recordatorio = {
