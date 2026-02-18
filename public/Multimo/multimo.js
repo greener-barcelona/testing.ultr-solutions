@@ -32,7 +32,7 @@ let activeConversationId = null;
 let title = "";
 
 const conversationHistory = [];
-let activeModels = new Set();
+let activeModels = [];
 
 const responseDiv = document.getElementById("messages");
 const textarea = document.getElementById("userInputArea");
@@ -284,10 +284,11 @@ async function sendMessageToChain() {
   }
 
   const conversationIdAtStart = activeConversationId;
-  const models = Array.from(activeModels);
-if (models.length === 0) return alert("Selecciona al menos una IA.");
+ if (activeModels.length === 0) return alert("Selecciona al menos una IA.");
 
-models.forEach((model) => sendMessageToProfile(model, conversationIdAtStart));
+activeModels.forEach((model) =>
+  sendMessageToProfile(model, conversationIdAtStart),
+);
 }
 
 //Archivos
