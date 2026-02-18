@@ -32,7 +32,7 @@ let activeConversationId = null;
 let title = "";
 
 const conversationHistory = [];
-let activeModels = new Set();
+let activeModels = [];
 
 const responseDiv = document.getElementById("messages");
 const textarea = document.getElementById("userInputArea");
@@ -284,10 +284,9 @@ async function sendMessageToChain() {
   }
 
   const conversationIdAtStart = activeConversationId;
-  const models = Array.from(activeModels);
-if (models.length === 0) return alert("Selecciona al menos una IA.");
-
-models.forEach((model) => sendMessageToProfile(model, conversationIdAtStart));
+  activeModels.forEach((model) =>
+    sendMessageToProfile(model, conversationIdAtStart),
+  );
 }
 
 //Archivos
@@ -659,15 +658,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-profileButtons.forEach((btn) => {
-  const api = btn.dataset.api;
-  if (btn.checked) activeModels.add(api);
-
-  btn.addEventListener("change", () => {
-    if (btn.checked) activeModels.add(api);
-    else activeModels.delete(api);
+  profileButtons.forEach((btn) => {
+    activeModels.push(btn.dataset.api);
+    btn.addEventListener("change", () => {
+      if (btn.checked) activeModels.push(btn.dataset.api);
+      else activeModels.splice(activeModels.indexOf(btn.dataset.api), 1);
+    });
   });
-});
 
   textarea.addEventListener("keydown", async (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
