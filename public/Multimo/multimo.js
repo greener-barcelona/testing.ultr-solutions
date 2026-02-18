@@ -402,7 +402,7 @@ async function sendMessageToProfile(API, conversationId) {
 
     await saveMessage(conversationId, {
       text: cleanhtml,
-      creativeAgent: `chain-${API}`,
+      creativeAgent: API,
     });
 
     pending.remove();
@@ -415,7 +415,7 @@ async function sendMessageToProfile(API, conversationId) {
 
     if (activeConversationId === conversationId) {
       const replyDiv = renderMessage({
-        author: `chain-${API}`,
+        author: API,
         text: cleanhtml,
       });
       addMessageToConversationHistory(replyDiv, conversationHistory);
