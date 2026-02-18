@@ -402,7 +402,7 @@ async function sendMessageToProfile(API, conversationId) {
 
     await saveMessage(conversationId, {
       text: cleanhtml,
-      creativeAgent: API,
+      creativeAgent: `multimo-${API}`,
     });
 
     pending.remove();
@@ -415,7 +415,7 @@ async function sendMessageToProfile(API, conversationId) {
 
     if (activeConversationId === conversationId) {
       const replyDiv = renderMessage({
-        author: API,
+        author: `multimo-${API}`,
         text: cleanhtml,
       });
       addMessageToConversationHistory(replyDiv, conversationHistory);
