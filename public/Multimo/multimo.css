@@ -126,9 +126,8 @@
 }
 
 .model-toggles {
-  margin-top: 16px;
-  padding: 0;
-  background: transparent;
+  margin: 2% 0;
+  gap: 10px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -136,11 +135,12 @@
 
 .toggle-row {
   display: flex;
-  gap: 40px;
+  flex-direction: row;
 }
 
 .toggle-item {
   display: flex;
+  width: 50%;
   align-items: center;
   gap: 12px;
 }
