@@ -1,5 +1,5 @@
-import Agent from "../Common/agent.js";
-import AyahuascaTrip from "../Common/ayahuasca.js";
+import Agent from "./agent.js";
+import AyahuascaTrip from "./ayahuasca.js";
 import { ayaInstrucciones } from "../Common/perfiles.js";
 import {
   sb,
