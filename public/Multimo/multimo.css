@@ -140,7 +140,7 @@
 
 .toggle-item {
   display: flex;
-  width: 50%;
+  width: 25%;
   align-items: center;
   gap: 12px;
 }

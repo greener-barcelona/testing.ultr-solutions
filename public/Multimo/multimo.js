@@ -275,20 +275,17 @@ async function summarizeConversationButton(button) {
   toggleElement(button);
 }
 
-async function sendMessageToChain(profileButtons, API, triggerBtn) {
-  toggleElement(triggerBtn);
+async function sendMessageToChain() {
   await userSendMessage();
 
   if (!activeConversationId || conversationHistory.length <= 0) {
-    toggleElement(triggerBtn);
     return alert("Primero inicia una conversación antes de enviar.");
   }
 
   const conversationIdAtStart = activeConversationId;
-  //hacer un array con cada value de los botones activos y mandar a la api que toca
-  await sendMessageToProfile(API, conversationIdAtStart);
-
-  toggleElement(triggerBtn);
+  activeModels.forEach((model) =>
+    sendMessageToProfile(model, conversationIdAtStart),
+  );
 }
 
 //Archivos
@@ -674,7 +671,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       setTimeout(() => {
         textarea.style.height = "auto";
       }, 0);
-      if (textarea.value.trim()) await userSendMessage();
+      if (textarea.value.trim()) await sendMessageToChain();
       else return alert("Escribe un mensaje antes de enviar.");
     }
   });
