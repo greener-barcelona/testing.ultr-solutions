@@ -661,10 +661,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
 profileButtons.forEach((btn) => {
-  activeModels.push(btn.dataset.api);
+  const api = btn.dataset.api;
+  if (btn.checked) activeModels.add(api);
+
   btn.addEventListener("change", () => {
-    if (btn.checked) activeModels.push(btn.dataset.api);
-    else activeModels.splice(activeModels.indexOf(btn.dataset.api), 1);
+    if (btn.checked) activeModels.add(api);
+    else activeModels.delete(api);
   });
 });
 
