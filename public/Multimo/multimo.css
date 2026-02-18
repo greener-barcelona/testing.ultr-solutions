@@ -125,33 +125,25 @@
   opacity: 1;
 }
 
-
 /* Estilos para los toggles de modelos */
 .model-toggles {
   margin-top: 16px;
-  padding: 16px 20px;
-  background: var(--bg-primary, #f8f9fa);
-  border-radius: 12px;
-  box-shadow:
-    4px 4px 8px var(--shadow-dark, rgba(0, 0, 0, 0.1)),
-    -4px -4px 8px var(--shadow-light, rgba(255, 255, 255, 0.8));
+  padding: 0;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
 }
 
 .toggle-row {
   display: flex;
-  gap: 32px;
-  margin-bottom: 14px;
-}
-
-.toggle-row:last-child {
-  margin-bottom: 0;
+  gap: 40px;
 }
 
 .toggle-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex: 1;
 }
 
 .toggle-label {
