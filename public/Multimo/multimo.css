@@ -125,14 +125,13 @@
   opacity: 1;
 }
 
-/* Estilos para los toggles de modelos */
 .model-toggles {
   margin-top: 16px;
   padding: 0;
   background: transparent;
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  gap: 40px;
 }
 
 .toggle-row {
@@ -159,7 +158,6 @@
   color: var(--text-light, #1a1a1a);
 }
 
-/* Toggle switch */
 .toggle-switch {
   position: relative;
   display: inline-block;

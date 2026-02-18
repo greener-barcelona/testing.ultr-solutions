@@ -24,10 +24,6 @@ import {
   updateSharedUser,
 } from "../Common/shared.js";
 
-let isChainRunning = false;
-let activeToast = null;
-let toastOutsideHandler = null;
-
 let cachedConversations = [];
 
 let modeValue = "Multimo";
@@ -35,6 +31,7 @@ let activeConversationId = null;
 let title = "";
 
 const conversationHistory = [];
+let activeModels = [];
 
 const responseDiv = document.getElementById("messages");
 const textarea = document.getElementById("userInputArea");
@@ -594,7 +591,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const fileInput = document.getElementById("fileInput");
   const modeSelector = document.getElementById("selector");
   const titleText = document.getElementById("title");
-  const profileButtons = document.querySelectorAll("button[data-api]");
+  const profileButtons = document.querySelectorAll("input[data-api]");
 
   if (
     !searchBtn ||
@@ -660,6 +657,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
         searchResults.appendChild(div);
       }
+    });
+  });
+
+  profileButtons.forEach((btn) => {
+    activeModels.push(btn.dataset.api);
+    btn.addEventListener("change", () => {
+      if (btn.checked) activeModels.push(btn.dataset.api);
+      else activeModels.remove(btn.dataset.api);
     });
   });
 
