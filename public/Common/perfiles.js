@@ -6185,6 +6185,10 @@ HTML incompleto o incorrecto
 Respuestas genéricas o sin estructura`,
 };
 
+export const multimoInstrucciones = {
+  content: "Responde con naturalidad, pero en 300 palabras máximo",
+};
+
 export const recordatorio = {
   role: "user",
   content:

@@ -1,3 +1,4 @@
+import { multimoInstrucciones } from "../Common/perfiles.js";
 import {
   sb,
   ensureAppUser,
@@ -382,7 +383,7 @@ async function sendMessageToProfile(API, conversationId) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        perfil: perfil,
+        perfil: multimoInstrucciones,
         messages: conversationHistory,
       }),
     });
