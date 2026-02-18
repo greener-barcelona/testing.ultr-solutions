@@ -284,8 +284,6 @@ async function sendMessageToChain() {
   }
 
   const conversationIdAtStart = activeConversationId;
- if (activeModels.length === 0) return alert("Selecciona al menos una IA.");
-
 activeModels.forEach((model) =>
   sendMessageToProfile(model, conversationIdAtStart),
 );
