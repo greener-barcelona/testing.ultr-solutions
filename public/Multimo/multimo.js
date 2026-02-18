@@ -664,7 +664,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     activeModels.push(btn.dataset.api);
     btn.addEventListener("change", () => {
       if (btn.checked) activeModels.push(btn.dataset.api);
-      else activeModels.remove(btn.dataset.api);
+      else activeModels.splice(activeModels.indexOf(btn.dataset.api), 1);
     });
   });
 
