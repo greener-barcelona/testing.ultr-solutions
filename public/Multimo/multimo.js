@@ -31,7 +31,11 @@ let modeValue = "Multimo";
 let activeConversationId = null;
 let title = "";
 
-const conversationHistory = [];
+const openaiConversationHistory = [];
+const claudeConversationHistory = [];
+const grokConversationHistory = [];
+const perplexityConversationHistory = [];
+
 let activeModels = [];
 
 const responseDiv = document.getElementById("messages");
@@ -42,7 +46,10 @@ const textarea = document.getElementById("userInputArea");
 async function startNewConversation(newTitle) {
   title = newTitle || "Nueva conversación";
   responseDiv.innerHTML = "";
-  conversationHistory.length = 0;
+  openaiConversationHistory.length = 0;
+  claudeConversationHistory.length = 0;
+  grokConversationHistory.length = 0;
+  perplexityConversationHistory.length = 0;
   const savedMode = localStorage.getItem("mode") || "Brainstorming";
   const newConv = await createConversation(
     title || "Nueva conversación",
@@ -185,7 +192,10 @@ async function loadConversation(conversationId) {
 
   const messages = await getConversationMessages(conversationId);
   activeConversationId = conversationId;
-  conversationHistory.length = 0;
+  openaiConversationHistory.length = 0;
+  claudeConversationHistory.length = 0;
+  grokConversationHistory.length = 0;
+  perplexityConversationHistory.length = 0;
   responseDiv.innerHTML = "";
 
   messages.forEach((msg) => {
@@ -197,10 +207,50 @@ async function loadConversation(conversationId) {
         userProfile: msg.author_avatar,
       });
 
-      addMessageToConversationHistory(rendered, conversationHistory);
+      if (!msg.creative_agent & msg.author_name) {
+        addMessageToConversationHistory(rendered, openaiConversationHistory);
+        addMessageToConversationHistory(rendered, claudeConversationHistory);
+        addMessageToConversationHistory(rendered, grokConversationHistory);
+        addMessageToConversationHistory(
+          rendered,
+          perplexityConversationHistory,
+        );
+      } else {
+        author = msg.creative_agent.split("-")[1];
+        switch (author) {
+          case "openai":
+            addMessageToConversationHistory(
+              rendered,
+              openaiConversationHistory,
+            );
+            break;
+          case "claude":
+            addMessageToConversationHistory(
+              rendered,
+              claudeConversationHistory,
+            );
+            break;
+          case "grok":
+            addMessageToConversationHistory(rendered, grokConversationHistory);
+            break;
+          case "perplexity":
+            addMessageToConversationHistory(
+              rendered,
+              perplexityConversationHistory,
+            );
+            break;
+          default:
+            alert("Mensaje no guardado en ningún historial");
+        }
+      }
 
       responseDiv.appendChild(rendered);
-    } else conversationHistory.push({ role: "user", content: msg.text });
+    } else {
+      openaiConversationHistory.push({ role: "user", content: msg.text });
+      claudeConversationHistory.push({ role: "user", content: msg.text });
+      grokConversationHistory.push({ role: "user", content: msg.text });
+      perplexityConversationHistory.push({ role: "user", content: msg.text });
+    }
   });
 
   responseDiv.scrollTop = responseDiv.scrollHeight;
@@ -279,7 +329,15 @@ async function summarizeConversationButton(button) {
 async function sendMessageToChain() {
   await userSendMessage();
 
-  if (!activeConversationId || conversationHistory.length <= 0) {
+  if (
+    !activeConversationId ||
+    [
+      ...openaiConversationHistory,
+      ...claudeConversationHistory,
+      ...grokConversationHistory,
+      ...perplexityConversationHistory,
+    ].length <= 0
+  ) {
     return alert("Primero inicia una conversación antes de enviar.");
   }
 
@@ -339,12 +397,27 @@ async function onFileLoaded(e, fileInput) {
         userProfile: user.profilePicture,
       });
 
-      addMessageToConversationHistory(replyDiv, conversationHistory);
+      addMessageToConversationHistory(replyDiv, openaiConversationHistory);
+      addMessageToConversationHistory(replyDiv, claudeConversationHistory);
+      addMessageToConversationHistory(replyDiv, grokConversationHistory);
+      addMessageToConversationHistory(replyDiv, perplexityConversationHistory);
 
       responseDiv.appendChild(replyDiv);
       responseDiv.scrollTop = responseDiv.scrollHeight;
 
-      conversationHistory.push({
+      openaiConversationHistory.push({
+        role: "user",
+        content: PDFcontent,
+      });
+      claudeConversationHistory.push({
+        role: "user",
+        content: PDFcontent,
+      });
+      grokConversationHistory.push({
+        role: "user",
+        content: PDFcontent,
+      });
+      perplexityConversationHistory.push({
         role: "user",
         content: PDFcontent,
       });
@@ -376,6 +449,24 @@ async function sendMessageToProfile(API, conversationId) {
   if (activeConversationId === conversationId) {
     responseDiv.appendChild(pending);
     responseDiv.scrollTop = responseDiv.scrollHeight;
+  }
+
+  let conversationHistory = [];
+  switch (API) {
+    case "openai":
+      conversationHistory = openaiConversationHistory;
+      break;
+    case "claude ":
+      conversationHistory = claudeConversationHistory;
+      break;
+    case "grok":
+      conversationHistory = grokConversationHistory;
+      break;
+    case "perplexity":
+      conversationHistory = perplexityConversationHistory;
+      break;
+    default:
+      alert("Ningún historial enviado a la API");
   }
 
   try {
@@ -481,7 +572,14 @@ async function summarizeConversation(conversationId, convTitle, history) {
           author: "summary-openai",
           text: `<strong>Resumen de la ronda ${convTitle}:</strong><br>${cleanhtml}`,
         });
-        addMessageToConversationHistory(replyDiv, conversationHistory);
+
+        addMessageToConversationHistory(replyDiv, openaiConversationHistory);
+        addMessageToConversationHistory(replyDiv, claudeConversationHistory);
+        addMessageToConversationHistory(replyDiv, grokConversationHistory);
+        addMessageToConversationHistory(
+          replyDiv,
+          perplexityConversationHistory,
+        );
 
         responseDiv.appendChild(replyDiv);
         responseDiv.scrollTop = responseDiv.scrollHeight;
@@ -518,7 +616,12 @@ function applyMode(mode) {
 
     activeConversationId = null;
     title = "";
-    conversationHistory.length = 0;
+    [
+      ...openaiConversationHistory,
+      ...claudeConversationHistory,
+      ...grokConversationHistory,
+      ...perplexityConversationHistory,
+    ].length = 0;
     responseDiv.innerHTML = "";
 
     switch (mode) {
