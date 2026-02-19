@@ -207,7 +207,7 @@ async function loadConversation(conversationId) {
         userProfile: msg.author_avatar,
       });
 
-      if (!msg.creative_agent & msg.author_name) {
+      if (!msg.creative_agent) {
         addMessageToConversationHistory(rendered, openaiConversationHistory);
         addMessageToConversationHistory(rendered, claudeConversationHistory);
         addMessageToConversationHistory(rendered, grokConversationHistory);
