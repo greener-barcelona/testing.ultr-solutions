@@ -1,4 +1,4 @@
-import { multimoInstrucciones } from "../Common/perfiles.js";
+import { multimoInstrucciones, recordatorio } from "../Common/perfiles.js";
 import {
   sb,
   ensureAppUser,
@@ -528,7 +528,7 @@ async function sendMessageToProfile(API, conversationId) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         perfil: multimoInstrucciones,
-        messages: conversationHistory,
+        messages: [recordatorio, ...conversationHistory],
       }),
     });
 

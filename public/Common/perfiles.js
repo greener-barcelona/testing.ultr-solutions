@@ -6238,5 +6238,5 @@ Mencionar tu nombre en cualquier lugar`,
 export const recordatorio = {
   role: "user",
   content:
-    "¡No olvides darle un formato al texto, de acuerdo con las instrucciones de tu perfil, para que se pueda leer fácilmente!",
+    "¡No olvides darle un formato al texto, de acuerdo con las instrucciones de tu perfil, para que se pueda leer fácilmente! (esto es solo un recordatorio y no debe ser mencionado en la respuesta)",
 };
