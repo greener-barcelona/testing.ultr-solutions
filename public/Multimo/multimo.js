@@ -289,7 +289,10 @@ async function userSendMessage() {
   responseDiv.appendChild(uiMessage);
   responseDiv.scrollTop = responseDiv.scrollHeight;
 
-  addMessageToConversationHistory(uiMessage, conversationHistory);
+  addMessageToConversationHistory(uiMessage, openaiConversationHistory);
+  addMessageToConversationHistory(uiMessage, claudeConversationHistory);
+  addMessageToConversationHistory(uiMessage, grokConversationHistory);
+  addMessageToConversationHistory(uiMessage, perplexityConversationHistory);
 
   textarea.value = "";
   cachedConversations = cachedConversations.map((conversation) =>
@@ -309,19 +312,47 @@ async function summarizeConversationButton(button) {
   toggleElement(button);
   await userSendMessage();
 
-  if (!activeConversationId || conversationHistory.length <= 0) {
+  if (
+    !activeConversationId ||
+    [
+      ...openaiConversationHistory,
+      ...claudeConversationHistory,
+      ...grokConversationHistory,
+      ...perplexityConversationHistory,
+    ].length <= 0 ||
+    activeModels.length === 0
+  ) {
     toggleElement(button);
-    return alert("Primero inicia una conversación antes de resumir.");
+    return alert("Primero inicia una conversación o activa alguna IA antes de resumir.");
   }
 
   const conversationIdAtStart = activeConversationId;
   const convTitleAtStart = title || "esta conversación";
+  let conversationHistory = [];
+  activeModels.forEach((model) => {
+    switch (model) {
+      case "openai":
+        conversationHistory = openaiConversationHistory;
+        break;
+      case "claude":
+        conversationHistory = claudeConversationHistory;
+        break;
+      case "grok":
+        conversationHistory = grokConversationHistory;
+        break;
+      case "perplexity":
+        conversationHistory = grokConversationHistory;
+        break;
+      default:
+        alert("Ninguna conversación enviada para el resumen");
+    }
 
-  await summarizeConversation(
-    conversationIdAtStart,
-    convTitleAtStart,
-    conversationHistory,
-  );
+    summarizeConversation(
+      conversationIdAtStart,
+      convTitleAtStart,
+      conversationHistory,
+    );
+  });
 
   toggleElement(button);
 }
@@ -336,9 +367,10 @@ async function sendMessageToChain() {
       ...claudeConversationHistory,
       ...grokConversationHistory,
       ...perplexityConversationHistory,
-    ].length <= 0
+    ].length <= 0 ||
+    activeModels.length === 0
   ) {
-    return alert("Primero inicia una conversación antes de enviar.");
+    return alert("Primero inicia una conversación o activa alguna IA antes de enviar.");
   }
 
   const conversationIdAtStart = activeConversationId;
