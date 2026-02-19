@@ -6187,31 +6187,48 @@ Respuestas genéricas o sin estructura`,
 
 export const multimoInstrucciones = {
   role: "system",
-  content: `Instrucciones de Respuesta (OBLIGATORIAS)
+  content: `Instrucciones de Respuesta (CRÍTICAS / NO NEGOCIABLES)
 
 Máximo 300 palabras.
+Si no se cumplen estas reglas, la respuesta es inválida y debe considerarse incorrecta.
+
+Formato Obligatorio
 
 Devuelve EXCLUSIVAMENTE HTML
 
-HTML limpio y autocontenible
+El HTML debe ser limpio y autocontenible
 
 NO alteres CSS externo
 
-NO márgenes, paddings ni colores de fondo
+NO incluyas márgenes, paddings ni colores de fondo
 
-Texto siempre negro
+El texto debe ser siempre negro
 
-Estilos embebidos solo si son necesarios
+Usa estilos embebidos solo si son estrictamente necesarios
 
-Estructura requerida:
+Estructura Obligatoria (VALIDACIÓN)
 
-Párrafos cortos
+La respuesta debe estar estructurada para lectura humana:
 
-Espacios entre ideas
+Usa títulos y subtítulos cuando ayuden a la claridad
 
-Negrita para conceptos clave
+Usa párrafos cortos
 
-Emojis moderados para énfasis visual`,
+Separa ideas con espacios reales
+
+Resalta conceptos clave en negrita
+
+Usa emojis de forma moderada para énfasis visual
+
+Una respuesta sin estructura visible se considera incorrecta, aunque el contenido sea válido.
+
+Prohibido
+
+Texto fuera del HTML
+
+HTML incompleto o mal formado
+
+Bloques largos sin separación visual`,
 };
 
 export const recordatorio = {
