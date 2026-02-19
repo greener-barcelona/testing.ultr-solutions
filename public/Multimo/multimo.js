@@ -289,10 +289,14 @@ async function userSendMessage() {
   responseDiv.appendChild(uiMessage);
   responseDiv.scrollTop = responseDiv.scrollHeight;
 
-  addMessageToConversationHistory(uiMessage, openaiConversationHistory);
-  addMessageToConversationHistory(uiMessage, claudeConversationHistory);
-  addMessageToConversationHistory(uiMessage, grokConversationHistory);
-  addMessageToConversationHistory(uiMessage, perplexityConversationHistory);
+  activeModels.includes("openai") &&
+    addMessageToConversationHistory(uiMessage, openaiConversationHistory);
+  activeModels.includes("claude") &&
+    addMessageToConversationHistory(uiMessage, claudeConversationHistory);
+  activeModels.includes("grok") &&
+    addMessageToConversationHistory(uiMessage, grokConversationHistory);
+  activeModels.includes("perplexity") &&
+    addMessageToConversationHistory(uiMessage, perplexityConversationHistory);
 
   textarea.value = "";
   cachedConversations = cachedConversations.map((conversation) =>
@@ -323,7 +327,9 @@ async function summarizeConversationButton(button) {
     activeModels.length === 0
   ) {
     toggleElement(button);
-    return alert("Primero inicia una conversación o activa alguna IA antes de resumir.");
+    return alert(
+      "Primero inicia una conversación o activa alguna IA antes de resumir.",
+    );
   }
 
   const conversationIdAtStart = activeConversationId;
@@ -370,7 +376,9 @@ async function sendMessageToChain() {
     ].length <= 0 ||
     activeModels.length === 0
   ) {
-    return alert("Primero inicia una conversación o activa alguna IA antes de enviar.");
+    return alert(
+      "Primero inicia una conversación o activa alguna IA antes de enviar.",
+    );
   }
 
   const conversationIdAtStart = activeConversationId;
@@ -429,30 +437,41 @@ async function onFileLoaded(e, fileInput) {
         userProfile: user.profilePicture,
       });
 
-      addMessageToConversationHistory(replyDiv, openaiConversationHistory);
-      addMessageToConversationHistory(replyDiv, claudeConversationHistory);
-      addMessageToConversationHistory(replyDiv, grokConversationHistory);
-      addMessageToConversationHistory(replyDiv, perplexityConversationHistory);
+      activeModels.includes("openai") &&
+        addMessageToConversationHistory(replyDiv, openaiConversationHistory);
+      activeModels.includes("claude") &&
+        addMessageToConversationHistory(replyDiv, claudeConversationHistory);
+      activeModels.includes("grok") &&
+        addMessageToConversationHistory(replyDiv, grokConversationHistory);
+      activeModels.includes("perplexity") &&
+        addMessageToConversationHistory(
+          replyDiv,
+          perplexityConversationHistory,
+        );
 
       responseDiv.appendChild(replyDiv);
       responseDiv.scrollTop = responseDiv.scrollHeight;
 
-      openaiConversationHistory.push({
-        role: "user",
-        content: PDFcontent,
-      });
-      claudeConversationHistory.push({
-        role: "user",
-        content: PDFcontent,
-      });
-      grokConversationHistory.push({
-        role: "user",
-        content: PDFcontent,
-      });
-      perplexityConversationHistory.push({
-        role: "user",
-        content: PDFcontent,
-      });
+      activeModels.includes("openai") &&
+        openaiConversationHistory.push({
+          role: "user",
+          content: PDFcontent,
+        });
+      activeModels.includes("claude") &&
+        claudeConversationHistory.push({
+          role: "user",
+          content: PDFcontent,
+        });
+      activeModels.includes("grok") &&
+        grokConversationHistory.push({
+          role: "user",
+          content: PDFcontent,
+        });
+      activeModels.includes("perplexity") &&
+        perplexityConversationHistory.push({
+          role: "user",
+          content: PDFcontent,
+        });
 
       await saveMessage(activeConversationId, {
         text: replyDiv.textContent.trim(),
@@ -498,7 +517,9 @@ async function sendMessageToProfile(API, conversationId) {
       conversationHistory = perplexityConversationHistory;
       break;
     default:
-      alert(`Ningún historial enviado a ${API[0].toUpperCase() + API.slice(1)}`);
+      alert(
+        `Ningún historial enviado a ${API[0].toUpperCase() + API.slice(1)}`,
+      );
   }
 
   try {
@@ -605,10 +626,10 @@ async function summarizeConversation(conversationId, convTitle, history) {
           text: `<strong>Resumen de la ronda ${convTitle}:</strong><br>${cleanhtml}`,
         });
 
-        addMessageToConversationHistory(replyDiv, openaiConversationHistory);
-        addMessageToConversationHistory(replyDiv, claudeConversationHistory);
-        addMessageToConversationHistory(replyDiv, grokConversationHistory);
-        addMessageToConversationHistory(
+        activeModels.includes("openai") && addMessageToConversationHistory(replyDiv, openaiConversationHistory);
+        activeModels.includes("claude") && addMessageToConversationHistory(replyDiv, claudeConversationHistory);
+        activeModels.includes("grok") && addMessageToConversationHistory(replyDiv, grokConversationHistory);
+        activeModels.includes("perplexity") && addMessageToConversationHistory(
           replyDiv,
           perplexityConversationHistory,
         );
