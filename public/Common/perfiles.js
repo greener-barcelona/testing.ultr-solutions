@@ -6228,7 +6228,11 @@ Texto fuera del HTML
 
 HTML incompleto o mal formado
 
-Bloques largos sin separación visual`,
+Bloques largos sin separación visual
+
+Firmar con tu nombre
+
+Mencionar tu nombre en cualquier lugar`,
 };
 
 export const recordatorio = {
