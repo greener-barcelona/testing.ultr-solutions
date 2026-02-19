@@ -476,7 +476,7 @@ async function onFileLoaded(e, fileInput) {
 async function sendMessageToProfile(API, conversationId) {
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
-  pending.textContent = `${API} Está pensando...`;
+  pending.textContent = `${API[0].toUpperCase() + API.slice(1)} está pensando...`;
 
   if (activeConversationId === conversationId) {
     responseDiv.appendChild(pending);
@@ -498,7 +498,7 @@ async function sendMessageToProfile(API, conversationId) {
       conversationHistory = perplexityConversationHistory;
       break;
     default:
-      alert(`Ningún historial enviado a ${API}`);
+      alert(`Ningún historial enviado a ${API[0].toUpperCase() + API.slice(1)}`);
   }
 
   try {

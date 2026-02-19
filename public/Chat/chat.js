@@ -502,7 +502,7 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
 
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
-  pending.textContent = `${API} Está pensando...`;
+  pending.textContent = `${API[0].toUpperCase() + API.slice(1)} está pensando...`;
 
   if (activeConversationId === conversationId) {
     responseDiv.appendChild(pending);
