@@ -371,7 +371,7 @@ async function onFileLoaded(e, fileInput) {
 async function sendMessageToProfile(API, conversationId) {
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
-  pending.textContent = `Enviando (${API})...`;
+  pending.textContent = `${API} Está pensando...`;
 
   if (activeConversationId === conversationId) {
     responseDiv.appendChild(pending);
