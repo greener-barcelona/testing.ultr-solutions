@@ -488,7 +488,7 @@ async function sendMessageToProfile(API, conversationId) {
     case "openai":
       conversationHistory = openaiConversationHistory;
       break;
-    case "claude ":
+    case "claude":
       conversationHistory = claudeConversationHistory;
       break;
     case "grok":
@@ -498,7 +498,7 @@ async function sendMessageToProfile(API, conversationId) {
       conversationHistory = perplexityConversationHistory;
       break;
     default:
-      alert("Ningún historial enviado a la API");
+      alert(`Ningún historial enviado a ${API}`);
   }
 
   try {
