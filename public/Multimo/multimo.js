@@ -216,7 +216,7 @@ async function loadConversation(conversationId) {
           perplexityConversationHistory,
         );
       } else {
-        author = msg.creative_agent.split("-")[1];
+        const author = msg.creative_agent.split("-")[1];
         switch (author) {
           case "openai":
             addMessageToConversationHistory(
