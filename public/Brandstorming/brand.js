@@ -251,7 +251,7 @@ async function userSendMessage() {
       : conversation,
   );
 
-  await sendMessageToProfile();
+  await sendMessageToProfile(activeConversationId);
   await saveMessage(activeConversationId, { text: text });
 }
 
@@ -272,22 +272,6 @@ async function summarizeConversationButton(button) {
   await summarizeConversation(conversationIdAtStart, convTitleAtStart);
 
   toggleElement(button);
-}
-
-async function sendMessageToProfileButton(perfilKey, API, triggerBtn) {
-  toggleElement(triggerBtn);
-  await userSendMessage();
-
-  if (!activeConversationId || conversationHistory.length <= 0) {
-    toggleElement(triggerBtn);
-    return alert("Primero inicia una conversación antes de enviar.");
-  }
-
-  const conversationIdAtStart = activeConversationId;
-
-  await sendMessageToProfile(perfilKey, API, conversationIdAtStart);
-
-  toggleElement(triggerBtn);
 }
 
 //Archivos
@@ -370,6 +354,11 @@ async function onFileLoaded(e, fileInput) {
 //Endpoints
 
 async function sendMessageToProfile(conversationId) {
+  if (!activeConversationId || conversationHistory.length <= 0) {
+    toggleElement(triggerBtn);
+    return alert("Primero inicia una conversación antes de enviar.");
+  }
+  
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
   pending.textContent = `Claude está pensando...`;
@@ -495,7 +484,7 @@ async function summarizeConversation(conversationId, convTitle) {
           author: "summary-openai",
           text: `<strong>Resumen de la ronda ${convTitle}:</strong><br>${cleanhtml}`,
         });
-        
+
         addMessageToConversationHistory(replyDiv, conversationHistory);
 
         responseDiv.appendChild(replyDiv);
