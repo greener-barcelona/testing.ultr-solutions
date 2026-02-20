@@ -23,17 +23,7 @@ import {
   autoResizeTextarea,
   updateSharedUser,
 } from "../Common/shared.js";
-import {
-  dialogoPerfiles,
-  dialogoInstrucciones,
-  socialPerfiles,
-  socialInstrucciones,
-  recordatorio,
-} from "../Common/perfiles.js";
-
-let isChainRunning = false;
-let activeToast = null;
-let toastOutsideHandler = null;
+import { recordatorio, brandPerfil } from "../Common/perfiles.js";
 
 let cachedConversations = [];
 
@@ -260,6 +250,8 @@ async function userSendMessage() {
         }
       : conversation,
   );
+
+  await sendMessageToProfile();
   await saveMessage(activeConversationId, { text: text });
 }
 
@@ -277,11 +269,7 @@ async function summarizeConversationButton(button) {
   const conversationIdAtStart = activeConversationId;
   const convTitleAtStart = title || "esta conversación";
 
-  await summarizeConversation(
-    conversationIdAtStart,
-    convTitleAtStart,
-    conversationHistory,
-  );
+  await summarizeConversation(conversationIdAtStart, convTitleAtStart);
 
   toggleElement(button);
 }
@@ -381,43 +369,29 @@ async function onFileLoaded(e, fileInput) {
 
 //Endpoints
 
-async function sendMessageToProfile(perfilKey, API, conversationId) {
-  const perfil = getPerfilContent(perfilKey);
-
+async function sendMessageToProfile(conversationId) {
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
-  pending.textContent = `${API[0].toUpperCase() + API.slice(1)} está pensando...`;
+  pending.textContent = `Claude está pensando...`;
 
   if (activeConversationId === conversationId) {
     responseDiv.appendChild(pending);
     responseDiv.scrollTop = responseDiv.scrollHeight;
   }
 
+  const actualConversation = conversationHistory.slice(
+    conversationHistory.findLastIndex(
+      (message) => message.role === "assistant",
+    ) + 1,
+  );
+
   try {
-    const longConversation = conversationHistory.length > 4;
-    let briefedConversation = null;
-
-    if (longConversation) {
-      const brief = await fetch(`/api/prompt`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: conversationHistory,
-        }),
-      });
-
-      briefedConversation = await brief.json();
-    }
-
-    const res = await fetch(`/api/${API}`, {
+    const res = await fetch(`/api/claude`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        perfil: perfil,
-        messages: longConversation
-          ? [recordatorio, { role: "user", content: briefedConversation.reply }]
-          : [recordatorio, ...conversationHistory],
-        temperature: API === "claude" ? 1 : 1.2,
+        perfil: brandPerfil,
+        messages: [recordatorio, ...actualConversation],
       }),
     });
 
@@ -435,7 +409,7 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
 
     await saveMessage(conversationId, {
       text: cleanhtml,
-      creativeAgent: `${perfilKey}-${API}`,
+      creativeAgent: `brand-claude`,
     });
 
     pending.remove();
@@ -448,7 +422,7 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
 
     if (activeConversationId === conversationId) {
       const replyDiv = renderMessage({
-        author: `${perfilKey}-${API}`,
+        author: `brand-claude`,
         text: cleanhtml,
       });
       addMessageToConversationHistory(replyDiv, conversationHistory);
@@ -470,7 +444,7 @@ async function exportConversation(button, summarize) {
   return alert("Función de exportar deshabilitada en el entorno de pruebas");
 }
 
-async function summarizeConversation(conversationId, convTitle, history) {
+async function summarizeConversation(conversationId, convTitle) {
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
   pending.textContent = "Resumiendo...";
@@ -478,12 +452,19 @@ async function summarizeConversation(conversationId, convTitle, history) {
     responseDiv.appendChild(pending);
     responseDiv.scrollTop = responseDiv.scrollHeight;
   }
+
+  const actualConversation = conversationHistory.slice(
+    conversationHistory.findLastIndex(
+      (message) => message.role === "assistant",
+    ) + 1,
+  );
+
   try {
     const res = await fetch(`/api/resumir`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        conversation: history,
+        conversation: actualConversation,
       }),
     });
 
@@ -514,6 +495,7 @@ async function summarizeConversation(conversationId, convTitle, history) {
           author: "summary-openai",
           text: `<strong>Resumen de la ronda ${convTitle}:</strong><br>${cleanhtml}`,
         });
+        
         addMessageToConversationHistory(replyDiv, conversationHistory);
 
         responseDiv.appendChild(replyDiv);
@@ -712,13 +694,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   newChatBtn.addEventListener(
     "click",
     async () => await startNewConversation(),
-  );
-
-  const profileButtons = document.querySelectorAll("button[data-api]");
-  profileButtons.forEach((btn) =>
-    btn.addEventListener("click", () =>
-      sendMessageToProfileButton(btn.dataset.perfil, btn.dataset.api, btn),
-    ),
   );
 
   exportBtn.addEventListener("click", () => {

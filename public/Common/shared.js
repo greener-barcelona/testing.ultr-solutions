@@ -70,7 +70,12 @@ export function addMessageToConversationHistory(message, conversationHistory) {
 
   if (userClass || systemClass || profileClass) {
     conversationHistory.push({
-      role: autor.startsWith("multimo-") || autor.startsWith("briefer-") ? "assistant" : "user",
+      role:
+        autor.startsWith("multimo-") ||
+        autor.startsWith("briefer-") ||
+        autor.startsWith("brand-")
+          ? "assistant"
+          : "user",
       content: content,
     });
   }

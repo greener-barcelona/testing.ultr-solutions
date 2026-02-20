@@ -438,7 +438,6 @@ async function summarizeConversationButton(button) {
   await summarizeConversation(
     conversationIdAtStart,
     convTitleAtStart,
-    conversationHistory,
   );
 
   toggleElement(button);
@@ -450,7 +449,7 @@ async function exportConversation(button, summarize) {
   return alert("Función de exportar deshabilitada en el entorno de pruebas");
 }
 
-async function summarizeConversation(conversationId, convTitle, history) {
+async function summarizeConversation(conversationId, convTitle) {
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
   pending.textContent = "Resumiendo...";
@@ -463,7 +462,7 @@ async function summarizeConversation(conversationId, convTitle, history) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        conversation: history,
+        conversation: conversationHistory,
       }),
     });
 
