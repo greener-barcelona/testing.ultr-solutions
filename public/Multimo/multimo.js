@@ -24,6 +24,7 @@ import {
   autoResizeTextarea,
   updateSharedUser,
 } from "../Common/shared.js";
+import { content } from "googleapis/build/src/apis/content/index.js";
 
 let cachedConversations = [];
 
@@ -35,6 +36,7 @@ const openaiConversationHistory = [];
 const claudeConversationHistory = [];
 const grokConversationHistory = [];
 const perplexityConversationHistory = [];
+const geminiConversationHistory = [];
 
 let activeModels = [];
 
@@ -50,6 +52,7 @@ async function startNewConversation(newTitle) {
   claudeConversationHistory.length = 0;
   grokConversationHistory.length = 0;
   perplexityConversationHistory.length = 0;
+  geminiConversationHistory.length = 0;
   const savedMode = localStorage.getItem("mode") || "Brainstorming";
   const newConv = await createConversation(
     title || "Nueva conversación",
@@ -196,6 +199,7 @@ async function loadConversation(conversationId) {
   claudeConversationHistory.length = 0;
   grokConversationHistory.length = 0;
   perplexityConversationHistory.length = 0;
+  geminiConversationHistory.length = 0;
   responseDiv.innerHTML = "";
 
   messages.forEach((msg) => {
@@ -215,6 +219,7 @@ async function loadConversation(conversationId) {
           rendered,
           perplexityConversationHistory,
         );
+        addMessageToConversationHistory(rendered, geminiConversationHistory);
       } else {
         const author = msg.creative_agent.split("-")[1];
         switch (author) {
@@ -239,6 +244,12 @@ async function loadConversation(conversationId) {
               perplexityConversationHistory,
             );
             break;
+          case "gemini":
+            addMessageToConversationHistory(
+              rendered,
+              geminiConversationHistory,
+            );
+            break;
           default:
             alert("Mensaje no guardado en ningún historial");
         }
@@ -250,6 +261,7 @@ async function loadConversation(conversationId) {
       claudeConversationHistory.push({ role: "user", content: msg.text });
       grokConversationHistory.push({ role: "user", content: msg.text });
       perplexityConversationHistory.push({ role: "user", content: msg.text });
+      geminiConversationHistory.push({ role: "user", content: msg.text });
     }
   });
 
@@ -297,6 +309,8 @@ async function userSendMessage() {
     addMessageToConversationHistory(uiMessage, grokConversationHistory);
   activeModels.includes("perplexity") &&
     addMessageToConversationHistory(uiMessage, perplexityConversationHistory);
+  activeModels.includes("gemini") &&
+    addMessageToConversationHistory(uiMessage, geminiConversationHistory);
 
   textarea.value = "";
   cachedConversations = cachedConversations.map((conversation) =>
@@ -323,6 +337,7 @@ async function summarizeConversationButton(button) {
       ...claudeConversationHistory,
       ...grokConversationHistory,
       ...perplexityConversationHistory,
+      ...geminiConversationHistory,
     ].length <= 0 ||
     activeModels.length === 0
   ) {
@@ -349,6 +364,9 @@ async function summarizeConversationButton(button) {
       case "perplexity":
         conversationHistory = grokConversationHistory;
         break;
+      case "gemini":
+        conversationHistory = geminiConversationHistory;
+        break;
       default:
         alert("Ninguna conversación enviada para el resumen");
     }
@@ -373,6 +391,7 @@ async function sendMessageToChain() {
       ...claudeConversationHistory,
       ...grokConversationHistory,
       ...perplexityConversationHistory,
+      ...geminiConversationHistory,
     ].length <= 0 ||
     activeModels.length === 0
   ) {
@@ -448,6 +467,8 @@ async function onFileLoaded(e, fileInput) {
           replyDiv,
           perplexityConversationHistory,
         );
+      activeModels.includes("gemini") &&
+        addMessageToConversationHistory(replyDiv, geminiConversationHistory);
 
       responseDiv.appendChild(replyDiv);
       responseDiv.scrollTop = responseDiv.scrollHeight;
@@ -472,6 +493,8 @@ async function onFileLoaded(e, fileInput) {
           role: "user",
           content: PDFcontent,
         });
+      activeModels.includes("gemini") &&
+        geminiConversationHistory.push({ role: "user", content: PDFcontent });
 
       await saveMessage(activeConversationId, {
         text: replyDiv.textContent.trim(),
@@ -515,6 +538,9 @@ async function sendMessageToProfile(API, conversationId) {
       break;
     case "perplexity":
       conversationHistory = perplexityConversationHistory;
+      break;
+    case "gemini":
+      conversationHistory = geminiConversationHistory;
       break;
     default:
       alert(
@@ -637,6 +663,8 @@ async function summarizeConversation(conversationId, convTitle, history) {
             replyDiv,
             perplexityConversationHistory,
           );
+        activeModels.includes("gemini") &&
+          addMessageToConversationHistory(replyDiv, geminiConversationHistory);
 
         responseDiv.appendChild(replyDiv);
         responseDiv.scrollTop = responseDiv.scrollHeight;
@@ -673,12 +701,11 @@ function applyMode(mode) {
 
     activeConversationId = null;
     title = "";
-    [
-      ...openaiConversationHistory,
-      ...claudeConversationHistory,
-      ...grokConversationHistory,
-      ...perplexityConversationHistory,
-    ].length = 0;
+    openaiConversationHistory.length = 0;
+    claudeConversationHistory.length = 0;
+    grokConversationHistory.length = 0;
+    perplexityConversationHistory.length = 0;
+    geminiConversationHistory.length = 0;
     responseDiv.innerHTML = "";
 
     switch (mode) {

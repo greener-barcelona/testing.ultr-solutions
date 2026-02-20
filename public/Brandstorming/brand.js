@@ -251,7 +251,6 @@ async function userSendMessage() {
       : conversation,
   );
 
-  await sendMessageToProfile(activeConversationId);
   await saveMessage(activeConversationId, { text: text });
 }
 
@@ -354,11 +353,13 @@ async function onFileLoaded(e, fileInput) {
 //Endpoints
 
 async function sendMessageToProfile(conversationId) {
+  await userSendMessage();
+
   if (!activeConversationId || conversationHistory.length <= 0) {
     toggleElement(triggerBtn);
     return alert("Primero inicia una conversación antes de enviar.");
   }
-  
+
   const pending = document.createElement("div");
   pending.className = "message pending text-content";
   pending.textContent = `Claude está pensando...`;
@@ -671,7 +672,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       setTimeout(() => {
         textarea.style.height = "auto";
       }, 0);
-      if (textarea.value.trim()) await userSendMessage();
+      if (textarea.value.trim())
+        await sendMessageToProfile(activeConversationId);
       else return alert("Escribe un mensaje antes de enviar.");
     }
   });
