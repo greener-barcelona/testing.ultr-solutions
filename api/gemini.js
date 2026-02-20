@@ -1,4 +1,4 @@
-import { gemini } from "../lib/geminiAuth";
+import { gemini } from "../lib/geminiAuth.js";
 
 export async function handler(req, res) {
   if (req.method !== "POST") {

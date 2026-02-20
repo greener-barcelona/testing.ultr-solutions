@@ -37,10 +37,8 @@ let toastOutsideHandler = null;
 
 let cachedConversations = [];
 
-let modeValue =
-  localStorage.getItem(MODE_KEY) === "Socialstorming"
-    ? "Socialstorming"
-    : "Brainstorming";
+let modeValue = "Brandstorming";
+
 let activeConversationId = null;
 let title = "";
 
@@ -713,7 +711,16 @@ function applyMode(mode) {
 
 function initModeSelector(selector, titleText) {
   const saved = localStorage.getItem(MODE_KEY);
-  const valid = ["Brainstorming", "Naming", "Socialstorming", "Briefer", "Aya", "Multimo", "Brandstorming"];  const initial = valid.includes(saved)
+  const valid = [
+    "Brainstorming",
+    "Naming",
+    "Socialstorming",
+    "Briefer",
+    "Aya",
+    "Multimo",
+    "Brandstorming",
+  ];
+  const initial = valid.includes(saved)
     ? saved
     : selector.value || "Brainstorming";
 
