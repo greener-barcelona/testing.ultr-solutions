@@ -10,17 +10,21 @@ export async function handler(req, res) {
   if (!contextText) {
     return res.status(400).json({ error: "Falta mensaje o perfil" });
   }
+  try {
+    const cache = await gemini.caches.create({
+      model: "gemini-2.5-pro",
+      config: {
+        contents: [{ role: "user", parts: [{ text: contextText }] }],
+        ttl: `${ttlSeconds}s`,
+      },
+    });
+    console.log("Caché creado: ", cache.name);
 
-  const cache = await gemini.caches.create({
-    model: "gemini-2.5-pro",
-    config: {
-      contents: [{ role: "user", parts: [{ text: contextText }] }],
-      ttl: `${ttlSeconds}s`,
-    },
-  });
-  console.log("✅ Caché creado:", cache.name);
-
-  res.json({
-    reply: cache.name,
-  });
+    res.json({
+      reply: cache.name,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error al crear cache" });
+  }
 }

@@ -12,5 +12,5 @@ export async function handler(req, res) {
   }
 
   await gemini.caches.delete({ name: cacheName });
-  console.log("🗑️  Caché eliminado:", cacheName);
+  console.log("Caché eliminado: ", cacheName);
 }
