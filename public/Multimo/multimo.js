@@ -24,7 +24,6 @@ import {
   autoResizeTextarea,
   updateSharedUser,
 } from "../Common/shared.js";
-import { content } from "googleapis/build/src/apis/content/index.js";
 
 let cachedConversations = [];
 
