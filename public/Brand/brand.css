@@ -1,0 +1,126 @@
+.sidebar {
+  width: 465px;
+}
+
+.new-conversation-container {
+  padding-left: 30px;
+  padding-bottom: 15px;
+}
+
+.settings-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.perfil-select {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.perfil-area {
+  padding: 10px;
+}
+
+.input-wrapper {
+  transition: background-color 0.2s;
+}
+
+.conversation-text p {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text-light);
+}
+
+.dropdown-item:hover {
+  background: #f0f0f0;
+}
+
+.conv-menu {
+  right: 7.5%;
+  top: 80%;
+  border-radius: 12px;
+  transform: translateY(-5px);
+}
+
+.message .avatar {
+  margin-left: 10px;
+}
+
+.model-selector {
+  box-shadow:
+    8px 8px 16px var(--shadow-dark),
+    -8px -6px 12px var(--shadow-light);
+}
+
+.button-group {
+  justify-content: space-between;
+}
+
+.chat-btn {
+  width: 10%;  
+  height: 37px;
+  background-color: var(--primary-black);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.chat-btn:hover {
+  background-color: #1a1a1a;
+  transform: translateY(-1px);
+}
+
+.chat-btn:active {
+  transform: scale(0.98);
+}
+
+.chat.input::-webkit-scrollbar {
+  display: none;
+}
+
+.toast {
+  position: fixed;
+  left: calc(50% + (var(--sidebar-w) / 2));
+  bottom: clamp(140px, 22vh, 240px);
+  background: #2d2d2d;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  opacity: 0;
+  transform: translate(-50%, 10px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  z-index: 9999;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(92vw, 720px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translate(-40%, -50%);
+}
+
+.toast .toast-close {
+  margin-left: 10px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.toast .toast-close:hover {
+  opacity: 1;
+}
