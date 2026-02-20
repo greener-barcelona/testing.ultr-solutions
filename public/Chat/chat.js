@@ -703,6 +703,9 @@ function applyMode(mode) {
       case "Multimo":
         window.location.href = "../Multimo/";
         break;
+      case "Brandstorming":
+        window.location.href = "../Brandstorming/";
+        break;
       default:
         window.location.href = "../Chat/";
         return;
@@ -713,7 +716,16 @@ function applyMode(mode) {
 
 function initModeSelector(selector, titleText) {
   const saved = localStorage.getItem(MODE_KEY);
-  const valid = ["Brainstorming", "Naming", "Socialstorming", "Briefer", "Aya", "Multimo", "Brandstorming"];  const initial = valid.includes(saved)
+  const valid = [
+    "Brainstorming",
+    "Naming",
+    "Socialstorming",
+    "Briefer",
+    "Aya",
+    "Multimo",
+    "Brandstorming",
+  ];
+  const initial = valid.includes(saved)
     ? saved
     : selector.value || "Brainstorming";
 

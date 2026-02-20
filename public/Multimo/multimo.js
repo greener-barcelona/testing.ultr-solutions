@@ -626,13 +626,17 @@ async function summarizeConversation(conversationId, convTitle, history) {
           text: `<strong>Resumen de la ronda ${convTitle}:</strong><br>${cleanhtml}`,
         });
 
-        activeModels.includes("openai") && addMessageToConversationHistory(replyDiv, openaiConversationHistory);
-        activeModels.includes("claude") && addMessageToConversationHistory(replyDiv, claudeConversationHistory);
-        activeModels.includes("grok") && addMessageToConversationHistory(replyDiv, grokConversationHistory);
-        activeModels.includes("perplexity") && addMessageToConversationHistory(
-          replyDiv,
-          perplexityConversationHistory,
-        );
+        activeModels.includes("openai") &&
+          addMessageToConversationHistory(replyDiv, openaiConversationHistory);
+        activeModels.includes("claude") &&
+          addMessageToConversationHistory(replyDiv, claudeConversationHistory);
+        activeModels.includes("grok") &&
+          addMessageToConversationHistory(replyDiv, grokConversationHistory);
+        activeModels.includes("perplexity") &&
+          addMessageToConversationHistory(
+            replyDiv,
+            perplexityConversationHistory,
+          );
 
         responseDiv.appendChild(replyDiv);
         responseDiv.scrollTop = responseDiv.scrollHeight;
@@ -686,6 +690,9 @@ function applyMode(mode) {
         break;
       case "Multimo":
         window.location.href = "../Multimo/";
+        break;
+      case "Brandstorming":
+        window.location.href = "../Brandstorming/";
         break;
       default:
         window.location.href = "../Chat/";
