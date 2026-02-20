@@ -704,6 +704,7 @@ function initModeSelector(selector, titleText) {
     "Briefer",
     "Aya",
     "Multimo",
+    "Brandstorming",
   ];
   const initial = valid.includes(saved)
     ? saved
