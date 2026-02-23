@@ -290,22 +290,8 @@ function setBtnEnabled(btn, enabled) {
   if (!btn) return;
   btn.disabled = !enabled;
   btn.classList.toggle("disabled", !enabled);
-  console.log(
-    btn.id,
-    "enabled?",
-    enabled,
-    "disabled attr?",
-    btn.disabled,
-    "class:",
-    btn.className,
-  );
 }
-console.log(
-  "lastBriefIA len",
-  lastBriefIA?.length,
-  "disabled?",
-  briefButton?.disabled,
-);
+
 function setExportButtonsEnabled(humanoEnabled, iaEnabled) {
   setBtnEnabled(exportBtn, !!humanoEnabled);
   setBtnEnabled(briefButton, !!iaEnabled);
@@ -387,7 +373,6 @@ async function handleFiles(files, kind) {
       }
 
       const fileContent = toStringContent(rawContent);
-      console.log("PDF extract type:", typeof fileContent, fileContent);
 
       if (!fileContent || !fileContent.trim()) {
         const errorDiv = document.createElement("div");
@@ -514,7 +499,6 @@ async function sendMessageToBriefer(conversationId) {
       }
 
       const data = await res.json();
-      console.log("reply keys:", Object.keys(data), "kind:", job.kind);
 
       const reply =
         data?.reply ?? data?.content ?? data?.completion ?? data?.message ?? "";
@@ -620,7 +604,6 @@ function initModeSelector(selector, titleText) {
   const saved = localStorage.getItem(MODE_KEY);
   const valid = [
     "Brainstorming",
-    "Naming",
     "Socialstorming",
     "Briefer",
     "Aya",
@@ -673,6 +656,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   contextDrop = document.getElementById("contextDrop");
   responseDiv = document.getElementById("messages");
   textarea = document.getElementById("userInputArea");
+
   if (
     !searchBtn ||
     !searchModal ||
@@ -710,8 +694,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   wireDropzone(briefDrop, "brief");
   wireDropzone(contextDrop, "context");
-  sendBtn.addEventListener("click", async () => {
-    await sendMessageToBrieferButton(sendBtn);
+  sendBtn.addEventListener("click", () => {
+    sendMessageToBrieferButton(sendBtn);
   });
 
   searchBtn.addEventListener("click", openSearchModal);
@@ -764,22 +748,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  textarea.addEventListener("keydown", async (e) => {
+  textarea.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       if (typeof sendMessageToBrieferButton === "function" && briefButton) {
-        await sendMessageToBrieferButton(sendBtn);
+        sendMessageToBrieferButton(sendBtn);
       } else {
-        await userSendMessage();
+        userSendMessage();
       }
     }
   });
   textarea.addEventListener("input", autoResizeTextarea(textarea));
 
-  newChatBtn.addEventListener(
-    "click",
-    async () => await startNewConversation(),
-  );
+  newChatBtn.addEventListener("click", () => startNewConversation());
 
   logoutBtn.addEventListener("click", () => logout(MODE_KEY));
 
@@ -813,13 +794,4 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await loadSidebarConversations();
   cachedConversations = await refreshCachedConversations();
-  console.log(
-    "briefButton count",
-    document.querySelectorAll("#briefButton").length,
-  );
-  console.log(
-    "exportBtn count",
-    document.querySelectorAll("#exportBtn").length,
-  );
-  console.log("briefButton el", document.getElementById("briefButton"));
 });

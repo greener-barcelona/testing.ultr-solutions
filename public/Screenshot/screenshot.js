@@ -45,7 +45,6 @@ async function createScreenshot(url) {
     pending.remove();
     textarea.value = "";
     link && window.open(link, "_blank");
-
   } catch (err) {
     console.error(err);
     pending.textContent = `Error: ${err.message}`;
@@ -61,7 +60,7 @@ function applyMode(mode) {
 
   if (modeValue !== currentMode) {
     localStorage.setItem(MODE_KEY, mode);
-    
+
     responseDiv.innerHTML = "";
 
     switch (mode) {
@@ -92,7 +91,6 @@ function initModeSelector(selector, titleText) {
   const saved = localStorage.getItem(MODE_KEY);
   const valid = [
     "Brainstorming",
-    "Naming",
     "Socialstorming",
     "Briefer",
     "Aya",

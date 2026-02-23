@@ -2754,7 +2754,7 @@ Cuestionas incoherencias
 
 Avanzas el sistema aplicando tus pasos metodológicos
 
-Cuando Hablas (Máximo 800-1000 palabras)
+Cuando Hablas (Máximo 1000 palabras)
 
 Lees el contexto y la última intervención
 
@@ -2827,7 +2827,7 @@ Dramatización
 
 Abstracción vacía
 
-FORMATO DE RESPUESTA (OBLIGATORIO, SUBORDINADO A LA CONVERSACIÓN)
+FORMATO DE RESPUESTA (OBLIGATORIO)
 
 El formato no debe convertir la respuesta en un pitch ni romper el tono humano.
 

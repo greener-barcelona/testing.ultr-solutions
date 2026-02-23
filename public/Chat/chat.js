@@ -43,6 +43,7 @@ let modeValue =
     : "Brainstorming";
 let activeConversationId = null;
 let title = "";
+let first = true;
 
 const conversationHistory = [];
 
@@ -55,6 +56,7 @@ async function startNewConversation(newTitle) {
   title = newTitle || "Nueva conversación";
   responseDiv.innerHTML = "";
   conversationHistory.length = 0;
+  first = true;
   const savedMode = localStorage.getItem("mode") || "Brainstorming";
   const newConv = await createConversation(
     title || "Nueva conversación",
@@ -531,9 +533,25 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
       body: JSON.stringify({
         perfil: perfil,
         messages: longConversation
-          ? [recordatorio, { role: "user", content: briefedConversation.reply }]
-          : [recordatorio, ...conversationHistory],
-        temperature: API === "claude" ? 1 : 1.2,
+          ? [
+              first
+                ? recordatorio
+                : {
+                    ...recordatorio,
+                    content: `NO ERES EL PRIMER PARTICIPANTE EN ESTA CONVERSACIÓN, por lo tanto, está prohibido utilizar títulos. Limítate a continuar la conversación con naturalidad.\n${recordatorio.content}`,
+                  },
+              { role: "user", content: briefedConversation.reply },
+            ]
+          : [
+              first
+                ? recordatorio
+                : {
+                    ...recordatorio,
+                    content: `NO ERES EL PRIMER PARTICIPANTE EN ESTA CONVERSACIÓN, por lo tanto, está prohibido utilizar títulos. Limítate a continuar la conversación con naturalidad.\n${recordatorio.content}`,
+                  },
+              ...conversationHistory,
+            ],
+        temperature: API === "claude" ? 1 : 1.35,
       }),
     });
 
@@ -541,6 +559,8 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
       const errorData = await res.json();
       throw new Error(errorData.error || "Error al enviar.");
     }
+
+    first = false;
 
     const data = await res.json();
     const text = replaceWeirdChars(data.reply);
@@ -668,13 +688,12 @@ function getPerfilContent(perfilKey) {
       activePerfiles = dialogoPerfiles;
       activeInstrucciones = dialogoInstrucciones;
       break;
-    case "Naming":
-      console.warn("Cadena: aún no hay perfiles de Naming");
-      return;
     case "Socialstorming":
       activePerfiles = socialPerfiles;
       activeInstrucciones = socialInstrucciones;
       break;
+    default:
+      return alert("Modo no permitido");
   }
 
   return {
@@ -682,6 +701,7 @@ function getPerfilContent(perfilKey) {
     content: `${activePerfiles[perfilKey].content}\n\n${activeInstrucciones}`,
   };
 }
+
 function applyMode(mode) {
   const currentMode = localStorage.getItem(MODE_KEY);
 
@@ -721,7 +741,6 @@ function initModeSelector(selector, titleText) {
   const saved = localStorage.getItem(MODE_KEY);
   const valid = [
     "Brainstorming",
-    "Naming",
     "Socialstorming",
     "Briefer",
     "Aya",
@@ -851,13 +870,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  textarea.addEventListener("keydown", async (e) => {
+  textarea.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       setTimeout(() => {
         textarea.style.height = "auto";
       }, 0);
-      if (textarea.value.trim()) await userSendMessage();
+      if (textarea.value.trim()) userSendMessage();
       else return alert("Escribe un mensaje antes de enviar.");
     }
   });
@@ -866,10 +885,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     autoResizeTextarea(textarea);
   });
 
-  newChatBtn.addEventListener(
-    "click",
-    async () => await startNewConversation(),
-  );
+  newChatBtn.addEventListener("click", () => startNewConversation());
 
   const profileButtons = document.querySelectorAll("button[data-api]");
   profileButtons.forEach((btn) =>
@@ -890,7 +906,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     summarizeConversationButton(summaryBtn);
   });
 
-  fileInput.addEventListener("change", async (e) => onFileLoaded(e, fileInput));
+  fileInput.addEventListener("change", (e) => onFileLoaded(e, fileInput));
 
   logoutBtn.addEventListener("click", () => {
     cachedConversations.length = 0;

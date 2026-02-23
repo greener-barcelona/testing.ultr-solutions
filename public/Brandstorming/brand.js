@@ -554,7 +554,6 @@ function initModeSelector(selector, titleText) {
   const saved = localStorage.getItem(MODE_KEY);
   const valid = [
     "Brainstorming",
-    "Naming",
     "Socialstorming",
     "Briefer",
     "Aya",
@@ -670,14 +669,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  textarea.addEventListener("keydown", async (e) => {
+  textarea.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       setTimeout(() => {
         textarea.style.height = "auto";
       }, 0);
-      if (textarea.value.trim())
-        await sendMessageToProfile(activeConversationId);
+      if (textarea.value.trim()) sendMessageToProfile(activeConversationId);
       else return alert("Escribe un mensaje antes de enviar.");
     }
   });
@@ -686,10 +684,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     autoResizeTextarea(textarea);
   });
 
-  newChatBtn.addEventListener(
-    "click",
-    async () => await startNewConversation(),
-  );
+  newChatBtn.addEventListener("click", () => startNewConversation());
 
   exportBtn.addEventListener("click", () => {
     exportConversation(exportBtn, false);
@@ -703,7 +698,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     summarizeConversationButton(summaryBtn);
   });
 
-  fileInput.addEventListener("change", async (e) => onFileLoaded(e, fileInput));
+  fileInput.addEventListener("change", (e) => onFileLoaded(e, fileInput));
 
   logoutBtn.addEventListener("click", () => {
     cachedConversations.length = 0;
