@@ -435,10 +435,7 @@ async function summarizeConversationButton(button) {
   const conversationIdAtStart = activeConversationId;
   const convTitleAtStart = title || "esta conversación";
 
-  await summarizeConversation(
-    conversationIdAtStart,
-    convTitleAtStart,
-  );
+  await summarizeConversation(conversationIdAtStart, convTitleAtStart);
 
   toggleElement(button);
 }
@@ -565,6 +562,9 @@ function applyMode(mode) {
       case "Brandstorming":
         window.location.href = "../Brandstorming/";
         break;
+      case "Screenshot":
+        window.location.href = "../Screenshot/";
+        break;
       default:
         window.location.href = "../Chat/";
         return;
@@ -584,6 +584,7 @@ function initModeSelector(selector, titleText) {
     "Aya",
     "Multimo",
     "Brandstorming",
+    "Screenshot",
   ];
   const initial = valid.includes(saved)
     ? saved
