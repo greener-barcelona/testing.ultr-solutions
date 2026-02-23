@@ -1,5 +1,3 @@
-import { Client, TakeOptions } from "screenshotone-api-sdk";
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Método no permitido" });
@@ -10,27 +8,25 @@ export default async function handler(req, res) {
   if (!url) {
     return res.status(400).json({ error: "Falta url" });
   }
+
   try {
-    const client = new Client(
-      process.env.SCREENSHOTONE_ACCESS_KEY,
-      process.env.SCREENSHOTONE_SECRET_KEY,
-    );
-
-    const options = TakeOptions.url(url)
-      .format("webp")
-      .blockAds(true)
-      .blockCookieBanners(true)
-      .fullPage(true)
-      .imageQuality(80);
-
-    const finalUrl = client.generateTakeURL(options);
-
-    res.json({
-      url: finalUrl,
+    const params = new URLSearchParams({
+      access_key: process.env.SCREENSHOTONE_ACCESS_KEY,
+      url: url,
+      format: "webp",
+      block_ads: "true",
+      block_cookie_banners: "true",
+      full_page: "true",
+      image_quality: "80",
     });
 
+    const finalUrl = `https://api.screenshotone.com/take?${params.toString()}`;
+
+    return res.status(200).json({ url: finalUrl });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: `Error al crear el screenshot de ${url}` });
+    return res
+      .status(500)
+      .json({ error: `Error al crear el screenshot de ${url}` });
   }
 }

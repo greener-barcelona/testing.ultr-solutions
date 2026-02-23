@@ -43,7 +43,9 @@ async function createScreenshot(url) {
     const link = data.reply;
 
     pending.remove();
-    window.open(link, "_blank");
+    textarea.value = "";
+    link && window.open(link, "_blank");
+
   } catch (err) {
     console.error(err);
     pending.textContent = `Error: ${err.message}`;
@@ -148,10 +150,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   initModeSelector(modeSelector, titleText);
 
-  textarea.addEventListener("keydown", async (e) => {
+  textarea.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      if (textarea.value.trim()) await createScreenshot(textarea.value.trim());
+      if (textarea.value.trim()) createScreenshot(textarea.value.trim());
       else return alert("Escribe una url valida antes de enviar.");
     }
   });
