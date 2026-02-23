@@ -234,18 +234,23 @@ export function replaceWeirdChars(text) {
 }
 
 export function extractBodyContent(html) {
+  const cleanHTML = html.replace(
+    /\s*(margin|padding|font-size)(-\w+)?\s*:\s*[^;"}]+;?/gi,
+    ""
+  );
+
   const isFullHTML =
-    /<!doctype html>/i.test(html) ||
+    /<!doctype html>/i.test(cleanHTML) ||
     (/<html[\s>]/i.test(html) && /<body[\s>]/i.test(html));
 
   if (!isFullHTML) {
-    return html;
+    return cleanHTML;
   }
 
-  const match = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  const match = cleanHTML.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
   if (match) return match[1];
 
-  const partialMatch = html.match(/<body[^>]*>([\s\S]*)/i);
+  const partialMatch = cleanHTML.match(/<body[^>]*>([\s\S]*)/i);
   return partialMatch ? partialMatch[1] : "";
 }
 
