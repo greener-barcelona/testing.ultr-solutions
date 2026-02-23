@@ -535,7 +535,7 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
         messages: longConversation
           ? [recordatorio, { role: "user", content: briefedConversation.reply }]
           : [recordatorio, ...conversationHistory],
-        temperature: API === "claude" ? 1 : 1.35,
+        temperature: API === "claude" ? 1 : 1.2,
       }),
     });
 

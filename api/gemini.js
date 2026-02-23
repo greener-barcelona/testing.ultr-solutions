@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Método no permitido" });
   }
 
-  const { messages, perfil, cacheName, max_tokens } = req.body;
+  const { messages, perfil, cacheName, max_tokens = 5000 } = req.body;
   if (!messages || !perfil) {
     return res.status(400).json({ error: "Falta mensaje o perfil" });
   }
@@ -23,7 +23,7 @@ export default async function handler(req, res) {
         systemInstruction: perfil.content,
         tools: [{ googleSearch: {} }],
         ...(cacheName && { cachedContent: cacheName }),
-        maxOutputTokens: max_tokens ?? 2000,
+        maxOutputTokens: max_tokens,
       },
     });
 

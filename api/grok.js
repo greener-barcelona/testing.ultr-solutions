@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     perfil,
     temperature,
     top_p,
-    max_tokens,
+    max_tokens = 5000,
   } = req.body;
 
   if (!messages || !perfil)
@@ -24,9 +24,9 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: "grok-4-1-fast-reasoning",
         messages: [perfil, ...messages],
-        temperature: temperature ?? 1, // 1 → normal; > 1 → mas aleatoriedad; < 1 → mas seriedad y predecible
-        top_p: top_p ?? 1, // < 0.7 → errático y muy restrictivo; < 1 && > .7 → rango aceptable; 1 → no restringe nada
-        max_tokens: max_tokens ?? 2000,
+        temperature: temperature, // 1 → normal; > 1 → mas aleatoriedad; < 1 → mas seriedad y predecible
+        top_p: top_p, // < 0.7 → errático y muy restrictivo; < 1 && > .7 → rango aceptable; 1 → no restringe nada
+        max_tokens: max_tokens,
       }),
     });
 

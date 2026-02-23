@@ -87,7 +87,7 @@ Reglas del briefer:
 - Si una sección no tiene información clara, escribe: No especificado
 - El brief completo no debe exceder 600 palabras. Prioriza información accionable sobre descripción.`,
       messages: messages,
-      max_tokens: 1000,
+      max_tokens: 2500,
     });
 
     res.json({

@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Método no permitido" });
   }
 
-  const { messages, perfil, temperature, max_tokens } = req.body;
+  const { messages, perfil, temperature, max_tokens = 5000 } = req.body;
   if (!messages || !perfil) {
     return res.status(400).json({ error: "Falta mensaje o perfil" });
   }
@@ -15,8 +15,8 @@ export default async function handler(req, res) {
       model: "claude-sonnet-4-5-20250929",
       system: perfil.content,
       messages: messages,
-      temperature: Math.min(temperature ?? 1, 1), 
-      max_tokens: max_tokens ?? 2000,
+      temperature: temperature, 
+      max_tokens: max_tokens,
     });
 
     res.json({
