@@ -61,10 +61,7 @@ function applyMode(mode) {
 
   if (modeValue !== currentMode) {
     localStorage.setItem(MODE_KEY, mode);
-
-    activeConversationId = null;
-    title = "";
-    conversationHistory.length = 0;
+    
     responseDiv.innerHTML = "";
 
     switch (mode) {
