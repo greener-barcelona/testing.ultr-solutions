@@ -243,7 +243,10 @@ export function extractBodyContent(html) {
   }
 
   const match = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-  return match ? match[1] : "";
+  if (match) return match[1];
+
+  const partialMatch = html.match(/<body[^>]*>([\s\S]*)/i);
+  return partialMatch ? partialMatch[1] : "";
 }
 
 export function toggleElement(element) {
