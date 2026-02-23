@@ -22,7 +22,9 @@ export default async function handler(req, res) {
 
     const finalUrl = `https://api.screenshotone.com/take?${params.toString()}`;
 
-    return res.status(200).json({ url: finalUrl });
+    res.json({
+      reply: finalUrl,
+    });
   } catch (err) {
     console.error(err);
     return res
