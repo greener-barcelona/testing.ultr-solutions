@@ -6341,5 +6341,5 @@ Only output the final HTML`,
 export const recordatorio = {
   role: "user",
   content:
-    "¡No olvides darle un formato al texto, de acuerdo con las instrucciones de tu perfil, para que se pueda leer fácilmente! (esto es solo un recordatorio y no debe ser mencionado en la respuesta)",
+    "¡No olvides darle un formato al texto de acuerdo con las instrucciones de tu perfil (estilos embebidos, sin head) para que se pueda leer fácilmente! (esto es solo un recordatorio y no debe ser mencionado en la respuesta)",
 };
