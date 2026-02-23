@@ -533,24 +533,8 @@ async function sendMessageToProfile(perfilKey, API, conversationId) {
       body: JSON.stringify({
         perfil: perfil,
         messages: longConversation
-          ? [
-              first
-                ? recordatorio
-                : {
-                    ...recordatorio,
-                    content: `NO ERES EL PRIMER PARTICIPANTE EN ESTA CONVERSACIÓN, por lo tanto, está prohibido utilizar títulos. Limítate a continuar la conversación con naturalidad.\n${recordatorio.content}`,
-                  },
-              { role: "user", content: briefedConversation.reply },
-            ]
-          : [
-              first
-                ? recordatorio
-                : {
-                    ...recordatorio,
-                    content: `NO ERES EL PRIMER PARTICIPANTE EN ESTA CONVERSACIÓN, por lo tanto, está prohibido utilizar títulos. Limítate a continuar la conversación con naturalidad.\n${recordatorio.content}`,
-                  },
-              ...conversationHistory,
-            ],
+          ? [recordatorio, { role: "user", content: briefedConversation.reply }]
+          : [recordatorio, ...conversationHistory],
         temperature: API === "claude" ? 1 : 1.35,
       }),
     });
