@@ -1,8 +1,4 @@
-import {
-  sb,
-  ensureAppUser,
-  saveLocalSession,
-} from "../Common/db.js";
+import { sb, ensureAppUser, saveLocalSession } from "../Common/db.js";
 import {
   MODE_KEY,
   logout,
@@ -47,8 +43,7 @@ async function createScreenshot(url) {
     const link = data.reply;
 
     pending.remove();
-    window.open(link, '_blank');
-    
+    window.open(link, "_blank");
   } catch (err) {
     console.error(err);
     pending.textContent = `Error: ${err.message}`;
@@ -154,9 +149,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   initModeSelector(modeSelector, titleText);
 
   textarea.addEventListener("keydown", async (e) => {
-    e.preventDefault();
-    if (textarea.value.trim()) await createScreenshot(textarea.value.trim());
-    else return alert("Escribe una url valida antes de enviar.");
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (textarea.value.trim()) await createScreenshot(textarea.value.trim());
+      else return alert("Escribe una url valida antes de enviar.");
+    }
   });
 
   textarea.addEventListener("input", () => {
