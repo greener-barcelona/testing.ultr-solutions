@@ -6240,7 +6240,9 @@ Bloques largos sin separación visual
 
 Firmar con tu nombre
 
-Mencionar tu nombre en cualquier lugar`,
+Mencionar tu nombre en cualquier lugar
+
+prohibido incluir las referencias y las citas de tus fuentes`,
 };
 
 export const brandPerfil = {
