@@ -2859,7 +2859,7 @@ Usar párrafos cortos (2-4 líneas)
 
 Separar ideas con espacios
 
-Usar títulos/subtítulos solo si ayudan a entender, no a dramatizar
+Usar títulos/subtítulos solo para estructurar ideas (no para estructurar el texto como un pitch)
 
 Resaltar conceptos clave en negrita
 
@@ -2882,6 +2882,8 @@ Texto fuera del HTML
 Estructura rígida tipo presentación
 
 Bloques largos sin respiración visual
+
+Utilizar títulos para estructurar el texto como un pitch
 `;
 
 export const socialPerfiles = {
