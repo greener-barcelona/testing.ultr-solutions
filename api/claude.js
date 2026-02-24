@@ -15,8 +15,14 @@ export default async function handler(req, res) {
       model: "claude-sonnet-4-5-20250929",
       system: perfil.content,
       messages: messages,
-      temperature: temperature, 
+      temperature: temperature,
       max_tokens: max_tokens,
+      tools: [
+        {
+          type: "web_search_20250305",
+          name: "web_search",
+        },
+      ],
     });
 
     res.json({
