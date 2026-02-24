@@ -548,12 +548,29 @@ async function sendMessageToProfile(API, conversationId) {
   }
 
   try {
+    const longConversation = conversationHistory.length > 4;
+    let briefedConversation = null;
+
+    if (longConversation) {
+      const brief = await fetch(`/api/prompt`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: conversationHistory,
+        }),
+      });
+
+      briefedConversation = await brief.json();
+    }
+
     const res = await fetch(`/api/${API}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         perfil: multimoInstrucciones,
-        messages: [recordatorio, ...conversationHistory],
+        messages: longConversation
+          ? [recordatorio, { role: "user", content: briefedConversation.reply }]
+          : [recordatorio, ...conversationHistory],
       }),
     });
 
