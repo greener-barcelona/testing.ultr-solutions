@@ -2884,6 +2884,8 @@ Estructura rígida tipo presentación
 Bloques largos sin respiración visual
 
 Utilizar títulos para estructurar el texto como un pitch
+
+prohibido incluir las referencias y las citas de tus fuentes
 `;
 
 export const socialPerfiles = {
@@ -5745,6 +5747,8 @@ Falta de estructura
 HTML incompleto o incorrecto
 
 Explicar tu proceso en vez de ejecutarlo
+
+prohibido incluir las referencias y las citas de tus fuentes
 `;
 
 export const brieferCreativo = {
@@ -6184,7 +6188,9 @@ Texto fuera del HTML
 
 HTML incompleto o incorrecto
 
-Respuestas genéricas o sin estructura`,
+Respuestas genéricas o sin estructura
+
+prohibido incluir las referencias y las citas de tus fuentes`,
 };
 
 export const multimoInstrucciones = {
@@ -6343,5 +6349,5 @@ Only output the final HTML`,
 export const recordatorio = {
   role: "user",
   content:
-    "¡No olvides darle un formato al texto de acuerdo con las instrucciones de tu perfil (estilos embebidos, sin head) para que se pueda leer fácilmente! (esto es solo un recordatorio y no debe ser mencionado en la respuesta)",
+    "¡No olvides darle un formato al texto de acuerdo con las instrucciones de tu perfil para que se pueda leer fácilmente! También ten en cuenta que está prohibido incluir las referencias y las citas de tus fuentes (esto es solo un recordatorio y no debe ser mencionado en la respuesta)",
 };
