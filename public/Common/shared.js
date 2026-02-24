@@ -234,18 +234,13 @@ export function replaceWeirdChars(text) {
 }
 
 export function extractBodyContent(html) {
-  const cleanHTML = html.replace(
-    /\s*(margin|padding|font-size)(-\w+)?\s*:\s*[^;"}]+;?/gi,
-    ""
-  );
+  const cleanHTML = html.replace(/<style[\s\S]*?<\/style>/gi, "");
 
   const isFullHTML =
     /<!doctype html>/i.test(cleanHTML) ||
-    (/<html[\s>]/i.test(html) && /<body[\s>]/i.test(html));
+    (/<html[\s>]/i.test(cleanHTML) && /<body[\s>]/i.test(cleanHTML));
 
-  if (!isFullHTML) {
-    return cleanHTML;
-  }
+  if (!isFullHTML) return cleanHTML;
 
   const match = cleanHTML.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
   if (match) return match[1];

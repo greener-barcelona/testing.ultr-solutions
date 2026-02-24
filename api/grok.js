@@ -1,4 +1,4 @@
-import { grok } from "../lib/grokAuth";
+import { grok } from "../lib/grokAuth.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
