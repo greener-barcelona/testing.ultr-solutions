@@ -381,23 +381,11 @@ async function summarizeConversationButton(button) {
 }
 
 async function sendMessageToChain() {
-  await userSendMessage();
-
-  if (
-    !activeConversationId ||
-    [
-      ...openaiConversationHistory,
-      ...claudeConversationHistory,
-      ...grokConversationHistory,
-      ...perplexityConversationHistory,
-      ...geminiConversationHistory,
-    ].length <= 0 ||
-    activeModels.length === 0
-  ) {
-    return alert(
-      "Primero inicia una conversación o activa alguna IA antes de enviar.",
-    );
+  if (activeModels.length === 0) {
+    return alert("Primero activa algún modelo antes de enviar.");
   }
+
+  await userSendMessage();
 
   const conversationIdAtStart = activeConversationId;
   activeModels.forEach((model) =>
