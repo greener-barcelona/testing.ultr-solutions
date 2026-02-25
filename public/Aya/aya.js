@@ -261,10 +261,10 @@ async function onFileLoaded(e, fileInput) {
   for (const file of files) {
     if (!file) continue;
 
-   if (file.type !== "application/pdf") {
-  alert(`Solo PDFs. "${file.name}" no es PDF.`);
-  continue;
-}
+    if (file.type !== "application/pdf") {
+      alert(`Solo PDFs. "${file.name}" no es PDF.`);
+      continue;
+    }
 
     const maxSize = 30 * 1024 * 1024;
     if (file.size > maxSize) {
@@ -685,32 +685,32 @@ document.addEventListener("DOMContentLoaded", async () => {
   fileInput.addEventListener("change", (e) => onFileLoaded(e, fileInput));
 
   function wireDropzoneAya(zoneEl) {
-  const setActive = (on) => zoneEl.classList.toggle("drag-over", on);
+    const setActive = (on) => zoneEl.classList.toggle("drag-over", on);
 
-  zoneEl.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setActive(true);
-  });
+    zoneEl.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setActive(true);
+    });
 
-  zoneEl.addEventListener("dragleave", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setActive(false);
-  });
+    zoneEl.addEventListener("dragleave", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setActive(false);
+    });
 
-  zoneEl.addEventListener("drop", async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setActive(false);
+    zoneEl.addEventListener("drop", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setActive(false);
 
-    const files = e.dataTransfer?.files;
-    if (!files || !files.length) return;
-    await onFileLoaded({ target: { files } }, fileInput);
-  });
-}
-const ayaDrop = document.querySelector(".dropzone");
-wireDropzoneAya(ayaDrop);
+      const files = e.dataTransfer?.files;
+      if (!files || !files.length) return;
+      await onFileLoaded({ target: { files } }, fileInput);
+    });
+  }
+  const ayaDrop = document.querySelector(".dropzone");
+  wireDropzoneAya(ayaDrop);
 
   ayaTrip.addEventListener("click", () => {
     const intensity = document.querySelector('input[name="intensity"]:checked');
@@ -721,6 +721,42 @@ wireDropzoneAya(ayaDrop);
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeSearchModal();
+  });
+
+  const overlay = document.getElementById("dropOverlay");
+  let dragDepth = 0;
+
+  const show = () => overlay?.classList.add("active");
+  const hide = () => overlay?.classList.remove("active");
+
+  window.addEventListener("dragover", (e) => {
+    e.preventDefault();
+  });
+
+  window.addEventListener("dragenter", (e) => {
+    // Solo si vienen archivos
+    if (!e.dataTransfer?.types?.includes("Files")) return;
+    e.preventDefault();
+    dragDepth++;
+    show();
+  });
+
+  window.addEventListener("dragleave", (e) => {
+    if (!e.dataTransfer?.types?.includes("Files")) return;
+    e.preventDefault();
+    dragDepth = Math.max(0, dragDepth - 1);
+    if (dragDepth === 0) hide();
+  });
+
+  window.addEventListener("drop", async (e) => {
+    e.preventDefault();
+    dragDepth = 0;
+    hide();
+
+    const files = e.dataTransfer?.files;
+    if (!files || !files.length) return;
+
+    await onFileLoaded({ target: { files } }, fileInput);
   });
 
   if (searchInput && searchResults) {

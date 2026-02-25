@@ -10,7 +10,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.41.1/dist/umd/supabase.js"></script>
   </head>
   <body>
-    <div class="dropzone">
     <div class="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-logo">
@@ -173,7 +172,9 @@
         <div class="search-results" id="searchResults"></div>
       </div>
     </div>
-    </div>
+    <div id="dropOverlay" class="drop-overlay" aria-hidden="true">
+  <div class="drop-overlay__box">Suelta el archivo para cargarlo</div>
+</div>
     <script type="module" src="./aya.js"></script>
   </body>
 </html>
