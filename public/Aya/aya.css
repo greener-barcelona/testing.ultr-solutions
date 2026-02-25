@@ -30,3 +30,9 @@
 .button-group {
   justify-content: center;
 }
+
+.input-area.drag-over .input-container {
+  outline: 2px dashed #999;
+  outline-offset: 6px;
+  border-radius: 12px;
+}

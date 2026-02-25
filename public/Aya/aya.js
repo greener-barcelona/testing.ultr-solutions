@@ -261,7 +261,10 @@ async function onFileLoaded(e, fileInput) {
   for (const file of files) {
     if (!file) continue;
 
-    if (file.type !== "application/pdf") continue;
+   if (file.type !== "application/pdf") {
+  alert(`Solo PDFs. "${file.name}" no es PDF.`);
+  continue;
+}
 
     const maxSize = 30 * 1024 * 1024;
     if (file.size > maxSize) {
@@ -680,6 +683,36 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   fileInput.addEventListener("change", (e) => onFileLoaded(e, fileInput));
+
+  function wireDropzoneAya(zoneEl) {
+  const setActive = (on) => zoneEl.classList.toggle("drag-over", on);
+
+  zoneEl.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setActive(true);
+  });
+
+  zoneEl.addEventListener("dragleave", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setActive(false);
+  });
+
+  zoneEl.addEventListener("drop", async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setActive(false);
+
+    const files = e.dataTransfer?.files;
+    if (!files || !files.length) return;
+    await onFileLoaded({ target: { files } }, fileInput);
+  });
+}
+
+// ... dentro de DOMContentLoaded:
+const ayaDrop = document.querySelector(".input-area"); // existe en tu HTML
+wireDropzoneAya(ayaDrop);
 
   ayaTrip.addEventListener("click", () => {
     const intensity = document.querySelector('input[name="intensity"]:checked');
