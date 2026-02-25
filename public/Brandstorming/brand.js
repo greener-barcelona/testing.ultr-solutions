@@ -623,7 +623,41 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.warn("Buscador no inicializado (elementos faltantes)");
     return;
   }
+  const overlay = document.getElementById("dropOverlay");
+  let dragDepth = 0;
 
+  const show = () => overlay?.classList.add("active");
+  const hide = () => overlay?.classList.remove("active");
+
+  window.addEventListener("dragover", (e) => {
+    e.preventDefault();
+  });
+
+  window.addEventListener("dragenter", (e) => {
+    if (!e.dataTransfer?.types?.includes("Files")) return;
+    e.preventDefault();
+    dragDepth++;
+    show();
+  });
+
+  window.addEventListener("dragleave", (e) => {
+    if (!e.dataTransfer?.types?.includes("Files")) return;
+    e.preventDefault();
+    dragDepth = Math.max(0, dragDepth - 1);
+    if (dragDepth === 0) hide();
+  });
+
+  window.addEventListener("drop", async (e) => {
+    if (!e.dataTransfer?.types?.includes("Files")) return;
+    e.preventDefault();
+    dragDepth = 0;
+    hide();
+
+    const files = e.dataTransfer?.files;
+    if (!files || !files.length) return;
+
+    await onFileLoaded({ target: { files } }, fileInput);
+  });
   initModeSelector(modeSelector, titleText);
 
   searchBtn.addEventListener("click", () => {

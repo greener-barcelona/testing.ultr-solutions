@@ -56,3 +56,25 @@
 .chat.input::-webkit-scrollbar {
   display: none;
 }
+
+.drop-overlay{
+  position: fixed;
+  inset: 0;
+  display: none;
+  place-items: center;
+  background: rgba(0,0,0,0.25);
+  z-index: 9999;
+}
+
+.drop-overlay.active{
+  display: grid;
+}
+
+.drop-overlay__box{
+  padding: 18px 22px;
+  border-radius: 12px;
+  border: 2px dashed #999;
+  background: rgba(255,255,255,0.9);
+  color: #111;
+  font-weight: 600;
+}
