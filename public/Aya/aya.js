@@ -683,32 +683,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   fileInput.addEventListener("change", (e) => onFileLoaded(e, fileInput));
-
-  function wireDropzoneAya(zoneEl) {
-    const setActive = (on) => zoneEl.classList.toggle("drag-over", on);
-
-    zoneEl.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setActive(true);
-    });
-
-    zoneEl.addEventListener("dragleave", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setActive(false);
-    });
-
-    zoneEl.addEventListener("drop", async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setActive(false);
-
-      const files = e.dataTransfer?.files;
-      if (!files || !files.length) return;
-      await onFileLoaded({ target: { files } }, fileInput);
-    });
-  }
+  
   const ayaDrop = document.querySelector(".dropzone");
   wireDropzoneAya(ayaDrop);
 
