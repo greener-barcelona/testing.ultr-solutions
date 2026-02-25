@@ -683,9 +683,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   fileInput.addEventListener("change", (e) => onFileLoaded(e, fileInput));
-  
-  const ayaDrop = document.querySelector(".dropzone");
-  wireDropzoneAya(ayaDrop);
 
   ayaTrip.addEventListener("click", () => {
     const intensity = document.querySelector('input[name="intensity"]:checked');
