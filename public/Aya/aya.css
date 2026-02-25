@@ -31,8 +31,9 @@
   justify-content: center;
 }
 
-.input-area.drag-over .input-container {
+.dropzone{
   outline: 2px dashed #999;
   outline-offset: 6px;
   border-radius: 12px;
+  background-color: #9999997c;
 }

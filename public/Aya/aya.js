@@ -709,9 +709,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await onFileLoaded({ target: { files } }, fileInput);
   });
 }
-
-// ... dentro de DOMContentLoaded:
-const ayaDrop = document.querySelector(".input-area"); // existe en tu HTML
+const ayaDrop = document.querySelector(".dropzone");
 wireDropzoneAya(ayaDrop);
 
   ayaTrip.addEventListener("click", () => {
