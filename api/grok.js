@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Método no permitido" });
   }
 
-  const { messages, perfil, temperature, top_p, max_tokens = 5000 } = req.body;
+  const { messages, perfil, temperature, top_p, max_tokens = 6000 } = req.body;
 
   if (!messages || !perfil)
     return res.status(400).json({ error: "Falta mensaje o perfil" });

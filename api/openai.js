@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     perfil,
     temperature,
     top_p,
-    max_tokens = 5000,
+    max_tokens = 6000,
     presence_penalty,
     frequency_penalty,
   } = req.body;
