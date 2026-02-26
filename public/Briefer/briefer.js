@@ -486,6 +486,7 @@ async function sendMessageToBriefer(conversationId) {
         body: JSON.stringify({
           perfil: { role: "system", content: job.system },
           messages: convHistoryAtStart,
+          max_tokens: 8000
         }),
       });
 
