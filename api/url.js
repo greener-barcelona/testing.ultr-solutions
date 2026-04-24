@@ -18,6 +18,8 @@ export default async function handler(req, res) {
       block_cookie_banners: "true",
       full_page: "true",
       image_quality: "80",
+      cache: "true",
+      cache_ttl: "2592000", 
     });
 
     const finalUrl = `https://api.screenshotone.com/take?${params.toString()}`;
