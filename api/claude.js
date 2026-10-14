@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-5-20250929",
+      model: "claude-sonnet-5-5",
       system: perfil.content,
       messages: messages,
       temperature: temperature,
